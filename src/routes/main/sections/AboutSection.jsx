@@ -46,9 +46,7 @@ const AboutSection = () => {
 
   return (
     <section className="max-w-7xl relative bg-slate-50/20 rounded-3xl border border-white/20 mx-auto px-6 py-16 font-sans">
-        {/* <div className='absolute z-0 opacity-15 overflow-hidden rounded-3xl inset-0'>
-            <img className='h-full' src={sectionData.backgroundBlurred} alt="blurred_background" />
-        </div> */}
+       
       <div className="grid relative grid-cols-1 z-10 lg:grid-cols-2 gap-12 items-center">
         
         
