@@ -11,8 +11,8 @@ function App() {
       <Routes>
          <Route path='/*' element={<Main />} />
          <Route path='/about' element={<About />}/>
-         <Route path='/products' element={<ProductsListPage />}/>
-         <Route path="/products/create" element={<CreateProductPage />}/>
+         <Route path='/sanwater/admins/secure/products' element={<ProductsListPage />}/>
+         <Route path="/sanwater/admins/secure/products/create" element={<CreateProductPage />}/>
       </Routes>
     </BrowserRouter>
   )
