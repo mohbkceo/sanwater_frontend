@@ -73,7 +73,7 @@ const AboutSection = () => {
 
         
         <div className="space-y-6 ">
-          <h4 className="text-indigo-100/80 font-light tracking-wide uppercase text-sm">
+          <h4 className="text-indigo-100/90 font-light tracking-wide uppercase text-sm">
             {sectionData.badge}
           </h4>
           <h2 className="text-5xl md:text-4xl bg-linear-to-b from-zinc-950 to-zinc-800 bg-clip-text text-transparent font-bold  leading-tight">
