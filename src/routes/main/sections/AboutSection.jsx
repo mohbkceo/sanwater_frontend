@@ -37,7 +37,7 @@ const AboutSection = () => {
 
     backgroundBlurred : "./system/blur_desc_section.png",
     stats: [
-      { label: "EXPÉRIENCE", value: "15+" },
+      { label: "ANNÉES EXPÉRIENCE", value: "15+" },
       { label: "Freshness & Quality", value: "94%" },
     ]
   };
@@ -90,12 +90,12 @@ const AboutSection = () => {
             {sectionData.stats.map((item, index) => (
               <div 
                 key={index} 
-                className="flex items-center px-4 py-2 border border-gray-200/20 rounded-2xl bg-gray-50/20 "
+                className="flex flex-col gap-1 items-start px-4 py-2 "
               >
-                <span className="text-zinc-950  font-bold text-xl mr-3">
+                <span className="text-zinc-950 font-mono font-bold text-4xl mr-3">
                   {item.value}
                 </span>
-                <span className="text-zinc-950 text-sm font-bold">
+                <span className="text-zinc-950/50 text-sm font-medium">
                   {item.label}
                 </span>
               </div>
