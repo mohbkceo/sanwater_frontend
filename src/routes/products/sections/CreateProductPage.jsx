@@ -5,7 +5,7 @@ export default function CreateProductPage() {
 
     return (
 
-        <div className="p-6 flex w-[50%] gap-2 flex-col mx-auto">
+        <div className="p-6 flex w-[50%] max-sm:w-full gap-2 flex-col mx-auto">
 
            
             <GoBacKButton />
