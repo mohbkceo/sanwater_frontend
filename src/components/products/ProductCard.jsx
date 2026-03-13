@@ -1,15 +1,17 @@
 import { Edit2, Trash2, Package, Tag } from "lucide-react"; // Using Lucide for a premium feel
 import { Button } from "..";
 import { Database } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductCard({ product, onDelete }) {
+  const navigate = useNavigate();
   const imageUrl = product.gallery?.[0] || "/api/placeholder/400/320"; 
 
   return (
-    <div className="group relative bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-sm hover:shadow-slate-200/50 hover:border-slate-300">
+    <div  className="group relative bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-sm hover:shadow-slate-200/50 hover:border-slate-300">
       
       
-      <div className="relative  w-full overflow-hidden bg-slate-100">
+      <div onClick={() => navigate(`edit?serialNumber=${product.serialNumber}`)} className="relative cursor-pointer select-none w-full overflow-hidden bg-slate-100">
         <img
           src={imageUrl}
           alt={product.name}

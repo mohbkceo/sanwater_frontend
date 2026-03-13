@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { createProduct } from "@/services/products/productServices";
+import { createProduct, updateProduct } from "@/services/products/productServices";
 import ProductGalleryUpload from "./ProductGalleryUpload";
 import { Button } from "..";
 import { Trash } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { destroyImage } from "@/services/contents/imageHandler";
+import { toast } from "sonner";
 
-export default function ProductForm() {
+export default function ProductForm({product = null}) {
   const [formData, setFormData] = useState({
-    name: "",
-    family: "",
-    productId: "",
-    tags: "",
+    name: product?.name || '',
+    family: product?.family || '',
+    productId: product?.productId || '',
+    tags: product?.tags.join(','),
   });
-  const [gallery, setGallery] = useState([]);
+  const [gallery, setGallery] = useState(product?.gallery || []);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -21,6 +22,17 @@ export default function ProductForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  async function updateProductFunc(payload){
+    await updateProduct(product.serialNumber, payload);
+    toast.success(`Product ${formData.name} has been updated!`)
+  }
+  async function createProductFunc(payload) {
+    await createProduct(payload);
+      
+    setFormData(prv => ({...prv, productId: "" }));
+    setGallery([]);
+    toast.info(`Product ${product.name} has been created!`)
+  }
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
@@ -32,11 +44,11 @@ export default function ProductForm() {
         gallery,
       };
 
-      await createProduct(payload);
-      
-      setFormData(prv => ({...prv, productId: "" }));
-      setGallery([]);
-      alert("Product created successfully!");
+      if(product?.serialNumber){
+        await updateProductFunc(payload)
+      } else {
+        await createProductFunc(payload)
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -62,11 +74,6 @@ export default function ProductForm() {
 
   return (
     <div className="w-full bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-      <header className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-800">Create New Product</h2>
-        <p className="text-slate-500 text-sm">Fill in the details below to add a new item to your inventory.</p>
-      </header>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
@@ -124,7 +131,7 @@ export default function ProductForm() {
           <label className="text-sm font-semibold text-slate-700 block mb-3">Product Media</label>
           <div className="bg-slate-50 w-full flex-col gap-2 justify-between flex p-4 rounded-lg border border-dashed border-slate-300">
             <ProductGalleryUpload setGallery={setGallery} />
-            <div className="grid  w-full  md:grid-cols-3 lg:gird-cols-4 max-md:gird-cols-2 justify-center items-center grid-cols-1 ">
+            <div className="grid  w-full gap-4  md:grid-cols-3 lg:gird-cols-4 max-md:gird-cols-2 justify-center items-center grid-cols-1 ">
                 {gallery.map((img, idx) => ( 
                   <div key={idx} className="w-[70%] mx-auto  cursor-pointer overflow-hidden hover:bg-purple-200/60 rounded-2xl relative border border-purple-200">
                     <div className="absolute right-0"><Button onClick={() => deleteImageFromGallery(img)} type='button' className={`p-3 m-2`} variant={'destructive'}><Trash2 size={15} /></Button> </div>
@@ -143,7 +150,7 @@ export default function ProductForm() {
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {loading ? "Processing..." : "Create Product"}
+          {loading ? "Processing..." : product?.serialNumber ? "Update Product" :" Create Product"}
         </Button>
       </form>
     </div>
