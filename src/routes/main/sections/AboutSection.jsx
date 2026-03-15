@@ -19,17 +19,17 @@ const AboutSection = () => {
     description: "SANWATER, fondée en 2011 à Dar El Beida (Alger), est spécialisée dans les accessoires sanitaires et les solutions pour salle de bains. La marque propose des produits de qualité à prix compétitifs, avec une large gamme de modèles, en suivant les tendances internationales.",
     images: [
       {
-        url: "./system/des1.jpg",
+        url: "./system/des1.webp",
         alt: "Sifting flour over cake",
         className: "h-[400px] w-1/3 object-cover rounded-full"
       },
       {
-        url: "./system/des2.jpg",
+        url: "./system/des2.webp",
         alt: "Gourmet Sandwich",
         className: "h-[190px] w-full object-cover rounded-r-full rounded-t-full"
       },
       {
-        url: "./system/des3.jpg",
+        url: "./system/des3.webp",
         alt: "Berry Pancakes",
         className: "h-[190px] w-full object-cover  rounded-r-full rounded-b-full"
       }
