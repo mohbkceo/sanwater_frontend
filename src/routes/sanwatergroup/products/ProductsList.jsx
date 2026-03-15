@@ -1,14 +1,14 @@
 import useProducts from "@/services/products/useProducts";
-import ProductCard from "../../components/products/ProductCard";
 import { deleteProduct } from "@/services/products/productServices";
 import { Plus, Package, RefreshCw } from "lucide-react"; // Optional icon library
-import { Button } from "@/components";
+import { Button, ProductCard } from "@/components";
 import { useNavigate } from "react-router-dom";
 
 export default function ProductsPage() {
   const { products, loading, refetch } = useProducts();
   const navigate = useNavigate();
 
+  
   async function handleDelete(serialNumber) {
     if (confirm("Are you sure you want to delete this product?")) {
       await deleteProduct(serialNumber);

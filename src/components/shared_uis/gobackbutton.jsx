@@ -1,15 +1,17 @@
 import React from 'react'
 import { Button } from '..'
 import { ChevronLeft } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-function GoBacKButton() {
+function GoBacKButton({variant = `outline`, className, text = 'Back', ...props}) {
   return (
     <Button
-     variant={`outline`}
-     className={`w-full`}
+     variant={variant}
+     className={cn(`w-full`, className)}
      onClick={() => window.history.back()}
+     {...props}
     >
-        <ChevronLeft /> Back
+        <ChevronLeft /> {text}
     </Button>
   )
 }

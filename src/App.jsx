@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import React from 'react'
 import './App.css'
 import { Toaster } from 'sonner'
 import { Routes, Route, BrowserRouter} from 'react-router-dom'
 import Main from './routes/main'
-import { About, CreateProductPage, ProductsListPage } from './routes'
-import EditProductPage from './routes/products/sections/EditProductPage'
+import { About, ProductsViewList, SanWaterGroupMain } from './routes'
+import { ABOUT, mainSanWaterRoute, PRODUCTS } from './configs/routes/routesConfig'
 
 function App() {
 
@@ -13,10 +13,9 @@ function App() {
       <Toaster richColors/>
       <Routes>
          <Route path='/*' element={<Main />} />
-         <Route path='/about' element={<About />}/>
-         <Route path='/sanwater/admins/secure/products' element={<ProductsListPage />}/>
-         <Route path="/sanwater/admins/secure/products/create" element={<CreateProductPage />}/>
-         <Route path="/sanwater/admins/secure/products/edit" element={<EditProductPage />}/>
+         <Route path={ABOUT} element={<About />}/>
+         <Route path={PRODUCTS} element={<ProductsViewList />}/>
+         <Route path={mainSanWaterRoute + '/*'} element={<SanWaterGroupMain />} />
       </Routes>
     </BrowserRouter>
   )

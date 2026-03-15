@@ -39,9 +39,9 @@ function NavBar({ className, ...props }) {
           shadow-sm
         ">
           
-          <div className="font-semibold text-lg w-[6rem] flex justify-center items-center tracking-tight">
+          <a href="/" className="font-semibold text-lg w-[4.5rem] flex justify-center items-center tracking-tight">
             <img src="./logo.svg" className="w-full cursor-pointer" alt="logo_sun_water" />
-          </div>
+          </a>
 
           <div className="hidden md:flex items-center gap-8">
             {links.map((link) => (
