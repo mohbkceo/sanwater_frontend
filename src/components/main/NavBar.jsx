@@ -39,7 +39,7 @@ function NavBar({ className, ...props }) {
           shadow-sm
         ">
           
-          <a href="/" className="font-semibold text-lg w-[4.5rem] flex justify-center items-center tracking-tight">
+          <a href="/" className="font-semibold text-lg w-[4.1rem] flex justify-center items-center tracking-tight">
             <img src="./logo.svg" className="w-full cursor-pointer" alt="logo_sun_water" />
           </a>
 

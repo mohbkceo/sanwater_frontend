@@ -1,6 +1,5 @@
-import React from 'react';
-import { ArrowRight } from 'lucide-react'; // Optional: using lucide-react for the button icon
-import { CtaButton } from '@/components';
+import React, {lazy} from 'react';
+import { CounterAnimate, CtaButton } from '@/components';
 import { CircleArrowRight } from 'lucide-react';
 
 
@@ -37,8 +36,8 @@ const AboutSection = () => {
 
     backgroundBlurred : "./system/blur_desc_section.png",
     stats: [
-      { label: "ANNÉES EXPÉRIENCE", value: "15+" },
-      { label: "Freshness & Quality", value: "94%" },
+      { label: "ANNÉES EXPÉRIENCE", value: "15", sufix: '+' },
+      { label: "Freshness & Quality", value: "94", sufix: "%" },
     ]
   };
 
@@ -73,7 +72,7 @@ const AboutSection = () => {
 
         
         <div className="space-y-6 ">
-          <h4 className="text-indigo-100/90 font-light tracking-wide uppercase text-sm">
+          <h4 className="text-zinc-600 font-medium tracking-wider uppercase text-sm">
             {sectionData.badge}
           </h4>
           <h2 className="text-5xl md:text-4xl bg-linear-to-b from-zinc-950 to-zinc-800 bg-clip-text text-transparent font-bold  leading-tight">
@@ -90,8 +89,8 @@ const AboutSection = () => {
                 key={index} 
                 className="flex flex-col gap-1 items-start px-4 py-2 "
               >
-                <span className="text-zinc-950 font-mono font-bold text-4xl mr-3">
-                  {item.value}
+                <span className="text-zinc-950 flex font-mono font-bold text-4xl mr-3">
+                  <CounterAnimate from={0} to={Number(item.value)}/> {item.sufix}
                 </span>
                 <span className="text-zinc-950/50 text-sm font-medium">
                   {item.label}
@@ -100,7 +99,7 @@ const AboutSection = () => {
             ))}
           </div>
 
-         <CtaButton label={Buttons.primary.label} href={Buttons.primary.href} icon={Buttons.primary.icon}/>
+         <CtaButton className={`w-full`} label={Buttons.primary.label} href={Buttons.primary.href} icon={Buttons.primary.icon}/>
         </div>
 
       </div>
