@@ -5,8 +5,8 @@ export const createProduct = async (data) => {
     return res.data;
 };
 
-export const getProducts = async () => {
-    const res = await productAPI.get("/");
+export const getProducts = async (paramaters) => {
+    const res = await productAPI.get(`/${paramaters}`);
     return res.data;
 };
 

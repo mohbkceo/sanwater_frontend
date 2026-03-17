@@ -6,10 +6,10 @@ export default function useProducts() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    async function fetchProducts() {
+    async function fetchProducts(paramaters) {
         try {
             setLoading(true)
-            const data = await getProducts();
+            const data = await getProducts(paramaters);
 
             setProducts(data.data.products);
 
@@ -24,5 +24,5 @@ export default function useProducts() {
         fetchProducts();
     }, []);
 
-    return { products, loading, refetch: fetchProducts };
+    return { products, loading, refetch: (paramters) => fetchProducts(paramters) };
 }

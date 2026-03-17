@@ -44,12 +44,7 @@ export default function ProductCard({ product }) {
 
 
 
-          <hr className="opacity-10"/>
-          <div className="flex items-center gap-3 mt-1">
-              <span className="text-xl font-semibold text-gray-900">
-                {price > 0 && price.toFixed(2) + " DA"} 
-              </span>
-          </div>
+          
           
           
 

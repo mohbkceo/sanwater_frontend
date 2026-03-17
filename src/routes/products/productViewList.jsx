@@ -5,12 +5,20 @@ import useProducts from "@/services/products/useProducts";
 import ProductCard from "./sections/ProductItem";
 import { Search } from "lucide-react";
 import { Button } from "@/components";
+import { useEffect } from "react";
+import ProductNotFound from "@/components/products/ProductNotFound";
 
 const Title = "SanWater Produits";
 
 export default function ProductViewList() {
-  const { products } = useProducts();
+  const { products, refetch, loading} = useProducts();
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    refetch(`?search=${search}`)
+  }, [search])
+
+
   return (
     <MainLayout>
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -40,17 +48,16 @@ export default function ProductViewList() {
         </div>
 
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        <div className={(`grid ${loading ? 'opacity-30' : ""} grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6`)}>
           {products.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
         </div>
 
         
-        {products.length === 0 && (
-          <div className="text-center py-20 text-gray-400">
-            No products found
-          </div>
+        
+        {!loading && products.length === 0 && (
+          <ProductNotFound className={`bg-white/20`} description="Les produits que vous recherchez sont introuvables." mainTitle="Aucun produit trouvé" />
         )}
 
 

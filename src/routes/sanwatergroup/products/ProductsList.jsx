@@ -3,6 +3,7 @@ import { deleteProduct } from "@/services/products/productServices";
 import { Plus, Package, RefreshCw } from "lucide-react"; // Optional icon library
 import { Button, ProductCard } from "@/components";
 import { useNavigate } from "react-router-dom";
+import ProductNotFound from "@/components/products/ProductNotFound";
 
 export default function ProductsPage() {
   const { products, loading, refetch } = useProducts();
@@ -22,11 +23,15 @@ export default function ProductsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Inventory
+            Inventory 
           </h1>
           <p className="text-slate-500 mt-1">
             Manage your product catalog and stock here.
           </p>
+
+          <div className="font-bold my-3 tracking-wider">
+           <span>Total Products: {products.length}</span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -65,15 +70,7 @@ export default function ProductsPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-24 bg-white border border-dashed border-slate-300 rounded-2xl">
-          <div className="bg-slate-100 p-4 rounded-full mb-4">
-            <Package size={32} className="text-slate-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-slate-900">No products found</h3>
-          <p className="text-slate-500 max-w-xs text-center mt-2">
-            Your inventory is currently empty. Start by adding your first product.
-          </p>
-        </div>
+       <ProductNotFound />
       )}
     </div>
   );
