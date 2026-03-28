@@ -57,7 +57,7 @@ const Footer = () => {
           </ul>
 
           
-          <div className="flex justify-center items-center gap-8 mb-10">
+          <div className="flex text-white justify-center items-center gap-8 mb-10">
             {socialLinks.map((social) => (
               <a
                 key={social.label}

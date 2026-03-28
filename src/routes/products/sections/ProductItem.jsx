@@ -7,8 +7,7 @@ import { Check } from "lucide-react";
 const RATING = 4.8;
 
 export default function ProductCard({ product }) {
-  const { name, prices, gallery, tags, family, productId} = product;
-  const price = prices.productPrice;
+  const { name, gallery, tags, family, productId} = product;
 
   return (
     <div className="flex bg-white/20 px-4 rounded-3xl border border-white/20 flex-col gap-2 py-6">

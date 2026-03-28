@@ -28,15 +28,16 @@ export default function Testimonials() {
   const [nextEl, setNextEl] = useState(null);
 
   return (
-    <section className="py-24 relative">
+    <section className="py-24 relative ">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap lg:flex-nowrap justify-center lg:justify-between gap-y-8 lg:gap-y-0 lg:gap-x-8 max-w-sm sm:max-w-2xl lg:max-w-full mx-auto">
           
           <div className="w-full lg:w-2/5">
-            <span className="text-sm text-gray-200/80 font-medium mb-4 block">Témoignage</span>
-            <h2 className="text-4xl mb-2 bg-linear-to-b from-zinc-950 to-zinc-800 bg-clip-text text-transparent font-bold  leading-tight">
-             Les clients ont donné leur{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-tr from-indigo-600 to-violet-600">
+            <span className="text-sm text-zinc-500 font-medium mb-4 block">Témoignage</span>
+
+            <h2 className="text-4xl mb-2 bg-gradient-to-b from-zinc-900 to-zinc-600 bg-clip-text text-transparent font-bold leading-tight">
+              Les clients ont donné leur{" "}
+              <span className="bg-gradient-to-tr from-indigo-500 to-violet-500 bg-clip-text text-transparent">
                 avis.
               </span>
             </h2>
@@ -44,18 +45,17 @@ export default function Testimonials() {
             <div className="flex items-center justify-center lg:justify-start gap-5">
               <button
                 ref={(node) => setPrevEl(node)}
-                className="flex justify-center items-center border border-indigo-600 w-12 h-12 rounded-lg transition-all duration-500 text-indigo-600 hover:bg-indigo-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex justify-center items-center border border-indigo-500/30 w-12 h-12 rounded-xl transition-all duration-300 text-indigo-600 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-200 disabled:opacity-50"
               >
                 <ChevronLeft size={24} />
               </button>
 
               <button
                 ref={(node) => setNextEl(node)}
-                className="flex justify-center items-center border border-indigo-600 w-12 h-12 rounded-lg transition-all duration-500 text-indigo-600 hover:bg-indigo-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex justify-center items-center border border-indigo-500/30 w-12 h-12 rounded-xl transition-all duration-300 text-indigo-600 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-200 disabled:opacity-50"
               >
                 <ChevronRight size={24} />
               </button>
-              
             </div>
           </div>
 
@@ -76,42 +76,43 @@ export default function Testimonials() {
             >
               {testimonials.map((testimonial, idx) => (
                 <SwiperSlide key={idx}>
-                 <div className="group relative bg-white/50 border border-gray-100 rounded-3xl p-8 transition-all duration-500 hover:border-indigo-200 hover:shadow-[0_20px_50px_rgba(79,70,229,0.1)]">
-                    <div className="absolute top-6 right-8 text-indigo-100 group-hover:text-indigo-200 transition-colors duration-500">
-                        <svg width="40" height="30" viewBox="0 0 40 30" fill="currentColor">
+                  <div className="group relative bg-white/70 backdrop-blur-md border border-zinc-200 rounded-3xl p-8 transition-all duration-500 hover:border-indigo-200 hover:shadow-[0_20px_60px_rgba(79,70,229,0.12)]">
+                    
+                    <div className="absolute top-6 right-8 text-indigo-100 group-hover:text-indigo-300 transition-colors duration-500">
+                      <svg width="40" height="30" viewBox="0 0 40 30" fill="currentColor">
                         <path d="M12.3 0H0V12.3H7.4C7.4 16.4 4.1 19.7 0 19.7V29.6C8.1 29.6 14.8 22.9 14.8 14.8V2.5C14.8 1.1 13.7 0 12.3 0ZM37.5 0H25.2V12.3H32.6C32.6 16.4 29.3 19.7 25.2 19.7V29.6C33.3 29.6 40 22.9 40 14.8V2.5C40 1.1 38.9 0 37.5 0Z" />
-                        </svg>
+                      </svg>
                     </div>
 
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="relative">
+                      <div className="relative">
                         <img
-                            className="rounded-full h-16 w-16 object-cover border-2 border-white shadow-md transition-transform duration-500 group-hover:scale-110"
-                            src={testimonial.avatar}
-                            alt={testimonial.name}
+                          className="rounded-full h-16 w-16 object-cover border-2 border-white shadow-md transition-transform duration-500 group-hover:scale-110"
+                          src={testimonial.avatar}
+                          alt={testimonial.name}
                         />
-                       
-                        </div>
-                        <div className="flex flex-col">
-                        <h5 className="text-gray-900 font-bold text-lg leading-tight tracking-tight">
-                            {testimonial.name}
+                      </div>
+
+                      <div className="flex flex-col">
+                        <h5 className="text-zinc-900 font-semibold text-lg tracking-tight">
+                          {testimonial.name}
                         </h5>
-                        <span className="text-sm font-medium text-indigo-600/80">
-                            {testimonial.role}
+                        <span className="text-sm font-medium text-indigo-600/90">
+                          {testimonial.role}
                         </span>
-                        </div>
+                      </div>
                     </div>
 
                     <div className="flex items-center mb-4 gap-1">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                        <StarIcon key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        ))}
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <StarIcon key={i} className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      ))}
                     </div>
 
-                    <p className="text-gray-600 leading-relaxed italic text-base group-hover:text-gray-900 transition-colors duration-500">
-                        "{testimonial.feedback}"
+                    <p className="text-zinc-600 leading-relaxed italic text-base group-hover:text-zinc-900 transition-colors duration-500">
+                      "{testimonial.feedback}"
                     </p>
-                    </div>
+                  </div>
                 </SwiperSlide>
               ))}
             </Swiper>
