@@ -8,9 +8,10 @@ function CtaButton({href, label, icon, className, ...props}) {
               {...props}
               asChild 
               size="lg" 
-              className={cn("group bg-black rounded-full px-8 py-6 text-base w-full sm:w-auto", className)}
+              className={cn("group bg-black rounded-full px-8 py-6 text-base w-full ", className)}
             >
-              <a href={href}>
+              <a  
+                href={href}>
                 {label} 
                 {icon}
               </a>

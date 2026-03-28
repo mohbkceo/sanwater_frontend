@@ -7,11 +7,13 @@ export const createProduct = async (data) => {
 
 export const getProducts = async (paramaters) => {
     const res = await productAPI.get(`/${paramaters}`);
+    
     return res.data;
 };
 
 export const getProduct = async (serialNumber) => {
     const res = await productAPI.get(`/${serialNumber}`);
+    console.log(res);
     return res.data;
 };
 

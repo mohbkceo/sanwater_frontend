@@ -3,7 +3,6 @@ import React from 'react'
 import { Route } from 'react-router-dom'
 import { Routes } from 'react-router-dom'
 import { CreateProductPage, EditProductPage, ProductsListPage } from '..'
-import { NavLink } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
 
 function SanWaterGroupMain() {

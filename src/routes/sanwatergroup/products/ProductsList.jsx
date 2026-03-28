@@ -37,7 +37,7 @@ export default function ProductsPage() {
         <div className="flex items-center gap-3">
           <Button
             variant={'outline'}
-            onClick={refetch}
+            onClick={() => refetch('')}
             className="p-2.5 text-slate-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 rounded-lg transition-all"
             title="Reload products"
           >

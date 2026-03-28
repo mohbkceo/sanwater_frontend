@@ -10,6 +10,7 @@ export default function useProducts() {
         try {
             setLoading(true)
             const data = await getProducts(paramaters);
+            console.log(data);
 
             setProducts(data.data.products);
 

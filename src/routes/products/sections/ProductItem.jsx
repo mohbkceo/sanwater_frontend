@@ -4,9 +4,12 @@ import { TableCellsSplit } from "lucide-react";
 import { Button } from "@/components";
 import { ChevronRight } from "lucide-react";
 import { Check } from "lucide-react";
+import { PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
+import { useNavigate } from "react-router-dom";
 const RATING = 4.8;
 
 export default function ProductCard({ product }) {
+  const navigate = useNavigate();
   const { name, gallery, tags, family, productId} = product;
 
   return (
@@ -67,7 +70,7 @@ export default function ProductCard({ product }) {
 
       
       
-      <Button variant={`outline`} className={`flex items-center bg-white/10 hover:bg-white/20 border border-gray-900/20`}> <span>Lir plus</span> <ChevronRight size={15} /> </Button>
+      <Button onClick={() => navigate(PRODUCTVIEWDETAIL.replace(`:serialNumber`, product?.serialNumber))} variant={`outline`} className={`flex items-center bg-white/10 hover:bg-white/20 border border-gray-900/20`}> <span>Lir plus</span> <ChevronRight size={15} /> </Button>
     </div>
   );
 }
