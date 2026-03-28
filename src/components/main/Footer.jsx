@@ -43,7 +43,7 @@ const Footer = () => {
           </a>
 
           
-          <ul className="flex flex-col md:flex-row justify-center items-center gap-7 md:gap-12 text-lg mb-10 border-b border-gray-200/20 pb-10 transition-all duration-300">
+          <ul className="flex text-white flex-col md:flex-row justify-center items-center gap-7 md:gap-12 text-lg mb-10 border-b border-gray-200/20 pb-10 transition-all duration-300">
             {navLinks.map((link) => (
               <li key={link.label}>
                 <a
