@@ -1,3 +1,4 @@
+import { CONTACTSALES, PRODUCTS, NEWS } from '@/configs/routes/routesConfig';
 import { Instagram, Facebook } from 'lucide-react';
 import React from 'react';
 
@@ -5,9 +6,9 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const navLinks = [
-    { label: 'Produits', href: '/produits' },
-    { label: 'Nouvelles', href: '/nouvelles' },
-    { label: 'Contact ventes', href: '/contact' },
+    { label: 'Produits', href: PRODUCTS },
+    { label: 'Nouvelles', href: NEWS },
+    { label: 'Contact ventes', href: CONTACTSALES },
   ];
 
   const socialLinks = [

@@ -3,8 +3,8 @@ import './App.css'
 import { Toaster } from 'sonner'
 import { Routes, Route, BrowserRouter} from 'react-router-dom'
 import Main from './routes/main'
-import { About, ProductsViewList, SanWaterGroupMain } from './routes'
-import { ABOUT, mainSanWaterRoute, PRODUCTS, PRODUCTVIEWDETAIL } from './configs/routes/routesConfig'
+import { About, ContactSales, ProductsViewList, SanWaterGroupMain } from './routes'
+import { ABOUT, CONTACTSALES, mainSanWaterRoute, PRODUCTS, PRODUCTVIEWDETAIL } from './configs/routes/routesConfig'
 import ProductDetailedPage from './routes/products/ProductDetailedPage'
 
 function App() {
@@ -17,6 +17,7 @@ function App() {
          <Route path={ABOUT} element={<About />}/>
          <Route path={PRODUCTS} element={<ProductsViewList />}/>
          <Route path={PRODUCTVIEWDETAIL} element={<ProductDetailedPage />}/>
+         <Route path={CONTACTSALES} element={<ContactSales />}/>
          <Route path={mainSanWaterRoute + '/*'} element={<SanWaterGroupMain />} />
       </Routes>
     </BrowserRouter>

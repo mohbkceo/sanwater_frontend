@@ -1,4 +1,5 @@
 export { default as About } from './extra_routes/about'
+export { default as ContactSales } from './extra_routes/contact_sales'
 
 export { default as ProductsViewList } from './products/productViewList'
 

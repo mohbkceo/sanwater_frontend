@@ -2,6 +2,7 @@
 export const mainSanWaterRoute = `/sanwater/admins/secure`
 export const ABOUT = `/about`
 export const PRODUCTS = `/products`
+export const NEWS = `/news`
 export const CONTACTSALES = `/contact_sales`
 export const PRODUCTVIEWDETAIL = `/products/view/:serialNumber`;
 
