@@ -1,20 +1,22 @@
 import React from 'react';
 import { Mail, MessageCircle, MapPin, Phone } from 'lucide-react';
 import MainLayout from '@/layouts/MainLayout';
+import { GoBackButton } from '@/components';
+import EmailSubscribe from '@/components/shared_uis/emailsubscribe';
 
 const CONTACT_DATA = [
   {
     id: 1,
-    title: 'ACCESOIR DOUCH',
-    description: 'Speak to our friendly team.',
+    title: 'ACCESSOIRES DOUCHE',
+    description: 'Parlez à notre équipe sympathique.',
     contact: 'accesoir_douch@sanwater-dz.com',
     link: 'mailto:accesoir_douch@sanwater-dz.com',
     icon: <Mail className="w-5 h-5 text-white" />,
   },
   {
     id: 2,
-    title: 'SALE DE BENS',
-    description: "We're here to help.",
+    title: 'SALLE DE BAINS',
+    description: 'Nous sommes là pour vous aider.',
     contact: 'sale_de_bens@sanwater-dz.com',
     link: 'mailto:sale_de_bens@sanwater-dz.com',
     icon: <Mail className="w-5 h-5 text-white" />,
@@ -22,23 +24,24 @@ const CONTACT_DATA = [
   {
     id: 3,
     title: 'CUISINE',
-    description: 'Mon-Fri from 8am to 5pm.',
-    contact: '+213 552 52 52 52 ',
+    description: 'Du lundi au vendredi, de 8h à 17h.',
+    contact: '+213 552 52 52 52',
     link: 'tel:+15550000000',
     icon: <Mail className="w-5 h-5 text-white" />,
-    },
-    {
+  },
+  {
     id: 4,
-    title: 'Visit us',
-    description: 'Visit our office HQ.',
-    contact: 'View on Google Maps',
+    title: 'VISITEZ-NOUS',
+    description: 'Visitez notre siège social.',
+    contact: 'Voir sur Google Maps',
     link: 'https://maps.google.com',
     icon: <MapPin className="w-5 h-5 text-white" />,
-    },
-
+  },
 ];
 
 const ContactCard = ({ item }) => (
+
+  
   <div className="flex flex-col p-6 cursor-pointer bg-black/20 border border-gray-100/20 rounded-2xl transition-all duration-300 hover:shadow-md h-full">
     <div className="flex  items-center justify-center w-10 h-10 mb-16 border border-gray-100/20 rounded-lg shadow-sm">
       {item.icon}
@@ -58,10 +61,13 @@ const ContactCard = ({ item }) => (
 );
 
 const ContactSalesPage = () => {
+
+  const mainTitle = 'Contactez notre équipe accueillante';
+  const subTitle = 'Dites-nous comment nous pouvons vous aider.';
   return (
     <MainLayout>
+    <GoBackButton variant="link" className={`w-1/2 border-none px-0`} text="Retour"/>
     <section className="relative font-mainFont min-h-screen  py-20 px-6 sm:px-8 lg:px-12 font-sans overflow-hidden">
-     
      
       <div className="absolute inset-0 z-0 opacity-[0.2] pointer-events-none" 
            style={{ backgroundImage: `radial-gradient(#000 1px, transparent 1px)`, backgroundSize: '40px 40px' }}>
@@ -78,10 +84,10 @@ const ContactSalesPage = () => {
             </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-mainFont tracking-tight text-gray-100">
-            Contact our friendly team
+            {mainTitle}
           </h1>
           <p className="text-lg font-mainFont tracking-wider leading-relaxed text-gray-100/80">
-            Let us know how we can help.
+            {subTitle}
           </p>
         </div>
 
@@ -92,6 +98,10 @@ const ContactSalesPage = () => {
           ))}
         </div>
 
+      </div>
+
+      <div className="my-4 mx-auto w-full">
+          <EmailSubscribe />
       </div>
     </section>
     </MainLayout>

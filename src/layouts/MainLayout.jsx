@@ -2,7 +2,7 @@ import React from 'react'
 import { Footer, NavBar } from '../components'
 import { cn } from '@/lib/utils'
 
-function MainLayout({ className, bg = 'bg-[#00AEEF]', children, ...props}) {
+function MainLayout({ className, bg = 'bg-[#FFFFF]', children, ...props}) {
   return (
     <div {...props} className={cn(`h-screen relative overflow-x-hidden ${bg}`)}>
         <NavBar />

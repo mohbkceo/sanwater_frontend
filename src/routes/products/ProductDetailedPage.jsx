@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import ProductUIRender from './sections/ProductUIRender';
 import ProductNotFound from '@/components/products/ProductNotFound';
 import LoadingPage from '@/components/shared_uis/LoadingPage';
+import { GoBackButton } from '@/components';
 
 function ProductDetailedPage() {
   const {serialNumber} = useParams();
@@ -44,6 +45,7 @@ function ProductDetailedPage() {
 
   return (
     <MainLayout bg={`bg-gray-200/90`}>
+      <GoBackButton text='Retour' />
       <ProductUIRender product={product}/>
     </MainLayout>
   )
