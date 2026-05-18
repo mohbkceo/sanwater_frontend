@@ -34,7 +34,7 @@ const whyChooseUsContent = {
       href: "#catalog",
     },
     image:
-      "https://images.unsplash.com/photo-1584622781564-1d987f7333c1",
+      "./system/img.webp",
   },
 
   smallCards: [

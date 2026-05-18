@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { cn } from "../../lib/utils";
 import { Button } from "..";
 import { Menu, X, CircleArrowRight } from "lucide-react";
+import { ABOUT, NEWS, PRODUCTS } from "@/configs/routes/routesConfig";
 
 const links = [
-  { id: "products", label: "Produits", href: "/products" },
-  { id: "about", label: "À propos", href: "/about" },
-  { id: "news", label: "Nouvelles", href: "/news" },
+  { id: "products", label: "Produits", href: PRODUCTS },
+  { id: "about", label: "À propos", href: ABOUT },
+  { id: "news", label: "Nouvelles", href: NEWS   },
 ];
 
 const ctaBtn = {

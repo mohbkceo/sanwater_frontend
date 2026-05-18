@@ -51,7 +51,7 @@ function Hero() {
             {HERO_CONTENT.badge}
           </span>
 
-             <RotateWords wordsClassName={`block bg-linear-to-t from-zinc-950 to-zinc-700 bg-clip-text text-transparent italic font-medium`} className={`text-6xl lg:text-8xl font-bold tracking-tight text-slate-900`} words={HERO_CONTENT.subTitles} text= {HERO_CONTENT.mainTitle} />
+             <RotateWords wordsClassName={`block bg-linear-to-t from-zinc-950 to-zinc-700 bg-clip-text font- text-transparent italic font-medium`} className={`text-6xl lg:text-8xl font-bold tracking-tight text-slate-900`} words={HERO_CONTENT.subTitles} text= {HERO_CONTENT.mainTitle} />
           <p 
             className="mt-6 text-lg text-slate-600 font-medium max-w-lg leading-relaxed">
             {HERO_CONTENT.description}

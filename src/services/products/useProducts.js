@@ -2,28 +2,40 @@ import { useEffect, useState } from "react";
 import { getProducts } from "./productServices";
 
 export default function useProducts() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [nextLastId, setNextLastId] = useState(null);
 
-    async function fetchProducts(paramaters) {
-        try {
-            setLoading(true)
-            const data = await getProducts(paramaters);
-            console.log(data);
+  const refetch = async (params = {}, append = false) => {
+    try {
+      setLoading(true);
 
-            setProducts(data.data.products);
+      const data = await getProducts(params);
+      
+      const incomingProducts = data?.data?.products || [];
 
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+      setProducts((prev) =>
+        append ? [...prev, ...incomingProducts] : incomingProducts
+      );
+
+      setHasMore(data?.data?.hasMore ?? false);
+      setNextLastId(data?.data?.nextLastId ?? null);
+
+      return data;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    return { products, loading, refetch: (paramters) => fetchProducts(paramters) };
+  return {
+    products,
+    loading,
+    refetch,
+    hasMore,
+    nextLastId,
+  };
 }

@@ -5,10 +5,10 @@ export const createProduct = async (data) => {
     return res.data;
 };
 
-export const getProducts = async (paramaters) => {
-    const res = await productAPI.get(`/${paramaters}`);
-    
-    return res.data;
+export const getProducts = async (params = {}) => {
+  const res = await productAPI.get("/", { params });
+  console.log(res);
+  return res.data;
 };
 
 export const getProduct = async (serialNumber) => {

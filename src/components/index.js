@@ -16,3 +16,7 @@ export { default as ProductForm } from './products/ProductForm'
 export { default as ProductGalleryUpload } from './products/ProductGalleryUpload'
 export { default as ProductVariants } from './products/ProductVariants'
 export { default as ProductsNotFound } from './products/ProductNotFound'
+
+
+export { default as Topbar } from './dashboard/Topbar'
+export { default as Sidebar } from './dashboard/Sidebar'
