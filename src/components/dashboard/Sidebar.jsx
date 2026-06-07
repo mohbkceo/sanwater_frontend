@@ -2,13 +2,17 @@ import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 import { Box } from "lucide-react";
 import { Rss } from "lucide-react";
 import { Settings } from "lucide-react";
-import { ChartColumnBig } from "lucide-react";
+import { ChartColumnBig, Users, ClipboardList, Briefcase, MessageSquare } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
   { name: "Analytics", icon:<ChartColumnBig  /> , path: SANWATERGROUPROUTES.analystics.fullPath },
-  { name: "Content",   icon:<Rss  /> , path: SANWATERGROUPROUTES.content.fullPath },
   { name: "Products",  icon:<Box  /> , path: SANWATERGROUPROUTES.products.list.fullPath },
+  { name: "Hiring",    icon:<Briefcase /> , path: SANWATERGROUPROUTES.hiring.list.fullPath },
+  { name: "Submissions", icon:<MessageSquare /> , path: SANWATERGROUPROUTES.submissions.list.fullPath },
+  { name: "Activity Logs", icon:<ClipboardList /> , path: SANWATERGROUPROUTES.logs.list.fullPath },
+  { name: "Users",     icon:<Users /> , path: SANWATERGROUPROUTES.users.list.fullPath },
+  { name: "Content",   icon:<Rss  /> , path: SANWATERGROUPROUTES.content.fullPath },
   { name: "Settings",  icon:<Settings  /> , path: SANWATERGROUPROUTES.settings.fullPath },
 ];
 

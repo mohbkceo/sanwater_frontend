@@ -9,6 +9,10 @@ import RegisterPage from './auth/register/register'
 import Analytics from './dashboard/pages/Analytics'
 import Content from './dashboard/pages/Content'
 import Settings from './dashboard/pages/Settings'
+import UserManagement from './dashboard/pages/UserManagement'
+import ActivityLogs from './dashboard/pages/ActivityLogs'
+import HiringManagement from './dashboard/pages/HiringManagement'
+import ContactSubmissions from './dashboard/pages/ContactSubmissions'
 import DashboardLayout from '@/layouts/DashboardLayout'
 
 function SanWaterGroupMain() {
@@ -21,6 +25,10 @@ function SanWaterGroupMain() {
         <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<Analytics />} />
         <Route path={SANWATERGROUPROUTES.content.subPath} element={<Content />} />
         <Route path={SANWATERGROUPROUTES.settings.subPath} element={<Settings />} />
+        <Route path={SANWATERGROUPROUTES.users.list.subPath} element={<UserManagement />} />
+        <Route path={SANWATERGROUPROUTES.logs.list.subPath} element={<ActivityLogs />} />
+        <Route path={SANWATERGROUPROUTES.hiring.list.subPath} element={<HiringManagement />} />
+        <Route path={SANWATERGROUPROUTES.submissions.list.subPath} element={<ContactSubmissions />} />
        
         </Route>
         <Route path={SANWATERGROUPROUTES.auth.login.subPath} element={<LoginPage />} />

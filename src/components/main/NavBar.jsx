@@ -1,24 +1,29 @@
 import React, { useState } from "react";
 import { cn } from "../../lib/utils";
 import { Button } from "..";
-import { Menu, X, CircleArrowRight } from "lucide-react";
+import { Menu, X, CircleArrowRight, Globe } from "lucide-react";
 import { ABOUT, NEWS, PRODUCTS } from "@/configs/routes/routesConfig";
+import { useTranslation } from "../../lib/i18n";
 
-const links = [
-  { id: "products", label: "Produits", href: PRODUCTS },
-  { id: "about", label: "À propos", href: ABOUT },
-  { id: "news", label: "Nouvelles", href: NEWS   },
+const getLinks = (t) => [
+  { id: "products", label: t('nav.products'), href: PRODUCTS },
+  { id: "about", label: t('nav.about'), href: ABOUT },
+  { id: "news", label: t('nav.news'), href: NEWS   },
+  { id: "hiring", label: t('nav.hiring'), href: "/hiring" },
 ];
 
-const ctaBtn = {
+const getCtaBtn = (t) => ({
   id: "nav_cta",
-  label: "Contact ventes",
+  label: t('nav.contact'),
   href: "/contact_sales",
   icon: CircleArrowRight
-};
+});
 
 function NavBar({ className, ...props }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { lang, setLang, t } = useTranslation();
+  const links = getLinks(t);
+  const ctaBtn = getCtaBtn(t);
 
   return (
     <nav
@@ -61,7 +66,14 @@ function NavBar({ className, ...props }) {
             ))}
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-4">
+            <button 
+              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+              className="flex items-center gap-1 text-gray-600 hover:text-turquoise-600 transition-colors mr-2"
+            >
+              <Globe size={18} />
+              <span className="uppercase font-bold text-xs">{lang === 'en' ? 'AR' : 'EN'}</span>
+            </button>
             <Button
               className="
                 rounded-full

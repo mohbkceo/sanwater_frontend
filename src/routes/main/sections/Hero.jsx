@@ -1,30 +1,35 @@
 import React from 'react';
 import { CtaButton, RotateWords } from '@/components';
 import { CircleArrowRight, PlayCircle } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
-const HERO_CONTENT = {
+const getHeroContent = (t) => ({
   badge: "Collection 2026",
-  mainTitle: "Experts en accessoires",
-  subTitles: ["bain","douche"],
-  description: "Élevez votre espace bien-être avec style et qualité.",
-};
+  mainTitle: t('hero.title'),
+  subTitles: [t('hero.subtitle')],
+  description: t('hero.subtitle'),
+});
 
-const BUTTONS = {
+const getButtons = (t) => ({
   primary: {
-    label: "Contact ventes",
+    label: t('nav.contact'),
     href: "/contact_sales",
     icon: <CircleArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
   },
   secondary: {
-    label: "Voir la Démo",
-    href: "/demo",
+    label: t('hero.cta'),
+    href: "/products",
     icon: <PlayCircle className="ml-2 h-5 w-5" />
   }
-};
+});
 
 
 
 function Hero() {
+  const { t } = useTranslation();
+  const HERO_CONTENT = getHeroContent(t);
+  const BUTTONS = getButtons(t);
+
   return (
     <main className='overflow-hidden select-none'>
     

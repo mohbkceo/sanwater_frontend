@@ -8,6 +8,30 @@ export const PRODUCTVIEWDETAIL = `/products/view/:serialNumber`;
 export const AUTH = `${mainSanWaterRoute}/auth`
 
 export const SANWATERGROUPROUTES = {
+    users: {
+        list: {
+            subPath: `users`,
+            fullPath: `${mainSanWaterRoute}/users`
+        }
+    },
+    logs: {
+        list: {
+            subPath: `logs`,
+            fullPath: `${mainSanWaterRoute}/logs`
+        }
+    },
+    hiring: {
+        list: {
+            subPath: `hiring`,
+            fullPath: `${mainSanWaterRoute}/hiring`
+        }
+    },
+    submissions: {
+        list: {
+            subPath: `submissions`,
+            fullPath: `${mainSanWaterRoute}/submissions`
+        }
+    },
     products: {
         list: {
             subPath: `products`,
