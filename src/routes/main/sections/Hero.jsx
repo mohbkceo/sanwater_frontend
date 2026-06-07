@@ -1,7 +1,7 @@
 import React from 'react';
 import { CtaButton, RotateWords } from '@/components';
 import { CircleArrowRight, PlayCircle } from 'lucide-react';
-import { useTranslation } from '@/lib/i18n';
+import { useTranslation } from '@/lib/i18n.jsx';
 
 const getHeroContent = (t) => ({
   badge: "Collection 2026",

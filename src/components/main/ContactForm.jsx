@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { contentAPI } from '@/services/baseAPIs';
-import { useTranslation } from '@/lib/i18n';
+import { useTranslation } from '@/lib/i18n.jsx';
 
 function ContactForm() {
   const { t } = useTranslation();

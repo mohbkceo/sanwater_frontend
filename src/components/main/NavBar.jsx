@@ -3,7 +3,7 @@ import { cn } from "../../lib/utils";
 import { Button } from "..";
 import { Menu, X, CircleArrowRight, Globe } from "lucide-react";
 import { ABOUT, NEWS, PRODUCTS } from "@/configs/routes/routesConfig";
-import { useTranslation } from "../../lib/i18n";
+import { useTranslation } from "../../lib/i18n.jsx";
 
 const getLinks = (t) => [
   { id: "products", label: t('nav.products'), href: PRODUCTS },

@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'sonner'
-import { I18nProvider } from './lib/i18n'
+import { I18nProvider } from './lib/i18n.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
