@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { userAPI } from '@/services/baseAPIs';
-import { Headers } from '@/components';
+import { Header } from '@/components';
 import { Shield, Trash2 } from 'lucide-react';
 
 function UserManagement() {
@@ -32,7 +32,7 @@ function UserManagement() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Headers title="User & Role Management" />
+      <Header title="User & Role Management" />
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

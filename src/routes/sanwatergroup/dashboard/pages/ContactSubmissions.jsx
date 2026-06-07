@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { contentAPI } from '@/services/baseAPIs';
-import { Headers } from '@/components';
+import { Header } from '@/components';
 import { Mail, CheckCircle, Archive } from 'lucide-react';
 
 function ContactSubmissions() {
@@ -32,7 +32,7 @@ function ContactSubmissions() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Headers title="Contact Submissions" />
+      <Header title="Contact Submissions" />
       <div className="grid gap-6">
         {loading ? (
           <p className="text-gray-500">Loading submissions...</p>

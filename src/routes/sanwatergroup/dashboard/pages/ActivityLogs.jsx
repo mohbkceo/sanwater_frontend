@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { analyticsAPI } from '@/services/baseAPIs';
-import { Headers } from '@/components';
+import { Header } from '@/components';
 
 function ActivityLogs() {
   const [logs, setLogs] = useState([]);
@@ -22,7 +22,7 @@ function ActivityLogs() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Headers title="System Activity Logs" />
+      <Header title="System Activity Logs" />
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

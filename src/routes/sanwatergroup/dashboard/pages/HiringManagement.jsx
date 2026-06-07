@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { contentAPI } from '@/services/baseAPIs';
-import { Headers } from '@/components';
+import { Header } from '@/components';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 
 function HiringManagement() {
@@ -24,7 +24,7 @@ function HiringManagement() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
-        <Headers title="Hiring Management" />
+        <Header title="Hiring Management" />
         <button className="bg-gray-900 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium hover:bg-gray-800 transition-colors">
           <Plus size={18} className="mr-2" /> New Job Post
         </button>
