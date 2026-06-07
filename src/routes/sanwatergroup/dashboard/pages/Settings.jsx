@@ -8,12 +8,16 @@ export const settingsContents = [
     path: "/manage-users",
     description: "Control admin accounts and permissions.",
     icon: Users,
-    adminOnly: true,
+    adminOnly: false,
   },
 ];
 
 function Settings({ user }) {
-  const authorizationKey = user?._id || "";
+  const role = localStorage.getItem('role');
+  const authKey = localStorage.getItem('authKey');
+  const _id = localStorage.getItem('_id');
+
+  const authorizationKey = authKey;
 
   const copyAuthorizationKey = async () => {
     try {
