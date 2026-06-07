@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "@/lib/i18n.jsx";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -24,6 +25,7 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const { t } = useTranslation();
   const [prevEl, setPrevEl] = useState(null);
   const [nextEl, setNextEl] = useState(null);
 
@@ -33,13 +35,11 @@ export default function Testimonials() {
         <div className="flex flex-wrap lg:flex-nowrap justify-center lg:justify-between gap-y-8 lg:gap-y-0 lg:gap-x-8 max-w-sm sm:max-w-2xl lg:max-w-full mx-auto">
           
           <div className="w-full lg:w-2/5">
-            <span className="text-sm text-zinc-500 font-medium mb-4 block">Témoignage</span>
+            <span className="text-sm text-zinc-500 font-medium mb-4 block">{t("why_choose_us.testimonial_badge")}</span>
 
             <h2 className="text-4xl mb-2 bg-gradient-to-b from-zinc-900 to-zinc-600 bg-clip-text text-transparent font-bold leading-tight">
-              Les clients ont donné leur{" "}
-              <span className="bg-gradient-to-tr from-indigo-500 to-violet-500 bg-clip-text text-transparent">
-                avis.
-              </span>
+              {t("why_choose_us.testimonial_heading")}
+
             </h2>
 
             <div className="flex items-center justify-center lg:justify-start gap-5">

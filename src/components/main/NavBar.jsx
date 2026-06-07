@@ -6,15 +6,15 @@ import { ABOUT, NEWS, PRODUCTS } from "@/configs/routes/routesConfig";
 import { useTranslation } from "../../lib/i18n.jsx";
 
 const getLinks = (t) => [
-  { id: "products", label: t('nav.products'), href: PRODUCTS },
-  { id: "about", label: t('nav.about'), href: ABOUT },
-  { id: "news", label: t('nav.news'), href: NEWS   },
-  { id: "hiring", label: t('nav.hiring'), href: "/hiring" },
+  { id: "products", label: t("nav.products"), href: PRODUCTS },
+  { id: "about", label: t("nav.about"), href: ABOUT },
+  { id: "news", label: t("nav.news"), href: NEWS },
+  { id: "hiring", label: t("nav.hiring"), href: "/hiring" },
 ];
 
 const getCtaBtn = (t) => ({
   id: "nav_cta",
-  label: t('nav.contact'),
+  label: t("nav.contact"),
   href: "/contact_sales",
   icon: CircleArrowRight
 });
@@ -68,11 +68,19 @@ function NavBar({ className, ...props }) {
 
           <div className="hidden md:flex items-center gap-4">
             <button 
-              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+              onClick={() => {
+                  if (lang === 'en') setLang('fr');
+                  else if (lang === 'fr') setLang('ar');
+                  else setLang('en');
+                }}
               className="flex items-center gap-1 text-gray-600 hover:text-turquoise-600 transition-colors mr-2"
             >
               <Globe size={18} />
-              <span className="uppercase font-bold text-xs">{lang === 'en' ? 'AR' : 'EN'}</span>
+              <span className="uppercase font-bold text-xs">{
+                    if (lang === 'en') return 'FR';
+                    if (lang === 'fr') return 'AR';
+                    return 'EN';
+                  }</span>
             </button>
             <Button
               className="

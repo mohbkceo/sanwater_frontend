@@ -7,76 +7,72 @@ import {
   TrendingUp,
   ArrowRight,
 } from "lucide-react";
-
-
-const whyChooseUsContent = {
-  header: {
-    title: "Spécialistes des solutions modernes pour salles de bains",
-    description:
-      "Fournir des accessoires sanitaires de qualité avec précision, innovation et valeur compétitive depuis 2011.",
-    primaryButton: {
-      label: "Explorer les produits",
-      href: "/products",
-    },
-    secondaryButton: {
-      label: "Contacter le service commercial",
-      href: "/contact",
-    },
-  },
-
-  largeCard: {
-    icon: ShieldCheck,
-    title: "Qualité Premium & Fabrication Précise",
-    description:
-      "Nos produits proviennent de fournisseurs rigoureusement sélectionnés, garantissant durabilité, finitions soignées et fiabilité à long terme.",
-    button: {
-      label: "Voir le catalogue",
-      href: "#catalog",
-    },
-    image:
-      "./system/img.webp",
-  },
-
-  smallCards: [
-    {
-      icon: BadgeCheck,
-      bgColor: "bg-indigo-600",
-      title: "Expertise Spécialisée",
-      description:
-        "Focalisés exclusivement sur les accessoires sanitaires depuis 2011, maîtrisant le domaine pour servir nos clients avec confiance.",
-      button: {
-        label: "En savoir plus",
-        href: "/about",
-      },
-    },
-    {
-      icon: Sparkles,
-      bgColor: "bg-violet-600",
-      title: "Designs Modernes",
-      description:
-        "Une large variété de couleurs et modèles inspirés des tendances internationales, adaptés à tous les styles et besoins de projets.",
-      button: {
-        label: "Voir la collection",
-        href: "/products",
-      },
-    },
-    {
-      icon: TrendingUp,
-      bgColor: "bg-emerald-600",
-      title: "Valeur Compétitive",
-      description:
-        "Des solutions sanitaires de haute qualité à des prix accessibles, offrant une valeur maximale sans compromis.",
-      button: {
-        label: "Obtenir un devis",
-        href: "/contact_sales",
-      },
-      isLast: true
-    },
-  ],
-};
-
+import { useTranslation } from "@/lib/i18n.jsx";
 
 export default function WhyChooseUs() {
+  const { t } = useTranslation();
+
+  const whyChooseUsContent = {
+    header: {
+      title: t("why_choose_us.title"),
+      description: t("why_choose_us.description"),
+      primaryButton: {
+        label: t("why_choose_us.explore_products"),
+        href: "/products",
+      },
+      secondaryButton: {
+        label: t("why_choose_us.contact_sales"),
+        href: "/contact",
+      },
+    },
+
+    largeCard: {
+      icon: ShieldCheck,
+      title: t("why_choose_us.premium_quality_title"),
+      description: t("why_choose_us.premium_quality_description"),
+      button: {
+        label: t("why_choose_us.view_catalog"),
+        href: "#catalog",
+      },
+      image:
+        "./system/img.webp",
+    },
+
+    smallCards: [
+      {
+        icon: BadgeCheck,
+        bgColor: "bg-indigo-600",
+        title: t("why_choose_us.specialized_expertise_title"),
+        description: t("why_choose_us.specialized_expertise_description"),
+        button: {
+          label: t("why_choose_us.learn_more"),
+          href: "/about",
+        },
+      },
+      {
+        icon: Sparkles,
+        bgColor: "bg-violet-600",
+        title: t("why_choose_us.modern_designs_title"),
+        description: t("why_choose_us.modern_designs_description"),
+        button: {
+          label: t("why_choose_us.view_collection"),
+          href: "/products",
+        },
+      },
+      {
+        icon: TrendingUp,
+        bgColor: "bg-emerald-600",
+        title: t("why_choose_us.competitive_value_title"),
+        description: t("why_choose_us.competitive_value_description"),
+        button: {
+          label: t("why_choose_us.get_a_quote"),
+          href: "/contact_sales",
+        },
+        isLast: true
+      },
+    ],
+  };
+
   const { header, largeCard, smallCards } = whyChooseUsContent;
 
   const LargeIcon = largeCard.icon;
@@ -87,7 +83,7 @@ export default function WhyChooseUs() {
       
         <div className="mb-14 flex flex-col gap-2 w-full  text-center  max-sm:text-start ">
           
-           <BlurIn className="text-6xl md:text-4xl bg-linear-to-b from-zinc-950 to-zinc-800 bg-clip-text text-transparent font-bold  leading-tight">{whyChooseUsContent.header.title}</BlurIn>
+           <BlurIn className="text-6xl md:text-4xl bg-linear-to-b from-zinc-950 to-zinc-800 bg-clip-text text-transparent font-bold  leading-tight">{header.title}</BlurIn>
           
          
 
@@ -140,7 +136,9 @@ export default function WhyChooseUs() {
           {smallCards.map((card, index) => {
             const Icon = card.icon;
             return (
-              <div key={index} className={cn("relative w-full h-auto", card?.isLast && 'lg:col-span-4')}>
+              <div key={index} className={cn("relative w-full h-auto", card?.isLast && (
+                index === smallCards.length - 1 ? "lg:col-span-4" : ""
+              ))}>
                 <div
                   className={`${card.bgColor} rounded-2xl p-6 xl:p-8 h-full text-white`}
                 >

@@ -4,7 +4,7 @@ import { CircleArrowRight, PlayCircle } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n.jsx';
 
 const getHeroContent = (t) => ({
-  badge: "Collection 2026",
+  badge: t("hero.badge"),
   mainTitle: t('hero.title'),
   subTitles: [t('hero.subtitle')],
   description: t('hero.subtitle'),

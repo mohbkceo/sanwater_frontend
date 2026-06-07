@@ -1,21 +1,23 @@
 import React, {lazy} from 'react';
 import { CounterAnimate, CtaButton } from '@/components';
 import { CircleArrowRight } from 'lucide-react';
-
-
-const Buttons = {
- primary : {
-    label: "Contact ventes",
-    href: "/contact_sales",
-    icon: <CircleArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-  },
-}
+import { useTranslation } from "@/lib/i18n.jsx";
 
 const AboutSection = () => {
+  const { t } = useTranslation();
+
+  const Buttons = {
+    primary : {
+      label: t("nav.contact"),
+      href: "/contact_sales",
+      icon: <CircleArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+    },
+  }
+
   const sectionData = {
-    badge: "QUI SOMMES-NOUS?",
-    title: "Solutions sanitaires de qualité depuis 2011",
-    description: "SANWATER, fondée en 2011 à Dar El Beida (Alger), est spécialisée dans les accessoires sanitaires et les solutions pour salle de bains. La marque propose des produits de qualité à prix compétitifs, avec une large gamme de modèles, en suivant les tendances internationales.",
+    badge: t("about.badge"),
+    title: t("about.title"),
+    description: t("about.description"),
     images: [
       {
         url: "./system/des1.webp",
@@ -36,26 +38,20 @@ const AboutSection = () => {
 
     backgroundBlurred : "./system/blur_desc_section.png",
     stats: [
-      { label: "ANNÉES EXPÉRIENCE", value: "15", sufix: '+' },
-      { label: "Freshness & Quality", value: "94", sufix: "%" },
+      { label: t("about.years_experience"), value: "15", sufix: '+' },
+      { label: t("about.quality_freshness"), value: "94", sufix: '%' },
     ]
   };
 
-  
-
   return (
     <section className="max-w-7xl relative bg-slate-50/20 rounded-3xl border border-white/20 mx-auto px-6 py-16 font-sans">
-       
       <div className="grid relative grid-cols-1 z-10 lg:grid-cols-2 gap-12 items-center">
-        
-        
         <div className=" flex gap-3">
-          
-             <img 
-              src={sectionData.images[0].url} 
-              alt={sectionData.images[0].alt}
-              className={sectionData.images[0].className}
-            />
+          <img 
+            src={sectionData.images[0].url} 
+            alt={sectionData.images[0].alt}
+            className={sectionData.images[0].className}
+          />
           <div className="col-span-1 flex flex-col gap-4">
             <img 
               src={sectionData.images[1].url} 
@@ -70,7 +66,6 @@ const AboutSection = () => {
           </div>
         </div>
 
-        
         <div className="space-y-6 ">
           <h4 className="text-zinc-600 font-medium tracking-wider uppercase text-sm">
             {sectionData.badge}
@@ -82,7 +77,6 @@ const AboutSection = () => {
             {sectionData.description}
           </p>
 
-          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
             {sectionData.stats.map((item, index) => (
               <div 
