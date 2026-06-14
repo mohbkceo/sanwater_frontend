@@ -15,6 +15,7 @@ const userAPI = axios.create({
     baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/user`,
     withCredentials: true
 })
+
 const analyticsAPI = axios.create({
     baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/analytics`,
     withCredentials: true

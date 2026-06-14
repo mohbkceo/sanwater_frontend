@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { register_API } from '@/services/auth/sanwater_group.auth'; // adjust path
+import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
 
 const PAGE_CONTENT = {
   brand: {
@@ -70,6 +71,7 @@ const RegisterPage = () => {
       };
 
       const res = await register_API(payload);
+      console.log(res);
 
       if (res?.success) {
         localStorage.setItem('role', res.result?.user.role);
@@ -80,6 +82,7 @@ const RegisterPage = () => {
         setError(res?.message || "Registration failed.");
       }
     } catch (err) {
+      console.log(err)
       setError(err?.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
