@@ -14,6 +14,7 @@ import ActivityLogs from './dashboard/pages/ActivityLogs'
 import HiringManagement from './dashboard/pages/HiringManagement'
 import ContactSubmissions from './dashboard/pages/ContactSubmissions'
 import DashboardLayout from '@/layouts/DashboardLayout'
+import EditSalesPage from './dashboard/pages/EditSales'
 
 function SanWaterGroupMain() {
   return (
@@ -23,9 +24,13 @@ function SanWaterGroupMain() {
         <Route path={SANWATERGROUPROUTES.products.create.subPath} element={<CreateProductPage />} />
         <Route path={SANWATERGROUPROUTES.products.edit.subPath} element={<EditProductPage />} />
         <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<Analytics />} />
+
         <Route path={SANWATERGROUPROUTES.content.subPath} element={<Content />} />
+        <Route path={SANWATERGROUPROUTES.content.children.sales.subPath} element={<EditSalesPage />} />
+
         <Route path={SANWATERGROUPROUTES.settings.subPath} element={<Settings />} />
-        <Route path={SANWATERGROUPROUTES.users.list.subPath} element={<UserManagement />} />
+        <Route path={SANWATERGROUPROUTES.settings.children.manage_users.subPath} element={<UserManagement />} />
+       
         <Route path={SANWATERGROUPROUTES.logs.list.subPath} element={<ActivityLogs />} />
         <Route path={SANWATERGROUPROUTES.hiring.list.subPath} element={<HiringManagement />} />
         <Route path={SANWATERGROUPROUTES.submissions.list.subPath} element={<ContactSubmissions />} />

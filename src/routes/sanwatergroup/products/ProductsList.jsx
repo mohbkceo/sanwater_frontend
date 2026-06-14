@@ -4,11 +4,16 @@ import { Plus, Package, RefreshCw } from "lucide-react"; // Optional icon librar
 import { Button, ProductCard } from "@/components";
 import { useNavigate } from "react-router-dom";
 import ProductNotFound from "@/components/products/ProductNotFound";
+import { useEffect } from "react";
 
+let fetch = false;
 export default function ProductsPage() {
   const { products, loading, refetch } = useProducts();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    refetch({ isAdmin:true })
+  }, [fetch])
   
   async function handleDelete(serialNumber) {
     if (confirm("Are you sure you want to delete this product?")) {

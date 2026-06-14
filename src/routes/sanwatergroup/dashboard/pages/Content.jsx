@@ -12,13 +12,6 @@ export const editContents = [
     icon: FileText,
   },
   {
-    id: 2,
-    label: "Images",
-    path: SANWATERGROUPROUTES.content.children.images.fullPath,
-    description: "Organize and update visual content.",
-    icon: Image,
-  },
-  {
     id: 3,
     label: "Sales",
     path: SANWATERGROUPROUTES.content.children.sales.fullPath,

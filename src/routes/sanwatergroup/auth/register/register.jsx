@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { register_API } from '@/services/auth/sanwater_group.auth'; // adjust path
 
 const PAGE_CONTENT = {
@@ -20,15 +20,27 @@ const PAGE_CONTENT = {
 };
 
 const RegisterPage = () => {
-
   const [form, setForm] = useState({
     fullName: "",
     email: "",
-    password: ""
+    password: "",
+    authKey: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authKeyFromQuery = params.get("auth_key");
+
+    if (authKeyFromQuery) {
+      setForm((prev) => ({
+        ...prev,
+        authKey: authKeyFromQuery,
+      }));
+    }
+  }, []);
 
   const handleChange = (e) => {
     setForm({
@@ -41,30 +53,32 @@ const RegisterPage = () => {
     e.preventDefault();
     setError("");
 
-    if (!form.fullName || !form.email || !form.password) {
+    if (!form.fullName || !form.email || !form.password || !form.authKey) {
       return setError("All fields are required.");
     }
 
     try {
       setLoading(true);
 
-      
       const payload = {
         userData: {
           fullName: form.fullName,
           password: form.password,
-          email: form.email
+          email: form.email,
+          authKey: form.authKey,
         },
       };
 
       const res = await register_API(payload);
 
-      if (res?.token) {
-        window.location.href = "/dashboard";
+      if (res?.success) {
+        localStorage.setItem('role', res.result?.user.role);
+        localStorage.setItem('authKey', res.result?.user?.authKey);
+        localStorage.setItem('public_id', res.result?.user.uid);
+        window.location.href = SANWATERGROUPROUTES.analystics.fullPath;
       } else {
         setError(res?.message || "Registration failed.");
       }
-
     } catch (err) {
       setError(err?.response?.data?.message || "Something went wrong.");
     } finally {
@@ -74,17 +88,14 @@ const RegisterPage = () => {
 
   return (
     <div className="flex min-h-screen w-full font-sans text-slate-900">
-
       <section className="flex w-full flex-col items-center justify-center bg-white px-6 py-12 lg:w-1/2 xl:px-24">
         <div className="w-full max-w-md">
-
           <div className="mb-12 flex items-center justify-center">
             <div className="flex w-20 items-center justify-center rounded-xl">
               <img src="/logo.svg" alt="logo" />
             </div>
           </div>
 
-          
           <div className="text-center lg:text-left">
             <h1 className="text-3xl font-mainFont lg:text-4xl">
               {PAGE_CONTENT.registerSection.title}
@@ -95,7 +106,6 @@ const RegisterPage = () => {
           </div>
 
           <form className="mt-10 space-y-5" onSubmit={handleSubmit}>
-
             {error && (
               <div className="rounded-lg bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-sm">
                 {error}
@@ -129,6 +139,15 @@ const RegisterPage = () => {
               className="w-full placeholder:font-bold rounded-full border border-slate-200 px-6 py-4 outline-none transition focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
             />
 
+            <input
+              type="text"
+              name="authKey"
+              value={form.authKey}
+              onChange={handleChange}
+              placeholder="Auth Key"
+              className="w-full placeholder:font-bold rounded-full border border-slate-200 px-6 py-4 outline-none transition focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
+            />
+
             <button
               disabled={loading}
               className={`w-full rounded-full py-4 font-bold text-white transition active:scale-[0.98] 
@@ -144,7 +163,6 @@ const RegisterPage = () => {
               {PAGE_CONTENT.registerSection.signInText}
             </a>
           </div>
-
         </div>
       </section>
 
@@ -160,7 +178,6 @@ const RegisterPage = () => {
 
         <div className="mt-12 w-[120%] lg:w-[140%] translate-x-12 translate-y-10 rounded-tl-3xl bg-slate-50 p-4 shadow-2xl ring-8 ring-white/10">
           <div className="flex h-full w-full flex-col rounded-2xl bg-white p-6">
-
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
               <div className="h-4 w-32 rounded bg-slate-100"></div>
               <div className="h-8 w-8 rounded-full bg-indigo-50"></div>
@@ -179,7 +196,6 @@ const RegisterPage = () => {
                 </svg>
               </div>
             </div>
-
           </div>
         </div>
 

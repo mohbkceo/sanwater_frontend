@@ -11,7 +11,6 @@ const navItems = [
   { name: "Hiring",    icon:<Briefcase /> , path: SANWATERGROUPROUTES.hiring.list.fullPath },
   { name: "Submissions", icon:<MessageSquare /> , path: SANWATERGROUPROUTES.submissions.list.fullPath },
   { name: "Activity Logs", icon:<ClipboardList /> , path: SANWATERGROUPROUTES.logs.list.fullPath },
-  { name: "Users",     icon:<Users /> , path: SANWATERGROUPROUTES.users.list.fullPath },
   { name: "Content",   icon:<Rss  /> , path: SANWATERGROUPROUTES.content.fullPath },
   { name: "Settings",  icon:<Settings  /> , path: SANWATERGROUPROUTES.settings.fullPath },
 ];

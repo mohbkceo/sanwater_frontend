@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { contentAPI } from '@/services/baseAPIs';
 import { useTranslation } from '@/lib/i18n.jsx';
+import { Button } from '..';
 
 function ContactForm() {
   const { t } = useTranslation();
@@ -30,14 +31,13 @@ function ContactForm() {
 
   return (
     <section id="contact" className="py-24 relative overflow-hidden">
-      <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 bg-turquoise-100/30 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96  rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96  rounded-full blur-3xl -z-10"></div>
       
       <div className="max-w-5xl mx-auto px-6">
-        <div className="bg-white/70 backdrop-blur-2xl rounded-[3rem] p-8 md:p-16 shadow-xl border border-white/50">
+        <div className=" rounded-[3rem] p-8 md:p-16 border border-white/20">
           <div className="text-center mb-12">
             <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">{t('contact.title')}</h2>
-            <p className="text-slate-600 text-lg">Have questions? We're here to help you find the perfect solution.</p>
           </div>
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -89,13 +89,13 @@ function ContactForm() {
               ></textarea>
             </div>
             <div className="md:col-span-2 text-center pt-4">
-              <button
+              <Button
                 type="submit"
                 disabled={status.loading}
-                className="bg-turquoise-600 text-white px-12 py-4 rounded-2xl font-black text-lg hover:bg-turquoise-700 transition-all shadow-xl shadow-turquoise-200 disabled:opacity-50 active:scale-95"
+                variant='outline'
               >
                 {status.loading ? 'Sending...' : t('contact.send')}
-              </button>
+              </Button>
               {status.success && <p className="mt-6 text-green-600 font-bold flex items-center justify-center gap-2">✓ Message sent successfully!</p>}
               {status.error && <p className="mt-6 text-red-600 font-bold">{status.error}</p>}
             </div>

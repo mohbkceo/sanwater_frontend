@@ -5,6 +5,7 @@ export const PRODUCTS = `/products`
 export const NEWS = `/news`
 export const CONTACTSALES = `/contact_sales`
 export const PRODUCTVIEWDETAIL = `/products/view/:serialNumber`;
+export const LANDINGPRODUCT = `/products/landing_product/:serialNumber`;
 export const AUTH = `${mainSanWaterRoute}/auth`
 
 export const SANWATERGROUPROUTES = {
@@ -53,7 +54,13 @@ export const SANWATERGROUPROUTES = {
     },
     settings: {
        subPath: `settings`,
-       fullPath: `${mainSanWaterRoute}/settings`  
+       fullPath: `${mainSanWaterRoute}/settings`,
+       children: {
+        manage_users: {
+            subPath: "settings/manage_users",
+            fullPath: `${mainSanWaterRoute}/settings/manage_users`
+        }
+       }
     },
    content: {
         subPath: `content`,
@@ -61,17 +68,17 @@ export const SANWATERGROUPROUTES = {
 
         children: {
             news: {
-            subPath: `edit-news`,
+            subPath: `content/edit-news`,
             fullPath: `${mainSanWaterRoute}/content/edit-news`,
             },
 
             images: {
-            subPath: `edit-images`,
+            subPath: `content/edit-images`,
             fullPath: `${mainSanWaterRoute}/content/edit-images`,
             },
 
             sales: {
-            subPath: `edit-sales`,
+            subPath: `content/edit-sales`,
             fullPath: `${mainSanWaterRoute}/content/edit-sales`,
             },
         },

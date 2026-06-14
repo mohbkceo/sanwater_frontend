@@ -51,13 +51,12 @@ const LoginPage = () => {
       setLoading(true);
 
       const res = await signIn_API(form);
+      console.log(res);
 
-      // Example handling (adapt to your backend response)
       if (res?.success) {
-        // store token if needed
-        // localStorage.setItem("token", res.data.accessToken);
-
-        // redirect
+        localStorage.setItem('role', res.result?.user.role);
+        localStorage.setItem('authKey', res.result?.user?.authKey);
+        localStorage.setItem('public_id', res.result?.user.uid);
         window.location.href = SANWATERGROUPROUTES.analystics.fullPath;
       } else {
         setError(res?.message || "Login failed.");

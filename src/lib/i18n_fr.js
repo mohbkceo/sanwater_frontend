@@ -9,7 +9,7 @@ export const fr = {
   hero: {
     badge: 'Collection 2026',
     title: 'Solutions d\'eau avancées',
-    subtitle: 'Pure, Durable, Fiable.',
+    subtitle: ['Pure', 'Durable', 'Fiable.'],
     cta: 'Explorer les produits',
   },
   contact: {

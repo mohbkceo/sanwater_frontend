@@ -4,6 +4,7 @@ import { Button } from "..";
 import { Menu, X, CircleArrowRight, Globe } from "lucide-react";
 import { ABOUT, NEWS, PRODUCTS } from "@/configs/routes/routesConfig";
 import { useTranslation } from "../../lib/i18n.jsx";
+import { ChevronDown } from "lucide-react";
 
 const getLinks = (t) => [
   { id: "products", label: t("nav.products"), href: PRODUCTS },
@@ -21,6 +22,7 @@ const getCtaBtn = (t) => ({
 
 function NavBar({ className, ...props }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const { lang, setLang, t } = useTranslation();
   const links = getLinks(t);
   const ctaBtn = getCtaBtn(t);
@@ -65,37 +67,74 @@ function NavBar({ className, ...props }) {
               </a>
             ))}
           </div>
+            <div className="hidden md:flex items-center gap-4">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setLangMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 text-gray-600 hover:text-turquoise-600 transition-colors px-3 py-2 rounded-full border border-gray-200 bg-white shadow-sm"
+                >
+                  <Globe size={18} />
+                  <span className="uppercase font-bold text-xs">
+                    {lang === "fr" ? "FR" : lang === "ar" ? "AR" : "EN"}
+                  </span>
+                  <ChevronDown size={14} className="opacity-70" />
+                </button>
 
-          <div className="hidden md:flex items-center gap-4">
-            <button 
-              onClick={() => {
-                  if (lang === 'en') setLang('fr');
-                  else if (lang === 'fr') setLang('ar');
-                  else setLang('en');
-                }}
-              className="flex items-center gap-1 text-gray-600 hover:text-turquoise-600 transition-colors mr-2"
-            >
-              <Globe size={18} />
-              <span className="uppercase font-bold text-xs">{
-                    if (lang === 'en') return 'FR';
-                    if (lang === 'fr') return 'AR';
-                    return 'EN';
-                  }</span>
-            </button>
-            <Button
-              className="
-                rounded-full
-                px-5
-                shadow-sm
-              "
-            >
-              <a href={ctaBtn.href} className="flex items-center gap-2">
-                {ctaBtn.label}
-                <CircleArrowRight size={16} />
-              </a>
-            </Button>
-          </div>
+                {langMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-36 rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden z-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLang("en");
+                        setLangMenuOpen(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${
+                        lang === "en" ? "font-semibold text-turquoise-600" : "text-gray-700"
+                      }`}
+                    >
+                      <span>English</span>
+                      <span className="uppercase text-xs">EN</span>
+                    </button>
 
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLang("fr");
+                        setLangMenuOpen(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${
+                        lang === "fr" ? "font-semibold text-turquoise-600" : "text-gray-700"
+                      }`}
+                    >
+                      <span>Français</span>
+                      <span className="uppercase text-xs">FR</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLang("ar");
+                        setLangMenuOpen(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${
+                        lang === "ar" ? "font-semibold text-turquoise-600" : "text-gray-700"
+                      }`}
+                    >
+                      <span>العربية</span>
+                      <span className="uppercase text-xs">AR</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <Button className="rounded-full px-5 shadow-sm">
+                <a href={ctaBtn.href} className="flex items-center gap-2">
+                  {ctaBtn.label}
+                  <CircleArrowRight size={16} />
+                </a>
+              </Button>
+            </div>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-black/5 transition"

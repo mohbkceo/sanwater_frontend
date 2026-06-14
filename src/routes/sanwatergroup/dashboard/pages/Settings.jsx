@@ -1,23 +1,34 @@
 import React from "react";
 import { ShieldCheck, Users, Copy } from "lucide-react";
+import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 
-export const settingsContents = [
-  {
-    id: 1,
-    label: "Managing Admins",
-    path: "/manage-users",
-    description: "Control admin accounts and permissions.",
-    icon: Users,
-    adminOnly: false,
-  },
-];
+
 
 function Settings({ user }) {
   const role = localStorage.getItem('role');
   const authKey = localStorage.getItem('authKey');
-  const _id = localStorage.getItem('_id');
+  const _id = localStorage.getItem('public_id');
+  const authorizationKey = _id;
 
-  const authorizationKey = authKey;
+  const settingsContents = [
+    {
+      id: 1,
+      label: "Managing Admins",
+      path: SANWATERGROUPROUTES.settings.children.manage_users.subPath,
+      description: "Control admin accounts and permissions.",
+      icon: Users,
+      adminOnly: false,
+    },
+    {
+      id: 2,
+      label: "Add Users",
+      path: SANWATERGROUPROUTES.auth.register.fullPath + `?auth_key=${authorizationKey}`,
+      description: "Control admin accounts and permissions.",
+      icon: Users,
+      adminOnly: false,
+      isBlank:true,
+    },
+  ];
 
   const copyAuthorizationKey = async () => {
     try {
@@ -38,7 +49,7 @@ function Settings({ user }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
-        {/* Header */}
+        
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
             Settings
@@ -94,6 +105,7 @@ function Settings({ user }) {
               <a
                 key={item.id}
                 href={item.path}
+                target={ item.isBlank ? "_blank" : "_self" }
                 className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white transition-transform duration-300 group-hover:scale-105">

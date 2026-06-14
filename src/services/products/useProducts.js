@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getProducts } from "./productServices";
 
 export default function useProducts() {

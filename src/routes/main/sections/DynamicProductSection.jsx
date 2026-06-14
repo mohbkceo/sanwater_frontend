@@ -28,14 +28,14 @@ function DynamicProductSection() {
   return (
     <section id="products" className="py-24">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div className="flex flex-col relative z-50 md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-2xl">
             <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">{t("products.title")}</h2>
             <p className="text-slate-600 text-lg">{t("products.description")}</p>
           </div>
-          <Link to="/products" className="text-turquoise-600 font-bold flex items-center gap-2 hover:gap-3 transition-all">
+          <a href="/products" className="text-turquoise-600 font-bold flex items-center cursor-pointer gap-2 hover:gap-3 transition-all">
             {t("products.view_details")} <span>→</span>
-          </Link>
+          </a>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -58,7 +58,6 @@ function DynamicProductSection() {
               <div className="p-8 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-slate-900 group-hover:text-turquoise-600 transition-colors">{product.name}</h3>
-                  <span className="text-turquoise-600 font-black text-lg">${product.prices?.productPrice}</span>
                 </div>
                 <p className="text-slate-500 text-sm mb-6 line-clamp-2">{t("products.serial")} {product.serialNumber}</p>
                 <Link 

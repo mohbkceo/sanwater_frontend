@@ -2,6 +2,7 @@ import { Edit2, Trash2, Package, Tag } from "lucide-react"; // Using Lucide for 
 import { Button } from "..";
 import { Database } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ShoppingCart } from "lucide-react";
 
 export default function ProductCard({ product, onDelete }) {
   const navigate = useNavigate();
@@ -51,12 +52,7 @@ export default function ProductCard({ product, onDelete }) {
 
           
           <div className="flex gap-2">
-            <Button
-              title="Edit Product"
-              className="p-2 text-slate-600 bg-slate-100 hover:bg-black hover:text-white rounded-lg transition-colors duration-200"
-            >
-              <Edit2 size={18} />
-            </Button>
+            
             
             <Button
               onClick={() => onDelete(product.serialNumber)}
@@ -65,6 +61,16 @@ export default function ProductCard({ product, onDelete }) {
             >
               <Trash2 size={18} />
             </Button>
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://sanwater-dz.com/products/landing_product/${product?.serialNumber}`)
+              }}
+              title="Delete Product"
+              className="p-2 text-green-500 bg-green-50 hover:bg-green-500 hover:text-white rounded-lg transition-colors duration-200"
+            >
+              <ShoppingCart size={18} />
+            </Button>
+            
           </div>
         </div>
       </div>

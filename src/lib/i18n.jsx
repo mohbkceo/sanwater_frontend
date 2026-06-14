@@ -11,11 +11,12 @@ const translations = {
       hiring: 'Hiring',
       contact: 'Contact Sales'
     },
-    hero: {
-      title: 'Advanced Water Solutions',
-      subtitle: 'Pure, Sustainable, Reliable.',
-      cta: 'Explore Products'
-    },
+   hero: {
+    badge: '2026 Collection',
+    title: 'Advanced Water Solutions',
+    subtitle: ['Pure', 'Durable', 'Reliable.'],
+    cta: 'Explore Products',
+  },
     contact: {
       title: 'Contact Us',
       name: 'Full Name',
@@ -133,11 +134,11 @@ const translations = {
 const I18nContext = createContext();
 
 export function I18nProvider({ children }) {
-  const [lang, setLang] = useState(localStorage.getItem('lang') || 'en');
+  const [lang, setLang] = useState(localStorage.getItem('lang') || 'fr');
 
   useEffect(() => {
     localStorage.setItem('lang', lang);
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    // document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
   }, [lang]);
 
