@@ -15,6 +15,8 @@ import HiringManagement from './dashboard/pages/HiringManagement'
 import ContactSubmissions from './dashboard/pages/ContactSubmissions'
 import DashboardLayout from '@/layouts/DashboardLayout'
 import EditSalesPage from './dashboard/pages/EditSales'
+import NewsManagementPage from './dashboard/pages/News/NewsManagementPage'
+import CreateEditNewsPage from './dashboard/pages/News/CreateEditNewsPage'
 
 function SanWaterGroupMain() {
   return (
@@ -26,6 +28,9 @@ function SanWaterGroupMain() {
         <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<Analytics />} />
 
         <Route path={SANWATERGROUPROUTES.content.subPath} element={<Content />} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath} element={<NewsManagementPage />} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/create'} element={<CreateEditNewsPage />} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/edit/:id'} element={<CreateEditNewsPage />} />
         <Route path={SANWATERGROUPROUTES.content.children.sales.subPath} element={<EditSalesPage />} />
 
         <Route path={SANWATERGROUPROUTES.settings.subPath} element={<Settings />} />

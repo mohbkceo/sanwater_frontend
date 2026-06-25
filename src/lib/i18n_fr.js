@@ -120,5 +120,23 @@ export const fr = {
   },
   footer: {
     all_rights_reserved: 'Tous droits réservés.',
+  },
+  news: {
+    title: 'Actualités',
+    description: 'Restez informé de nos dernières nouvelles et annonces',
+    search_placeholder: 'Rechercher des nouvelles...',
+    search: 'Rechercher',
+    featured: 'En vedette',
+    no_articles: 'Aucun article trouvé',
+    previous: 'Précédent',
+    next: 'Suivant',
+    page: 'Page',
+    of: 'sur',
+    back_to_list: 'Retour aux nouvelles',
+    by: 'Par',
+    share: 'Partager',
+    related_articles: 'Articles connexes',
+    seo_title: 'Dernières Nouvelles | SanWater',
+    seo_description: 'Restez informé des dernières nouvelles et annonces de SanWater.'
   }
 };

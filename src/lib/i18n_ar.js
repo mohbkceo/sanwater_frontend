@@ -120,5 +120,23 @@ export const ar = {
   },
   footer: {
     all_rights_reserved: 'جميع الحقوق محفوظة.',
+  },
+  news: {
+    title: 'الأخبار',
+    description: 'ابق على اطلاع بآخر أخبارنا وإعلاناتنا',
+    search_placeholder: 'البحث عن الأخبار...',
+    search: 'بحث',
+    featured: 'مميز',
+    no_articles: 'لم يتم العثور على مقالات إخبارية',
+    previous: 'السابق',
+    next: 'التالي',
+    page: 'صفحة',
+    of: 'من',
+    back_to_list: 'العودة إلى الأخبار',
+    by: 'بواسطة',
+    share: 'مشاركة',
+    related_articles: 'مقالات ذات صلة',
+    seo_title: 'آخر الأخبار | سان ووتر',
+    seo_description: 'ابق على اطلاع بآخر الأخبار والإعلانات من سان ووتر.'
   }
 };

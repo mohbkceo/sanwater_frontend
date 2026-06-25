@@ -21,9 +21,14 @@ const analyticsAPI = axios.create({
     withCredentials: true
 })
 
-export { productAPI, userAPI, contentAPI, analyticsAPI} ;
+const newsAPI = axios.create({
+    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/news`,
+    withCredentials: true
+})
 
-[productAPI, userAPI, contentAPI, analyticsAPI].forEach(api => api.interceptors.response.use(res => res, 
+export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI} ;
+
+[productAPI, userAPI, contentAPI, analyticsAPI, newsAPI].forEach(api => api.interceptors.response.use(res => res, 
     async (error) => {   
         await unauthorizeErrorHandle(api, error, SANWATERGROUPROUTES.auth.login.fullPath)
         const apiPath = error.config?.baseURL?.substring(import.meta.env.VITE_BACK_END_BASE_URL.length)
