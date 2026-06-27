@@ -52,6 +52,10 @@ export const SANWATERGROUPROUTES = {
        subPath: `analystics`,
        fullPath: `${mainSanWaterRoute}/analystics`  
     },
+    profile: {
+       subPath: `profile`,
+       fullPath: `${mainSanWaterRoute}/profile`
+    },
     settings: {
        subPath: `settings`,
        fullPath: `${mainSanWaterRoute}/settings`,

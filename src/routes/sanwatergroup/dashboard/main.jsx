@@ -4,6 +4,7 @@ import Analytics from "./pages/Analytics";
 import Content from "./pages/Content";
 import Products from "./pages/Products";
 import Settings from "./pages/Settings";
+import UserProfile from "./pages/UserProfile";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
 export default function AppRoutes() {
@@ -15,6 +16,7 @@ export default function AppRoutes() {
         <Route path="content" element={<Content />} />
         <Route path="products" element={<Products />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="profile" element={<UserProfile />} />
       </Route>
     </Routes>
   );

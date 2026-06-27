@@ -1,10 +1,11 @@
 import useProducts from "@/services/products/useProducts";
-import { deleteProduct } from "@/services/products/productServices";
+import { deleteProduct, updateProduct } from "@/services/products/productServices";
 import { Plus, Package, RefreshCw } from "lucide-react"; // Optional icon library
 import { Button, ProductCard } from "@/components";
 import { useNavigate } from "react-router-dom";
 import ProductNotFound from "@/components/products/ProductNotFound";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 let fetch = false;
 export default function ProductsPage() {
@@ -19,6 +20,17 @@ export default function ProductsPage() {
     if (confirm("Are you sure you want to delete this product?")) {
       await deleteProduct(serialNumber);
       refetch();
+    }
+  }
+
+  async function handleToggleActive(serialNumber, isActive) {
+    try {
+      await updateProduct(serialNumber, { isActive });
+      toast.success(isActive ? "Product is now visible" : "Product is now hidden");
+      refetch({ isAdmin: true });
+    } catch (error) {
+      toast.error("Failed to update product visibility");
+      console.error(error);
     }
   }
 
@@ -70,6 +82,7 @@ export default function ProductsPage() {
               <ProductCard
                 product={product}
                 onDelete={() => handleDelete(product.serialNumber)}
+                onToggleActive={handleToggleActive}
               />
             </div>
           ))}
