@@ -65,7 +65,7 @@ export async function unauthorizeErrorHandle(axiosInstance, err, loginRoute) {
           return axiosInstance(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError, null);
-          //window.location.href = loginRoute
+          window.location.href = loginRoute
           
           return Promise.reject(refreshError);
         } finally {

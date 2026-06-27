@@ -46,7 +46,7 @@ function normalizeList(list = [], mapFn) {
 }
 
 
-let active = false;
+
 
 function Analytics() {
   const [filters, setFilters] = useState({});
@@ -55,7 +55,8 @@ function Analytics() {
 
   useEffect(() =>{
     load();
-  }, [active])
+  }, [filters])
+
   const conversionRate = useMemo(() => {
     if (!data) return "0.00%";
     return `${((data.conversionRate || 0) * 100).toFixed(2)}%`;
