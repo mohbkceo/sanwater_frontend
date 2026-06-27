@@ -57,7 +57,7 @@ const LoginPage = () => {
         localStorage.setItem('role', res.result?.user.role);
         localStorage.setItem('authKey', res.result?.user?.authKey);
         localStorage.setItem('public_id', res.result?.user.uid);
-        window.location.href = SANWATERGROUPROUTES.analystics.fullPath;
+        window.location.href = SANWATERGROUPROUTES.products.fullPath;
       } else {
         setError(res?.message || "Login failed.");
       }
