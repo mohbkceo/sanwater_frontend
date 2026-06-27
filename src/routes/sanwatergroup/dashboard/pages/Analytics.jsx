@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { useFetchAnalytics } from "@/hooks/useAnalytics";
 import DateFilter from "@/components/dashboard/analytics/DateFilter";
+import { useEffect } from "react";
 
 function StatCard({ label, value, subtext }) {
   return (
@@ -44,10 +45,17 @@ function normalizeList(list = [], mapFn) {
   return Array.isArray(list) ? list.map(mapFn) : [];
 }
 
+
+let active = false;
+
 function Analytics() {
   const [filters, setFilters] = useState({});
-  const { data, loading } = useFetchAnalytics(filters);
+  const { data, loading, load } = useFetchAnalytics(filters);
 
+
+  useEffect(() =>{
+    load();
+  }, [active])
   const conversionRate = useMemo(() => {
     if (!data) return "0.00%";
     return `${((data.conversionRate || 0) * 100).toFixed(2)}%`;

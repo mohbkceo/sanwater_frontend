@@ -18,10 +18,8 @@ export function useFetchAnalytics(filters) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-
-    async function load() {
+  
+  async function load() {
       try {
         setLoading(true);
 
@@ -31,20 +29,19 @@ export function useFetchAnalytics(filters) {
 
         const res = await fetchAnalytics(filters);
         
-        if (active) {
+        
           setData(res || null);
-        }
+  
       } catch (error) {
-        if (active) setData(null);
+        setData(null);
       } finally {
-        if (active) setLoading(false);
+        setLoading(false);
       }
-    }
+  }
 
-    load();
-
-    
+  useEffect(() => {
+    load();    
   }, [filters?.from, filters?.to]);
 
-  return { data, loading };
+  return { data, loading, load };
 }
