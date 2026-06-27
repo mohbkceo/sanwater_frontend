@@ -30,7 +30,7 @@ export function useFetchAnalytics(filters) {
         if (filters?.to) params.set("to", filters.to);
 
         const res = await fetchAnalytics(filters);
-        console.log(res);
+        
         if (active) {
           setData(res || null);
         }
@@ -43,9 +43,7 @@ export function useFetchAnalytics(filters) {
 
     load();
 
-    return () => {
-      active = false;
-    };
+    
   }, [filters?.from, filters?.to]);
 
   return { data, loading };
