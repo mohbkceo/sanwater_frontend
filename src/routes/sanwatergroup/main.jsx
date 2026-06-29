@@ -17,6 +17,7 @@ import DashboardLayout from '@/layouts/DashboardLayout'
 import EditSalesPage from './dashboard/pages/EditSales'
 import NewsManagementPage from './dashboard/pages/News/NewsManagementPage'
 import CreateEditNewsPage from './dashboard/pages/News/CreateEditNewsPage'
+import UserProfile from './dashboard/pages/UserProfile'
 
 function SanWaterGroupMain() {
   return (
@@ -36,6 +37,8 @@ function SanWaterGroupMain() {
         <Route path={SANWATERGROUPROUTES.settings.subPath} element={<Settings />} />
         <Route path={SANWATERGROUPROUTES.settings.children.manage_users.subPath} element={<UserManagement />} />
        
+        <Route path={SANWATERGROUPROUTES.profile.subPath} element={<UserProfile />} />
+
         <Route path={SANWATERGROUPROUTES.logs.list.subPath} element={<ActivityLogs />} />
         <Route path={SANWATERGROUPROUTES.hiring.list.subPath} element={<HiringManagement />} />
         <Route path={SANWATERGROUPROUTES.submissions.list.subPath} element={<ContactSubmissions />} />

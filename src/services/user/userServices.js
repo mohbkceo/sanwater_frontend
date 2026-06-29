@@ -1,11 +1,8 @@
 import axios from "axios";
+import { userAPI } from "../baseAPIs";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-const userAPI = axios.create({
-  baseURL: `${API_BASE_URL}/users`,
-  withCredentials: true,
-});
+
 
 export const getUserProfile = async () => {
   const res = await userAPI.get("/profile/me");
