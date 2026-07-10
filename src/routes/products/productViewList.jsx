@@ -6,8 +6,9 @@ import useProducts from "@/services/products/useProducts";
 import ProductCard from "./sections/ProductItem";
 import { Button, Header } from "@/components";
 import ProductNotFound from "@/components/products/ProductNotFound";
+import { useTranslation } from "@/lib/i18n";
 
-const Title = "SanWater Produits";
+
 
 export default function ProductViewList() {
   const {
@@ -17,6 +18,9 @@ export default function ProductViewList() {
   hasMore,
   nextLastId,
 } = useProducts();
+const { t } = useTranslation();
+
+const Title = t('products.title');
 
     const handleLoadMore = async () => {
       if (!nextLastId || loading) return;
@@ -83,7 +87,7 @@ export default function ProductViewList() {
       <div className="max-w-6xl mx-auto px-6 py-12">
         <Header
           title={Title}
-          discription={"Découvrez notre collection complète de produits SanWater."}
+          discription={t('products.description')}
         />
 
         <div className="mt-6 rounded-2xl border border-white/10 bg-white/10 p-4 shadow-lg backdrop-blur-md">
@@ -91,7 +95,7 @@ export default function ProductViewList() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Rechercher par nom, famille ou ID produit..."
+                placeholder={t('products.search_placeholder')}
                 value={filters.search}
                 onChange={(e) => updateFilter("search", e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 pl-11 outline-none transition focus:border-white/30"
@@ -107,7 +111,7 @@ export default function ProductViewList() {
                 onClick={() => setShowAdvanced((s) => !s)}
               >
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
-                Filtres avancés
+                {t('products.advanced_filters')}
               </Button>
 
               <Button
@@ -117,7 +121,7 @@ export default function ProductViewList() {
                 onClick={clearFilters}
               >
                 <X className="mr-2 h-4 w-4" />
-                Réinitialiser
+                {t('products.reset')}
               </Button>
             </div>
           </div>
@@ -126,7 +130,7 @@ export default function ProductViewList() {
             <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div>
                 <label className="mb-2 block text-sm font-medium opacity-80">
-                  Famille
+                  {t('products.family')}
                 </label>
                 <input
                   type="text"
@@ -139,7 +143,7 @@ export default function ProductViewList() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium opacity-80">
-                  Prix minimum
+                  {t('products.min_price')}
                 </label>
                 <input
                   type="number"
@@ -153,7 +157,7 @@ export default function ProductViewList() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium opacity-80">
-                  Prix maximum
+                  {t('products.max_price')}
                 </label>
                 <input
                   type="number"
@@ -167,7 +171,7 @@ export default function ProductViewList() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium opacity-80">
-                  Disponibilité
+                  {t('products.availability')}
                 </label>
                 <select
                   value={filters.inStock}

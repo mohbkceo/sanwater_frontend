@@ -11,12 +11,30 @@ const translations = {
       hiring: 'Hiring',
       contact: 'Contact Sales'
     },
-   hero: {
-    badge: '2026 Collection',
-    title: 'Advanced Water Solutions',
-    subtitle: ['Pure', 'Durable', 'Reliable.'],
-    cta: 'Explore Products',
-  },
+    news: {
+    title: 'News',
+    description: 'Stay up to date with our latest news and announcements',
+    search_placeholder: 'Search news...',
+    search: 'Search',
+    featured: 'Featured',
+    no_articles: 'No articles found',
+    previous: 'Previous',
+    next: 'Next',
+    page: 'Page',
+    of: 'of',
+    back_to_list: 'Back to News',
+    by: 'By',
+    share: 'Share',
+    related_articles: 'Related Articles',
+    seo_title: 'Latest News | SanWater',
+    seo_description: 'Stay informed with the latest news and announcements from SanWater.'
+    },
+    hero: {
+      badge: '2026 Collection',
+      title: 'Advanced Water Solutions',
+      subtitle: ['Pure', 'Durable', 'Reliable.'],
+      cta: 'Explore Products',
+    },
     contact: {
       title: 'Contact Us',
       name: 'Full Name',
@@ -104,12 +122,56 @@ const translations = {
       testimonial_badge: 'Testimonial',
       testimonial_heading: 'Customers have given their opinion.',
     },
-    hiring: {
+   hiring: {
       join_our_team: 'Join Our Team',
-      intro_paragraph: 'We are looking for talented and passionate individuals to help us innovate in the field of sanitary solutions. Explore our career opportunities and apply today.',
+      careers_at_sanwater: 'Careers at SanWater',
+      hero_title: 'Join a team building the future of water management.',
+      hero_description:
+        'Explore open roles, learn about our culture, and find a position where your skills can make a real impact.',
+      view_open_roles: 'View Open Roles',
+      contact_hiring_team: 'Contact Hiring Team',
+
+      open_roles: 'Open roles',
+      locations: 'Locations',
+      role_types: 'Role types',
+
+      next_step: 'Next step',
+      find_your_fit: 'Find your fit',
+      search_label: 'Search',
+      search_text: 'Filter roles by title, location, or type.',
+      refine_label: 'Refine',
+      refine_text: 'Narrow results using location and role type.',
+      updated_label: 'Updated',
+      latest_post: 'Latest post: {{date}}',
+
+      search_placeholder: 'Search roles...',
+      all_locations: 'All locations',
+      all_types: 'All types',
+      newest: 'Newest',
+      title_az: 'Title A → Z',
+      location_az: 'Location A → Z',
+      type_az: 'Type A → Z',
+      refresh: 'Refresh',
+
+      open_positions: 'Open positions',
+      role_available: '{{count}} role available.',
+      roles_available: '{{count}} roles available.',
+      new_roles_appear: 'New roles appear here automatically',
+
+      open: 'Open',
+      draft: 'Draft',
+      closed: 'Closed',
+      featured: 'Featured',
+
       loading_opportunities: 'Loading opportunities...',
-      no_open_positions: 'No open positions at the moment. Check back later!',
+      no_open_positions: 'No open positions right now',
+      no_roles_match_search: 'No roles match your search',
+      no_open_positions_text: 'We will publish new opportunities here as soon as they become available.',
+      no_roles_match_search_text: 'Try a different keyword or reset the filters to explore more opportunities.',
+      send_cv_anyway: 'Send your CV anyway',
+
       apply_now: 'Apply Now',
+      fast_response: 'Fast response from the hiring team',
     },
     whatsapp: {
       default_message: 'Hello! I would like to know more about SanWater products.',

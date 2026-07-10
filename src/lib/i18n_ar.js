@@ -100,11 +100,7 @@ export const ar = {
     testimonial_heading: 'ماذا يقول عملاؤنا.',
   },
   hiring: {
-    join_our_team: 'انضم إلى فريقنا',
-    intro_paragraph: 'نحن نبحث عن أفراد موهوبين وعاطفيين لمساعدتنا في الابتكار في مجال الحلول الصحية. استكشف فرص العمل لدينا وقدم طلبك اليوم.',
-    loading_opportunities: 'جاري تحميل الفرص...',
-    no_open_positions: 'لا توجد وظائف شاغرة حاليًا. تحقق مرة أخرى لاحقًا!',
-    apply_now: 'قدم الآن',
+   join_our_team: 'انضم إلى فريقنا', careers_at_sanwater: 'الوظائف في سان واتر', hero_title: 'انضم إلى فريق يصنع مستقبل إدارة المياه.', hero_description: 'استعرض الوظائف المتاحة، وتعرّف على ثقافة عملنا، وابحث عن منصب تبرز فيه مهاراتك وتحدث أثرًا حقيقيًا.', view_open_roles: 'عرض الوظائف المتاحة', contact_hiring_team: 'التواصل مع فريق التوظيف', open_roles: 'الوظائف المتاحة', locations: 'المواقع', role_types: 'أنواع الوظائف', next_step: 'الخطوة التالية', find_your_fit: 'ابحث عمّا يناسبك', search_label: 'بحث', search_text: 'قم بتصفية الوظائف حسب المسمّى أو الموقع أو النوع.', refine_label: 'تصفية أدق', refine_text: 'قم بحصر النتائج باستخدام الموقع ونوع الوظيفة.', updated_label: 'آخر تحديث', latest_post: 'آخر منشور: {{date}}', search_placeholder: 'ابحث عن وظيفة...', all_locations: 'جميع المواقع', all_types: 'جميع الأنواع', newest: 'الأحدث', title_az: 'العنوان من A إلى Z', location_az: 'الموقع من A إلى Z', type_az: 'النوع من A إلى Z', refresh: 'تحديث', open_positions: 'الوظائف الشاغرة', role_available: 'وظيفة واحدة متاحة.', roles_available: '{{count}} وظائف متاحة.', new_roles_appear: 'ستظهر الوظائف الجديدة هنا تلقائيًا', open: 'مفتوح', draft: 'مسودة', closed: 'مغلق', featured: 'مميزة', loading_opportunities: 'جارٍ تحميل الفرص...', no_open_positions: 'لا توجد وظائف شاغرة حاليًا', no_roles_match_search: 'لا توجد وظائف تطابق بحثك', no_open_positions_text: 'سننشر هنا فرصًا جديدة فور توفرها.', no_roles_match_search_text: 'جرّب كلمة مفتاحية مختلفة أو أعد ضبط عوامل التصفية لاستكشاف المزيد من الفرص.', send_cv_anyway: 'أرسل سيرتك الذاتية على أي حال', apply_now: 'قدّم الآن', fast_response: 'استجابة سريعة من فريق التوظيف',
   },
   whatsapp: {
     default_message: 'مرحباً! أود معرفة المزيد عن منتجات سان ووتر.',

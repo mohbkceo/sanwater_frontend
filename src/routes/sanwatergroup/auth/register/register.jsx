@@ -162,7 +162,7 @@ const RegisterPage = () => {
 
           <div className="mt-8 text-center text-sm text-slate-500">
             {PAGE_CONTENT.registerSection.footerText}{" "}
-            <a href="/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
+            <a href={SANWATERGROUPROUTES.auth.login.fullPath} className="font-semibold text-indigo-600 hover:text-indigo-500">
               {PAGE_CONTENT.registerSection.signInText}
             </a>
           </div>

@@ -2,20 +2,28 @@ import { getProduct } from "@/services/products/productServices";
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
+const initialFormState = {
+  fullName: "",
+  phoneNumber: "",
+  address: "",
+  quantity: 1,
+};
+
 export default function ProductPage() {
   const { serialNumber } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState("");
-
-  const whatsappNumber = "213XXXXXXXXX"; // Ligne officielle du service client San Water
+  const [orderForm, setOrderForm] = useState(initialFormState);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     async function fetchProduct() {
       try {
         const res = await getProduct(serialNumber);
         const productData = res?.data;
-        console.log(productData);
         setProduct(productData);
       } catch (error) {
         console.log(error);
@@ -48,6 +56,11 @@ export default function ProductPage() {
   const formatPrice = (value) =>
     new Intl.NumberFormat("en-US").format(Number(value || 0));
 
+  const quantity = Math.max(1, Number(orderForm.quantity || 1));
+  const orderSubtotal = productPrice * quantity;
+  const orderShipping = shippingPrice;
+  const orderTotal = orderSubtotal + orderShipping;
+
   const whatsappMessage = useMemo(() => {
     const name = product?.name || "Raccord San Water";
     const serial = product?.serialNumber || serialNumber || "-";
@@ -56,20 +69,69 @@ export default function ProductPage() {
 
     return encodeURIComponent(
       `Bonjour l'équipe commerciale San Water,\n\n` +
-      `Je suis intéressé par ce raccord contemporain de votre catalogue :\n\n` +
-      `• Nom du produit : ${name}\n` +
-      `• Numéro de série : ${serial}\n` +
-      `• ID de référence : ${product?.productId || "-"}\n` +
-      `• Collection de design : ${family}\n` +
-      `• Prix de base : ${price}\n` +
-      `• Livraison / transport : ${shippingPrice > 0 ? `${formatPrice(shippingPrice)} DA` : "À confirmer lors de la commande"}\n\n` +
-      `Veuillez confirmer la disponibilité du stock ainsi que les options de finition contemporaines pour cette pièce architecturale.`
+        `Je suis intéressé par ce raccord contemporain de votre catalogue :\n\n` +
+        `• Nom du produit : ${name}\n` +
+        `• Numéro de série : ${serial}\n` +
+        `• ID de référence : ${product?.productId || "-"}\n` +
+        `• Collection de design : ${family}\n` +
+        `• Prix de base : ${price}\n` +
+        `• Livraison / transport : ${shippingPrice > 0 ? `${formatPrice(shippingPrice)} DA` : "À confirmer lors de la commande"}\n\n` +
+        `Veuillez confirmer la disponibilité du stock ainsi que les options de finition contemporaines pour cette pièce architecturale.`
     );
   }, [product, productPrice, shippingPrice, serialNumber]);
 
   const handleOrder = () => {
-    const phone = String(whatsappNumber).replace(/\D/g, "");
+    const phone = String("213XXXXXXXXX").replace(/\D/g, "");
     window.open(`https://wa.me/${phone}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setOrderForm((prev) => ({
+      ...prev,
+      [name]: name === "quantity" ? Math.max(1, Number(value || 1)) : value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitMessage("");
+    setSubmitError("");
+
+    try {
+      const payload = {
+        productId: product?.productId,
+        serialNumber: product?.serialNumber,
+        productName: product?.name,
+        fullName: orderForm.fullName.trim(),
+        phoneNumber: orderForm.phoneNumber.trim(),
+        address: orderForm.address.trim(),
+        quantity: quantity,
+        subtotal: orderSubtotal,
+        shippingPrice: orderShipping,
+        total: orderTotal,
+      };
+
+      const response = await fetch(import.meta.env.VITE_BACK_END_BASE_URL + "/products/order/place", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Order request failed");
+      }
+
+      setSubmitMessage("Votre commande a bien été enregistrée.");
+      setOrderForm(initialFormState);
+    } catch (error) {
+      setSubmitError("Impossible de passer la commande. Veuillez réessayer.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -91,7 +153,6 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 antialiased">
-      {/* Fil d’Ariane / Barre méta */}
       <div className="bg-white border-b border-gray-200">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap gap-2 items-center text-xs font-medium text-gray-500">
           <span>Catalogue</span>
@@ -103,13 +164,9 @@ export default function ProductPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Mise en page e-commerce principale en deux colonnes */}
         <div className="grid gap-8 lg:grid-cols-12 items-start">
-          
-          {/* Colonne gauche : visuel et informations techniques */}
           <div className="lg:col-span-7 space-y-8">
             <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-              {/* Vue principale de l'image */}
               <div className="overflow-hidden rounded-xl bg-gray-50 border border-gray-100 relative aspect-square lg:aspect-[4/3]">
                 {selectedImage ? (
                   <img
@@ -123,10 +180,9 @@ export default function ProductPage() {
                   </div>
                 )}
 
-                {/* Badges sur l'image */}
                 <div className="absolute left-4 top-4 flex flex-col gap-2">
                   <span className="rounded-md bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-gray-800 shadow-sm border border-gray-200/50">
-                    Laiterie premium
+                    Premium
                   </span>
                   {product.tags?.[0] && (
                     <span className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
@@ -136,7 +192,6 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Conteneur horizontal des miniatures */}
               {images.length > 0 && (
                 <div className="mt-4 flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
                   {images.map((img, index) => (
@@ -160,7 +215,6 @@ export default function ProductPage() {
               )}
             </div>
 
-            {/* Section des indicateurs de qualité */}
             <div className="grid gap-4 sm:grid-cols-2">
               <StatCard title="Intégrité du matériau" value="Laiton massif / alliage de luxe" />
               <StatCard title="Profil de finition" value="Polissage haute précision" />
@@ -168,7 +222,6 @@ export default function ProductPage() {
               <StatCard title="Garantie San Water" value="Couverture complète de l'entreprise" />
             </div>
 
-            {/* Bloc des spécifications techniques */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
               <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">
                 Spécifications techniques
@@ -186,7 +239,6 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Tags du produit */}
             {product.tags?.length > 0 && (
               <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Tags du produit</h3>
@@ -204,11 +256,8 @@ export default function ProductPage() {
             )}
           </div>
 
-          {/* Colonne droite : bloc d'achat et détails commerciaux */}
           <div className="lg:col-span-5 lg:sticky lg:top-6 space-y-6">
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              
-              {/* Informations principales */}
               <div className="mb-6">
                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-600">
                   San Water Premium
@@ -222,7 +271,6 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Grille de prix claire */}
               <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">Prix de vente (PVC)</span>
@@ -244,39 +292,122 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Description brève */}
               <p className="text-sm leading-relaxed text-gray-600 mb-6">
                 {product.description ||
                   "Conçu avec un savoir-faire de niveau international et une esthétique européenne minimaliste. Cette pièce signature propose une finition luxueuse multicouche, un contrôle fluide de la distribution d'eau et des valves internes résistantes à la corrosion, adaptées aux salles de bain contemporaines haut de gamme."}
               </p>
 
-              {/* Bloc de commande WhatsApp */}
-              <div className="border-t border-gray-100 pt-6">
-                <div className="bg-emerald-50/60 rounded-xl p-4 border border-emerald-100 mb-4">
-                  <h4 className="text-sm font-bold text-emerald-800">Vente directe et expédition showroom</h4>
-                  <p className="mt-1 text-xs text-emerald-700/90 leading-normal">
-                    Validez votre commande instantanément en envoyant ce bloc de spécifications directement à un représentant San Water. Nous gérons les variantes de finition personnalisées, la logistique prioritaire et la facturation entreprise.
-                  </p>
+              <form onSubmit={handleSubmit} className="space-y-4 border-t border-gray-100 pt-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">Nom complet</label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={orderForm.fullName}
+                      onChange={handleChange}
+                      placeholder="Enter full name"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">Numéro de téléphone</label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={orderForm.phoneNumber}
+                      onChange={handleChange}
+                      placeholder="Enter phone number"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <button
-                  onClick={handleOrder}
-                  className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 text-base font-bold transition duration-150 shadow-md hover:shadow-lg transform active:scale-[0.99] flex items-center justify-center gap-2"
-                >
-                  <span>Commander via WhatsApp Concierge</span>
-                </button>
-              </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Adresse</label>
+                  <textarea
+                    name="address"
+                    value={orderForm.address}
+                    onChange={handleChange}
+                    placeholder="Enter address"
+                    rows={3}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    required
+                  />
+                </div>
 
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Quantité</label>
+                  <input
+                    type="number"
+                    min="1"
+                    name="quantity"
+                    value={orderForm.quantity}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    required
+                  />
+                </div>
+
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-600 space-y-1.5">
+                  <div className="flex justify-between gap-3">
+                    <span>Subtotal</span>
+                    <span className="font-medium text-gray-900">
+                      {orderSubtotal > 0 ? `${formatPrice(orderSubtotal)} DA` : "Sur demande"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <span>Shipping</span>
+                    <span className="font-medium text-gray-900">
+                      {orderShipping > 0 ? `${formatPrice(orderShipping)} DA` : "Calculated later"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 border-t border-gray-200 pt-2 mt-2">
+                    <span className="font-semibold text-gray-900">Total</span>
+                    <span className="font-bold text-emerald-700">
+                      {orderTotal > 0 ? `${formatPrice(orderTotal)} DA` : "Pending"}
+                    </span>
+                  </div>
+                </div>
+
+                {submitError && (
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {submitError}
+                  </div>
+                )}
+
+                {submitMessage && (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                    {submitMessage}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-4 text-base font-bold transition duration-150 shadow-md hover:shadow-lg transform active:scale-[0.99]"
+                >
+                  {submitting ? "Submitting..." : "Place Order"}
+                </button>
+              </form>
+
+              <button
+                onClick={handleOrder}
+                className="mt-4 w-full rounded-xl border border-emerald-200 bg-white px-6 py-4 text-base font-bold text-emerald-700 transition hover:bg-emerald-50"
+              >
+                Commander via WhatsApp Concierge
+              </button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
   );
 }
 
-// Composants UI modernes, sobres et nets
 function Badge({ children }) {
   return (
     <span className="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-600 border border-gray-200">

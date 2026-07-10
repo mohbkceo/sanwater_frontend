@@ -1,5 +1,6 @@
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 import { Box } from "lucide-react";
+import { ListOrdered } from "lucide-react";
 import { Rss } from "lucide-react";
 import { Settings } from "lucide-react";
 import { ChartColumnBig, Users, ClipboardList, Briefcase, MessageSquare, User } from "lucide-react";
@@ -8,6 +9,7 @@ import { NavLink } from "react-router-dom";
 const navItems = [
   { name: "Analytics", icon:<ChartColumnBig  /> , path: SANWATERGROUPROUTES.analystics.fullPath },
   { name: "Products",  icon:<Box  /> , path: SANWATERGROUPROUTES.products.list.fullPath },
+  { name: "Orders",  icon:<ListOrdered  /> , path: SANWATERGROUPROUTES.orders.fullPath },
   { name: "Hiring",    icon:<Briefcase /> , path: SANWATERGROUPROUTES.hiring.list.fullPath },
   { name: "Submissions", icon:<MessageSquare /> , path: SANWATERGROUPROUTES.submissions.list.fullPath },
   { name: "Activity Logs", icon:<ClipboardList /> , path: SANWATERGROUPROUTES.logs.list.fullPath },

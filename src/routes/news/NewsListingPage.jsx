@@ -68,9 +68,9 @@ const NewsListingPage = () => {
                 description={t('news.seo_description') || 'Stay updated with the latest news from SanWater'}
                 url={window.location.href}
             />
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 py-12">
+            <div className="min-h-screen bg-white/50 rounded-3xl border-white py-12">
                 <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
+                    
                     <div className="mb-12">
                         <h1 className="text-4xl font-bold text-slate-900 md:text-5xl">
                             {t('news.title') || 'Latest News'}
@@ -80,7 +80,7 @@ const NewsListingPage = () => {
                         </p>
                     </div>
 
-                    {/* Search and Filters */}
+                    
                     <div className="mb-8 space-y-4">
                         <form onSubmit={handleSearch} className="flex gap-2">
                             <div className="flex-1 relative">

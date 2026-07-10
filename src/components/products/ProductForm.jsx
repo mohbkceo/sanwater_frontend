@@ -21,6 +21,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       serialNumber: product?.serialNumber || "",
       productId: product?.productId || "",
       family: product?.family || "NO-FAMILLY",
+      isEcommerce: product?.isEcommerce || false,
       isActive: product?.isActive ?? true,
       tags: Array.isArray(product?.tags) ? product.tags.join(", ") : "",
       prices: {
@@ -281,6 +282,17 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             />
             <label htmlFor="isActive" className="text-sm font-semibold text-slate-700">
               Active product
+            </label>
+            <input
+              id="isEcommerce"
+              name="isEcommerce"
+              type="checkbox"
+              checked={formData.isEcommerce}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            <label htmlFor="isActive" className="text-sm font-semibold text-slate-700">
+              For E-commerce?
             </label>
           </div>
         </div>
