@@ -128,7 +128,7 @@ const translations = {
       hero_title: 'Join a team building the future of water management.',
       hero_description:
         'Explore open roles, learn about our culture, and find a position where your skills can make a real impact.',
-      view_open_roles: 'View Open Roles',
+      view_open_roles: 'Send us your CV',
       contact_hiring_team: 'Contact Hiring Team',
 
       open_roles: 'Open roles',

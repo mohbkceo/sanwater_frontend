@@ -116,10 +116,7 @@ function HiringPage() {
     return data;
   }, [jobs, search, locationFilter, typeFilter, sortBy]);
 
-  const rolesCountText =
-    filteredJobs.length === 1
-      ? t('hiring.role_available', { count: filteredJobs.length })
-      : t('hiring.roles_available', { count: filteredJobs.length });
+  const rolesCountText = t('hiring.roles_available', { count: filteredJobs.length });
 
   return (
     <MainLayout>
@@ -144,7 +141,8 @@ function HiringPage() {
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
-                  href="#open-roles"
+                  target='_blank'
+                  href="https://forms.gle/4X5SmWTqAqhQCWRH6"
                   className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
                   {t('hiring.view_open_roles')} <ArrowRight size={16} />
