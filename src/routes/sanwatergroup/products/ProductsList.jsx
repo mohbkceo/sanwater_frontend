@@ -6,15 +6,17 @@ import { useNavigate } from "react-router-dom";
 import ProductNotFound from "@/components/products/ProductNotFound";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { useState } from "react";
 
 let fetch = false;
 export default function ProductsPage() {
   const { products, loading, refetch } = useProducts();
+  const [ isEcommerce, setIsEcommerce ] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    refetch({ isAdmin:true })
-  }, [fetch])
+    refetch({ isAdmin:true, isEcommerce})
+  }, [fetch, isEcommerce])
   
   async function handleDelete(serialNumber) {
     if (confirm("Are you sure you want to delete this product?")) {
@@ -27,7 +29,7 @@ export default function ProductsPage() {
     try {
       await updateProduct(serialNumber, { isActive });
       toast.success(isActive ? "Product is now visible" : "Product is now hidden");
-      refetch({ isAdmin: true });
+      refetch({ isAdmin: true, isEcommerce });
     } catch (error) {
       toast.error("Failed to update product visibility");
       console.error(error);
@@ -66,8 +68,24 @@ export default function ProductsPage() {
             <span>Add Product</span>
           </Button>
         </div>
-      </div>
 
+      </div>
+       <div className="my-3">
+          <label
+            htmlFor="isEcommerce"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+          >
+            <input
+              type="checkbox"
+              name="isEcommerce"
+              id="isEcommerce"
+              value={isEcommerce}
+              onChange={(e) => setIsEcommerce(e.target.value)}
+              className="h-4 w-4 accent-slate-700"
+            />
+            <span>Ecommerce</span>
+          </label>
+        </div>
       
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

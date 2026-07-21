@@ -113,7 +113,7 @@ export default function ProductPage() {
         total: orderTotal,
       };
 
-      const response = await fetch(import.meta.env.VITE_BACK_END_BASE_URL + "/products/order/place", {
+      const response = await fetch(import.meta.env.VITE_BACK_END_BASE_URL + "/content/order/place", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
