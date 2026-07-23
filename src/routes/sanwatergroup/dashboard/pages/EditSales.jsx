@@ -19,6 +19,8 @@ import {
   getPageContent,
   updatePageContent,
 } from '@/services/contents/pageContent';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PERMISSIONS } from '@/configs/permissions';
 
 const SLUG = 'sales-contact';
 
@@ -160,6 +162,8 @@ function ActionButton({ children, variant = 'primary', className = '', ...props 
 }
 
 export default function EditSalesPage() {
+  const { can } = usePermissions();
+  const canManage = can(PERMISSIONS.CONTENT.MANAGE);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [initialData, setInitialData] = useState(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
@@ -272,7 +276,11 @@ export default function EditSalesPage() {
                 <RotateCcw className="h-4 w-4" />
                 Reset
               </ActionButton>
-              <ActionButton onClick={handleSave} disabled={saving}>
+              <ActionButton
+                onClick={handleSave}
+                disabled={saving || !canManage}
+                title={!canManage ? 'You do not have permission' : 'Save Changes'}
+              >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {saving ? 'Saving...' : 'Save Changes'}
               </ActionButton>

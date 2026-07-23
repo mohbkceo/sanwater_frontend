@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { contentAPI } from '@/services/baseAPIs';
 import { Header } from '@/components';
 import { Mail, CheckCircle, Archive } from 'lucide-react';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PERMISSIONS } from '@/configs/permissions';
 
 function ContactSubmissions() {
+  const { can } = usePermissions();
+  const canManage = can(PERMISSIONS.SUBMISSIONS.MANAGE);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,15 +59,17 @@ function ContactSubmissions() {
               <div className="flex gap-2">
                 <button 
                   onClick={() => handleStatusUpdate(sub._id, 'read')}
-                  className={`p-2 rounded-lg transition-colors ${sub.status === 'read' ? 'bg-green-100 text-green-600' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
-                  title="Mark as Read"
+                  disabled={!canManage}
+                  className={`p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${sub.status === 'read' ? 'bg-green-100 text-green-600' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                  title={!canManage ? 'You do not have permission' : 'Mark as Read'}
                 >
                   <CheckCircle size={18} />
                 </button>
                 <button 
                   onClick={() => handleStatusUpdate(sub._id, 'archived')}
-                  className={`p-2 rounded-lg transition-colors ${sub.status === 'archived' ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
-                  title="Archive"
+                  disabled={!canManage}
+                  className={`p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${sub.status === 'archived' ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                  title={!canManage ? 'You do not have permission' : 'Archive'}
                 >
                   <Archive size={18} />
                 </button>

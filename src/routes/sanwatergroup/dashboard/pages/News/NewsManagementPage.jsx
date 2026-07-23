@@ -4,9 +4,13 @@ import { getAdminNewsArticles, deleteNewsArticle, updateNewsArticle } from '@/se
 import { useTranslation } from '@/lib/i18n';
 import { Trash2, Edit, Eye, Plus, Loader, Search } from 'lucide-react';
 import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PERMISSIONS } from '@/configs/permissions';
 
 const NewsManagementPage = () => {
     const { t } = useTranslation();
+    const { can } = usePermissions();
+    const canManage = can(PERMISSIONS.CONTENT.MANAGE);
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -69,13 +73,24 @@ const NewsManagementPage = () => {
                         <h1 className="text-3xl font-bold text-slate-900">News Management</h1>
                         <p className="mt-2 text-slate-600">Manage all your news articles</p>
                     </div>
-                    <Link
-                        to={SANWATERGROUPROUTES.content.children.news.fullPath + '/create'}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
-                    >
-                        <Plus size={20} />
-                        Create News
-                    </Link>
+                    {canManage ? (
+                        <Link
+                            to={SANWATERGROUPROUTES.content.children.news.fullPath + '/create'}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
+                        >
+                            <Plus size={20} />
+                            Create News
+                        </Link>
+                    ) : (
+                        <button
+                            disabled
+                            title="You do not have permission"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg opacity-40 cursor-not-allowed"
+                        >
+                            <Plus size={20} />
+                            Create News
+                        </button>
+                    )}
                 </div>
 
                 {/* Filters */}
@@ -130,7 +145,9 @@ const NewsManagementPage = () => {
                                             <select
                                                 value={article.status}
                                                 onChange={(e) => handleStatusChange(article._id, e.target.value)}
-                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                                disabled={!canManage}
+                                                title={!canManage ? 'You do not have permission' : undefined}
+                                                className={`px-3 py-1 rounded-full text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed ${
                                                     article.status === 'published'
                                                         ? 'bg-green-100 text-green-800'
                                                         : article.status === 'scheduled'
@@ -150,12 +167,22 @@ const NewsManagementPage = () => {
                                                 : '-'}
                                         </td>
                                         <td className="px-6 py-4 text-sm flex gap-2">
-                                            <Link
-                                                to={`${SANWATERGROUPROUTES.content.children.news.fullPath}/edit/${article._id}`}
-                                                className="p-2 text-slate-600 hover:bg-slate-200 rounded transition"
-                                            >
-                                                <Edit size={18} />
-                                            </Link>
+                                            {canManage ? (
+                                                <Link
+                                                    to={`${SANWATERGROUPROUTES.content.children.news.fullPath}/edit/${article._id}`}
+                                                    className="p-2 text-slate-600 hover:bg-slate-200 rounded transition"
+                                                >
+                                                    <Edit size={18} />
+                                                </Link>
+                                            ) : (
+                                                <button
+                                                    disabled
+                                                    title="You do not have permission"
+                                                    className="p-2 text-slate-400 rounded opacity-40 cursor-not-allowed"
+                                                >
+                                                    <Edit size={18} />
+                                                </button>
+                                            )}
                                             <a
                                                 href={`/news/${article.slug}`}
                                                 target="_blank"
@@ -166,7 +193,9 @@ const NewsManagementPage = () => {
                                             </a>
                                             <button
                                                 onClick={() => handleDelete(article._id)}
-                                                className="p-2 text-red-600 hover:bg-red-100 rounded transition"
+                                                disabled={!canManage}
+                                                title={!canManage ? 'You do not have permission' : 'Delete'}
+                                                className="p-2 text-red-600 hover:bg-red-100 rounded transition disabled:opacity-40 disabled:cursor-not-allowed"
                                             >
                                                 <Trash2 size={18} />
                                             </button>

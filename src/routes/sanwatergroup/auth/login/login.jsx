@@ -55,6 +55,7 @@ const LoginPage = () => {
 
       if (res?.success) {
         localStorage.setItem('role', res.result?.user.role);
+        localStorage.setItem('permissions', JSON.stringify(res.result?.user?.permissions || []));
         localStorage.setItem('authKey', res.result?.user?.authKey);
         localStorage.setItem('public_id', res.result?.user.uid);
         window.location.href = SANWATERGROUPROUTES.analystics.fullPath;

@@ -12,7 +12,8 @@ const PAGE_CONTENT = {
     subtitle: "Start managing your data in a smarter way.",
     buttonText: "Sign Up",
     footerText: "Already have an account?",
-    signInText: "Login"
+    signInText: "Login",
+    permissionsNote: "New accounts are created as admins with no permissions. A user with the 'Manage user permissions' permission can assign access from User Management."
   },
   promoSection: {
     title: "Control your Data With Our Smart Tool",
@@ -75,6 +76,7 @@ const RegisterPage = () => {
 
       if (res?.success) {
         localStorage.setItem('role', res.result?.user.role);
+        localStorage.setItem('permissions', JSON.stringify(res.result?.user?.permissions || []));
         localStorage.setItem('authKey', res.result?.user?.authKey);
         localStorage.setItem('public_id', res.result?.user.uid);
         window.location.href = SANWATERGROUPROUTES.analystics.fullPath;
@@ -114,6 +116,10 @@ const RegisterPage = () => {
                 {error}
               </div>
             )}
+
+            <div className="rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 px-4 py-3 text-sm">
+              {PAGE_CONTENT.registerSection.permissionsNote}
+            </div>
 
             <input
               type="text"

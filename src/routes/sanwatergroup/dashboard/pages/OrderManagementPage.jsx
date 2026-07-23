@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { usePermissions } from "@/hooks/usePermissions";
+import { PERMISSIONS } from "@/configs/permissions";
 import {
   Search,
   Filter,
@@ -46,6 +48,8 @@ const initialFilters = {
 };
 
 export default function OrderManagementPage() {
+  const { can } = usePermissions();
+  const canManage = can(PERMISSIONS.ORDERS.MANAGE);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -65,7 +69,7 @@ export default function OrderManagementPage() {
       if (silent) setRefreshing(true);
       else setLoading(true);
       setError("");
-      const res = await fetch(apiBaseUrl + "/orders");
+      const res = await fetch(apiBaseUrl + "/orders", { credentials: "include" });
       const data = await res.json();
 
       if (!res.ok) {
@@ -133,6 +137,7 @@ export default function OrderManagementPage() {
       const res = await fetch(apiBaseUrl + `/order/${orderId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ status }),
       });
 
@@ -159,7 +164,7 @@ export default function OrderManagementPage() {
       setError("");
       setSuccess("");
 
-      const res = await fetch(apiBaseUrl + `/order/${orderId}`, { method: "DELETE" });
+      const res = await fetch(apiBaseUrl + `/order/${orderId}`, { method: "DELETE", credentials: "include" });
       const data = await res.json();
 
       if (!res.ok) throw new Error(data?.message || "Could not delete order.");
@@ -310,6 +315,7 @@ export default function OrderManagementPage() {
                         onDelete={() => deleteOrder(order._id)}
                         onStatusChange={(status) => updateOrderStatus(order._id, status)}
                         actionLoading={actionLoadingId === order._id}
+                        canManage={canManage}
                       />
                     ))}
                   </div>
@@ -325,6 +331,7 @@ export default function OrderManagementPage() {
                   onStatusChange={(status) => updateOrderStatus(selectedOrder._id, status)}
                   onDelete={() => deleteOrder(selectedOrder._id)}
                   actionLoading={actionLoadingId === selectedOrder._id}
+                  canManage={canManage}
                 />
               ) : (
                 <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-6 text-center shadow-sm">
@@ -345,7 +352,7 @@ export default function OrderManagementPage() {
   );
 }
 
-function OrderRow({ order, onSelect, onDelete, onStatusChange, actionLoading }) {
+function OrderRow({ order, onSelect, onDelete, onStatusChange, actionLoading, canManage = true }) {
   const meta = STATUS_META[order.status] || STATUS_META.pending;
   const StatusIcon = meta.icon;
 
@@ -400,8 +407,9 @@ function OrderRow({ order, onSelect, onDelete, onStatusChange, actionLoading }) 
         <select
           value={order.status}
           onChange={(e) => onStatusChange(e.target.value)}
-          disabled={actionLoading}
-          className={`w-full appearance-none rounded-2xl border px-3 py-2.5 text-sm font-semibold outline-none ${meta.pill} disabled:opacity-60`}
+          disabled={actionLoading || !canManage}
+          title={!canManage ? "You do not have permission" : undefined}
+          className={`w-full appearance-none rounded-2xl border px-3 py-2.5 text-sm font-semibold outline-none ${meta.pill} disabled:opacity-60 disabled:cursor-not-allowed`}
         >
           {STATUS_OPTIONS.map((status) => (
             <option key={status} value={status} className="text-slate-900 bg-white">
@@ -418,9 +426,9 @@ function OrderRow({ order, onSelect, onDelete, onStatusChange, actionLoading }) 
       <div className="col-span-1 flex justify-end">
         <button
           onClick={onDelete}
-          disabled={actionLoading}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-60"
-          title="Delete order"
+          disabled={actionLoading || !canManage}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-60 disabled:cursor-not-allowed"
+          title={!canManage ? "You do not have permission" : "Delete order"}
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -429,7 +437,7 @@ function OrderRow({ order, onSelect, onDelete, onStatusChange, actionLoading }) 
   );
 }
 
-function OrderDetailsCard({ order, onClose, onStatusChange, onDelete, actionLoading }) {
+function OrderDetailsCard({ order, onClose, onStatusChange, onDelete, actionLoading, canManage = true }) {
   const meta = STATUS_META[order.status] || STATUS_META.pending;
   const StatusIcon = meta.icon;
 
@@ -465,28 +473,28 @@ function OrderDetailsCard({ order, onClose, onStatusChange, onDelete, actionLoad
       <div className="mt-6 grid grid-cols-2 gap-3">
         <button
           onClick={() => onStatusChange("confirmed")}
-          disabled={actionLoading}
+          disabled={actionLoading || !canManage}
           className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
         >
           Confirm
         </button>
         <button
           onClick={() => onStatusChange("shipped")}
-          disabled={actionLoading}
+          disabled={actionLoading || !canManage}
           className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
         >
           Mark shipped
         </button>
         <button
           onClick={() => onStatusChange("delivered")}
-          disabled={actionLoading}
+          disabled={actionLoading || !canManage}
           className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
         >
           Mark delivered
         </button>
         <button
           onClick={() => onStatusChange("cancelled")}
-          disabled={actionLoading}
+          disabled={actionLoading || !canManage}
           className="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-60"
         >
           Cancel
@@ -495,8 +503,9 @@ function OrderDetailsCard({ order, onClose, onStatusChange, onDelete, actionLoad
 
       <button
         onClick={onDelete}
-        disabled={actionLoading}
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60"
+        disabled={actionLoading || !canManage}
+        title={!canManage ? "You do not have permission" : "Delete order"}
+        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <Trash2 className="h-4 w-4" />
         Delete order

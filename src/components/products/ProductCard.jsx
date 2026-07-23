@@ -9,7 +9,7 @@ import {
 import { Button } from "..";
 import { useNavigate } from "react-router-dom";
 
-export default function ProductCard({ product, onDelete, onToggleActive }) {
+export default function ProductCard({ product, onDelete, onToggleActive, canManage = true }) {
   const navigate = useNavigate();
   const imageUrl = product.gallery?.[0] || "/api/placeholder/400/320";
 
@@ -72,7 +72,8 @@ export default function ProductCard({ product, onDelete, onToggleActive }) {
           <div className="flex gap-2">
             <Button
               onClick={handleToggle}
-              title={product.isActive ? "Hide Product" : "Unhide Product"}
+              disabled={!canManage}
+              title={!canManage ? "You do not have permission" : product.isActive ? "Hide Product" : "Unhide Product"}
               className={`p-2 rounded-lg transition-colors duration-200 ${
                 product.isActive
                   ? "text-amber-600 bg-amber-50 hover:bg-amber-500 hover:text-white"
@@ -87,8 +88,9 @@ export default function ProductCard({ product, onDelete, onToggleActive }) {
                 e.stopPropagation();
                 onDelete(product.serialNumber);
               }}
-              title="Delete Product"
-              className="p-2 text-red-500 bg-red-50 hover:bg-red-500 hover:text-white rounded-lg transition-colors duration-200"
+              disabled={!canManage}
+              title={!canManage ? "You do not have permission" : "Delete Product"}
+              className="p-2 text-red-500 bg-red-50 hover:bg-red-500 hover:text-white rounded-lg transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Trash2 size={18} />
             </Button>

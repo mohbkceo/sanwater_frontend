@@ -1,11 +1,13 @@
 import React from "react";
 import { ShieldCheck, Users, Copy } from "lucide-react";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+import { usePermissions } from "@/hooks/usePermissions";
+import { PERMISSIONS } from "@/configs/permissions";
 
 
 
 function Settings({ user }) {
-  const role = localStorage.getItem('role');
+  const { can } = usePermissions();
   const authKey = localStorage.getItem('authKey');
   const _id = localStorage.getItem('public_id');
   const authorizationKey = _id;
@@ -17,7 +19,7 @@ function Settings({ user }) {
       path: SANWATERGROUPROUTES.settings.children.manage_users.subPath,
       description: "Control admin accounts and permissions.",
       icon: Users,
-      adminOnly: false,
+      permission: PERMISSIONS.USERS.VIEW,
     },
     {
       id: 2,
@@ -25,7 +27,7 @@ function Settings({ user }) {
       path: SANWATERGROUPROUTES.auth.register.fullPath + `?auth_key=${authorizationKey}`,
       description: "Control admin accounts and permissions.",
       icon: Users,
-      adminOnly: false,
+      permission: PERMISSIONS.USERS.CREATE,
       isBlank:true,
     },
   ];
@@ -39,7 +41,7 @@ function Settings({ user }) {
   };
 
   const filteredContents = settingsContents.filter((item) => {
-    if (item.adminOnly && user?.role !== "admin") {
+    if (item.permission && !can(item.permission)) {
       return false;
     }
 

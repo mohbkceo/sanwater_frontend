@@ -1,4 +1,5 @@
 import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig'
+import { PERMISSIONS } from '@/configs/permissions'
 import React from 'react'
 import { Route } from 'react-router-dom'
 import { Routes } from 'react-router-dom'
@@ -19,33 +20,34 @@ import NewsManagementPage from './dashboard/pages/News/NewsManagementPage'
 import CreateEditNewsPage from './dashboard/pages/News/CreateEditNewsPage'
 import UserProfile from './dashboard/pages/UserProfile'
 import OrderManagementPage from './dashboard/pages/OrderManagementPage'
+import PermissionGuard from '@/components/shared_uis/PermissionGuard'
 
 function SanWaterGroupMain() {
   return (
     <Routes>
         <Route path='/*' element={<DashboardLayout />}>
-        <Route path={SANWATERGROUPROUTES.products.list.subPath} element={<ProductsListPage />} />
-        <Route path={SANWATERGROUPROUTES.products.create.subPath} element={<CreateProductPage />} />
-        <Route path={SANWATERGROUPROUTES.products.edit.subPath} element={<EditProductPage />} />
-        <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<Analytics />} />
+        <Route path={SANWATERGROUPROUTES.products.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><ProductsListPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateProductPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.edit.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><EditProductPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<PermissionGuard permission={PERMISSIONS.ANALYTICS.VIEW}><Analytics /></PermissionGuard>} />
 
-        <Route path={SANWATERGROUPROUTES.content.subPath} element={<Content />} />
-        <Route path={SANWATERGROUPROUTES.content.children.news.subPath} element={<NewsManagementPage />} />
-        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/create'} element={<CreateEditNewsPage />} />
-        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/edit/:id'} element={<CreateEditNewsPage />} />
-        <Route path={SANWATERGROUPROUTES.content.children.sales.subPath} element={<EditSalesPage />} />
+        <Route path={SANWATERGROUPROUTES.content.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.VIEW}><Content /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.VIEW}><NewsManagementPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/create'} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><CreateEditNewsPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/edit/:id'} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><CreateEditNewsPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.content.children.sales.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><EditSalesPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.settings.subPath} element={<Settings />} />
-        <Route path={SANWATERGROUPROUTES.settings.children.manage_users.subPath} element={<UserManagement />} />
-        
-        <Route path={SANWATERGROUPROUTES.orders.subPath} element={<OrderManagementPage />} />
+        <Route path={SANWATERGROUPROUTES.settings.children.manage_users.subPath} element={<PermissionGuard permission={PERMISSIONS.USERS.VIEW}><UserManagement /></PermissionGuard>} />
+
+        <Route path={SANWATERGROUPROUTES.orders.subPath} element={<PermissionGuard permission={PERMISSIONS.ORDERS.VIEW}><OrderManagementPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.profile.subPath} element={<UserProfile />} />
 
-        <Route path={SANWATERGROUPROUTES.logs.list.subPath} element={<ActivityLogs />} />
-        <Route path={SANWATERGROUPROUTES.hiring.list.subPath} element={<HiringManagement />} />
-        <Route path={SANWATERGROUPROUTES.submissions.list.subPath} element={<ContactSubmissions />} />
-       
+        <Route path={SANWATERGROUPROUTES.logs.list.subPath} element={<PermissionGuard permission={PERMISSIONS.LOGS.VIEW}><ActivityLogs /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.hiring.list.subPath} element={<PermissionGuard permission={PERMISSIONS.HIRING.VIEW}><HiringManagement /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.submissions.list.subPath} element={<PermissionGuard permission={PERMISSIONS.SUBMISSIONS.VIEW}><ContactSubmissions /></PermissionGuard>} />
+
         </Route>
         <Route path={SANWATERGROUPROUTES.auth.login.subPath} element={<LoginPage />} />
         <Route path={SANWATERGROUPROUTES.auth.register.subPath} element={<RegisterPage />} />

@@ -7,12 +7,16 @@ import ProductNotFound from "@/components/products/ProductNotFound";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { usePermissions } from "@/hooks/usePermissions";
+import { PERMISSIONS } from "@/configs/permissions";
 
 let fetch = false;
 export default function ProductsPage() {
   const { products, loading, refetch } = useProducts();
   const [ isEcommerce, setIsEcommerce ] = useState(true);
   const navigate = useNavigate();
+  const { can } = usePermissions();
+  const canManage = can(PERMISSIONS.PRODUCTS.MANAGE);
 
   useEffect(() => {
     refetch({ isAdmin:true, isEcommerce})
@@ -63,7 +67,12 @@ export default function ProductsPage() {
             <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
           </Button>
           
-          <Button onClick={() => navigate(`create`)} className="flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-lg font-medium hover:bg-zinc-800 transition-colors shadow-sm">
+          <Button
+            onClick={() => navigate(`create`)}
+            disabled={!canManage}
+            title={!canManage ? "You do not have permission" : "Add Product"}
+            className="flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-lg font-medium hover:bg-zinc-800 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             <Plus size={18} />
             <span>Add Product</span>
           </Button>
@@ -101,6 +110,7 @@ export default function ProductsPage() {
                 product={product}
                 onDelete={() => handleDelete(product.serialNumber)}
                 onToggleActive={handleToggleActive}
+                canManage={canManage}
               />
             </div>
           ))}

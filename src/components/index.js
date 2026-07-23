@@ -20,3 +20,6 @@ export { default as ProductsNotFound } from './products/ProductNotFound'
 
 export { default as Topbar } from './dashboard/Topbar'
 export { default as Sidebar } from './dashboard/Sidebar'
+
+export { default as NoPermission } from './shared_uis/NoPermission'
+export { default as PermissionGuard } from './shared_uis/PermissionGuard'
