@@ -13,7 +13,7 @@ import { PERMISSIONS } from "@/configs/permissions";
 let fetch = false;
 export default function ProductsPage() {
   const { products, loading, refetch } = useProducts();
-  const [ isEcommerce, setIsEcommerce ] = useState(true);
+  const [ isEcommerce, setIsEcommerce ] = useState(false);
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.PRODUCTS.MANAGE);
@@ -60,7 +60,7 @@ export default function ProductsPage() {
         <div className="flex items-center gap-3">
           <Button
             variant={'outline'}
-            onClick={() => refetch('')}
+            onClick={() => refetch({ isAdmin:true, isEcommerce })}
             className="p-2.5 text-slate-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 rounded-lg transition-all"
             title="Reload products"
           >
@@ -89,7 +89,7 @@ export default function ProductsPage() {
               name="isEcommerce"
               id="isEcommerce"
               value={isEcommerce}
-              onChange={(e) => setIsEcommerce(e.target.value)}
+              onChange={(e) => setIsEcommerce(!isEcommerce)}
               className="h-4 w-4 accent-slate-700"
             />
             <span>Ecommerce</span>
