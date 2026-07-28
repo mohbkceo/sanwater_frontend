@@ -80,10 +80,7 @@ export default function ProductPage() {
     );
   }, [product, productPrice, shippingPrice, serialNumber]);
 
-  const handleOrder = () => {
-    const phone = String("213XXXXXXXXX").replace(/\D/g, "");
-    window.open(`https://wa.me/${phone}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
-  };
+ 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -170,10 +167,10 @@ export default function ProductPage() {
               <div className="overflow-hidden rounded-xl bg-gray-50 border border-gray-100 relative aspect-square lg:aspect-[4/3]">
                 {selectedImage ? (
                   <img
-                    src={selectedImage}
-                    alt={`${product.name} - San Water`}
-                    className="h-full w-full object-cover object-center transition duration-300"
-                  />
+                      src={selectedImage}
+                      alt={`${product.name} - San Water`}
+                      className="h-full w-full object-contain object-center transition duration-300 bg-white"
+                    />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-gray-400 text-sm">
                     Aucune image d'aperçu disponible
@@ -184,11 +181,7 @@ export default function ProductPage() {
                   <span className="rounded-md bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-gray-800 shadow-sm border border-gray-200/50">
                     Premium
                   </span>
-                  {product.tags?.[0] && (
-                    <span className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
-                      {product.tags[0]}
-                    </span>
-                  )}
+                  
                 </div>
               </div>
 
@@ -230,11 +223,7 @@ export default function ProductPage() {
                 <DetailItem label="Référence catalogue" value={product.serialNumber} />
                 <DetailItem label="Numéro de série de fabrication" value={product.productId} />
                 <DetailItem label="Famille de l'écosystème" value={product.family || "Accessoires"} />
-                <DetailItem label="État du stock" value={product.isActive ? "En stock usine" : "Commande spéciale uniquement"} />
-                <DetailItem
-                  label="Date de lancement"
-                  value={new Date(product.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long" })}
-                />
+             
               </div>
             </div>
 
