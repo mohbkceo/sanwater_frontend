@@ -227,11 +227,10 @@ export default function ProductPage() {
                 Spécifications techniques
               </h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <DetailItem label="Référence catalogue" value={product.productId} />
-                <DetailItem label="Numéro de série de fabrication" value={product.serialNumber} />
+                <DetailItem label="Référence catalogue" value={product.serialNumber} />
+                <DetailItem label="Numéro de série de fabrication" value={product.productId} />
                 <DetailItem label="Famille de l'écosystème" value={product.family || "Accessoires"} />
                 <DetailItem label="État du stock" value={product.isActive ? "En stock usine" : "Commande spéciale uniquement"} />
-                <DetailItem label="Contrôle qualité" value={product.author || "QA validé"} />
                 <DetailItem
                   label="Date de lancement"
                   value={new Date(product.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long" })}
@@ -394,12 +393,7 @@ export default function ProductPage() {
                 </button>
               </form>
 
-              <button
-                onClick={handleOrder}
-                className="mt-4 w-full rounded-xl border border-emerald-200 bg-white px-6 py-4 text-base font-bold text-emerald-700 transition hover:bg-emerald-50"
-              >
-                Commander via WhatsApp Concierge
-              </button>
+              
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ const testimonials = [
   {
     name: "Karim B.",
     role: "Propriétaire",
-    avatar: "https://pagedone.io/asset/uploads/1696229994.png",
+    avatar: "https://images.unsplash.com/photo-1615109398623-88346a601842?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFufGVufDB8fDB8fHww",
     rating: 5,
     feedback:
       "Très satisfait de la qualité des accessoires. Les finitions sont impeccables et l'installation s'est faite sans difficulté. Excellent rapport qualité-prix.",
