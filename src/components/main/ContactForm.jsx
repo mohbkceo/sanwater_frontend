@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { contentAPI } from '@/services/baseAPIs';
 import { useTranslation } from '@/lib/i18n.jsx';
+import { trackFormFailed, trackFormStarted, trackFormSubmitted } from '@/services/analytics/analytics';
 import { Send, Mail, User, MessageSquare, Sparkles, ArrowRight, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 function ContactForm() {
@@ -15,6 +16,7 @@ function ContactForm() {
   const [activeField, setActiveField] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef(null);
+  const formStartedRef = useRef(false);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -39,6 +41,10 @@ function ContactForm() {
   }, []);
 
   const handleChange = (e) => {
+    if (!formStartedRef.current) {
+      formStartedRef.current = true;
+      trackFormStarted('contact', 4);
+    }
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -47,10 +53,13 @@ function ContactForm() {
     setStatus({ loading: true, success: false, error: null });
     try {
       await contentAPI.post('/contact', formData);
+      trackFormSubmitted('contact', 4);
+      formStartedRef.current = false;
       setStatus({ loading: false, success: true, error: null });
       setFormData({ name: '', email: '', subject: '', message: '' });
       setTimeout(() => setStatus({ loading: false, success: false, error: null }), 3000);
     } catch (err) {
+      trackFormFailed('contact', err.response?.status);
       setStatus({ loading: false, success: false, error: 'Failed to send message. Please try again later.' });
     }
   };

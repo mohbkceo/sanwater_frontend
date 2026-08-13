@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { signIn_API } from '@/services/auth/sanwater_group.auth'; // adjust path later
 import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
+import { identifyAnalyticsUser, trackEvent } from '@/services/analytics/analytics';
 
 const PAGE_CONTENT = {
   brand: {
@@ -58,6 +59,8 @@ const LoginPage = () => {
         localStorage.setItem('permissions', JSON.stringify(res.result?.user?.permissions || []));
         localStorage.setItem('authKey', res.result?.user?.authKey);
         localStorage.setItem('public_id', res.result?.user.uid);
+        trackEvent('admin_login', { feature: 'admin_auth', action: 'sign_in_success' });
+        identifyAnalyticsUser();
         window.location.href = SANWATERGROUPROUTES.analystics.fullPath;
         
       } else {

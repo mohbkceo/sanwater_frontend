@@ -1,25 +1,20 @@
-import {
-  mainSanWaterRoute,
-  SANWATERGROUPROUTES,
-} from "@/configs/routes/routesConfig";
+import { analyticsAPI } from '../baseAPIs';
 
-import { analyticsAPI } from "../baseAPIs";
+const analyticsBaseUrl = `${import.meta.env.VITE_BACK_END_BASE_URL}/analytics`;
+const TRACK_URL = `${analyticsBaseUrl}/track`;
+const BATCH_URL = `${analyticsBaseUrl}/batch`;
+const IDENTIFY_URL = `${analyticsBaseUrl}/identify`;
 
-const API_URL = `${
-  import.meta.env.VITE_BACK_END_BASE_URL
-}/analytics/track`;
+const SESSION_KEY = 'sanwater_analytics_session';
+const VISITOR_KEY = 'sanwater_analytics_visitor';
+const FIRST_TOUCH_KEY = 'sanwater_analytics_first_touch';
+const LAST_TOUCH_KEY = 'sanwater_analytics_last_touch';
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+const MAX_PENDING_EVENTS = 50;
+const BOT_REGEX = /bot|crawler|spider|crawling|facebookexternalhit|slackbot|whatsapp/i;
 
-const FETCH_API_URL = `/summary`;
-
-const SESSION_KEY = "session_id";
-const VISITOR_KEY = "visitor_id";
-const SOURCE_KEY = "source";
-const CAMPAIGN_KEY = "campaign";
-const MEDIUM_KEY = "medium";
-
-const BOT_REGEX =
-  /bot|crawler|spider|crawling|facebookexternalhit|Slackbot|WhatsApp/i;
-
+let pendingEvents = [];
+let flushTimer = null;
 
 function safeStorageGet(key) {
   try {
@@ -33,308 +28,293 @@ function safeStorageSet(key, value) {
   try {
     localStorage.setItem(key, value);
   } catch {
-    return null;
+    // Analytics storage should never affect the application.
   }
 }
 
 function generateId() {
-  return crypto.randomUUID();
-}
-
-function getSessionId() {
-  let session = safeStorageGet(SESSION_KEY);
-
-  if (!session) {
-    session = generateId();
-    safeStorageSet(SESSION_KEY, session);
-  }
-
-  return session;
+  return globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
 function getVisitorId() {
-  let visitor = safeStorageGet(VISITOR_KEY);
+  let visitorId = safeStorageGet(VISITOR_KEY);
+  if (!visitorId) {
+    visitorId = generateId();
+    safeStorageSet(VISITOR_KEY, visitorId);
+  }
+  return visitorId;
+}
 
-  if (!visitor) {
-    visitor = generateId();
-    safeStorageSet(VISITOR_KEY, visitor);
+function getSessionId() {
+  const now = Date.now();
+  const stored = safeStorageGet(SESSION_KEY);
+  let session;
+
+  try {
+    session = stored ? JSON.parse(stored) : null;
+  } catch {
+    session = null;
   }
 
-  return visitor;
+  // Supports the application's former string-only session ID during the migration.
+  if (typeof session === 'string') session = { id: session, lastActivity: now };
+  if (!session?.id || now - Number(session.lastActivity || 0) > SESSION_TIMEOUT_MS) {
+    session = { id: generateId(), startedAt: now, lastActivity: now };
+  } else {
+    session.lastActivity = now;
+  }
+
+  safeStorageSet(SESSION_KEY, JSON.stringify(session));
+  return session.id;
+}
+
+function normalizeString(value, limit = 150) {
+  return typeof value === 'string' ? value.trim().slice(0, limit) || null : null;
 }
 
 function parseUTMParams() {
   const params = new URLSearchParams(window.location.search);
-
   return {
-    source: params.get("utm_source"),
-    medium: params.get("utm_medium"),
-    campaign: params.get("utm_campaign"),
+    source: normalizeString(params.get('utm_source'), 100),
+    medium: normalizeString(params.get('utm_medium'), 100),
+    campaign: normalizeString(params.get('utm_campaign'), 150),
+    term: normalizeString(params.get('utm_term'), 150),
+    content: normalizeString(params.get('utm_content'), 150),
   };
 }
 
-function detectSource() {
-  const cached = safeStorageGet(SOURCE_KEY);
+function inferSource() {
+  const referrer = document.referrer;
+  if (!referrer) return 'direct';
 
-  if (cached) return cached;
-
-  const utm = parseUTMParams();
-
-  if (utm.source) {
-    safeStorageSet(SOURCE_KEY, utm.source);
-    return utm.source;
+  try {
+    const hostname = new URL(referrer).hostname.toLowerCase();
+    if (/google|bing|yahoo|duckduckgo/.test(hostname)) return 'search';
+    if (/facebook|instagram|tiktok|linkedin|twitter|x\.com/.test(hostname)) return 'social';
+    return 'referral';
+  } catch {
+    return 'referral';
   }
-
-  const ref = document.referrer;
-
-  let source = "direct";
-
-  if (!ref) {
-    source = "direct";
-  } else if (
-    ref.includes("google") ||
-    ref.includes("bing") ||
-    ref.includes("yahoo")
-  ) {
-    source = "search";
-  } else if (
-    ref.includes("facebook") ||
-    ref.includes("instagram") ||
-    ref.includes("tiktok") ||
-    ref.includes("linkedin") ||
-    ref.includes("twitter")
-  ) {
-    source = "social";
-  } else {
-    source = "referral";
-  }
-
-  safeStorageSet(SOURCE_KEY, source);
-
-  return source;
 }
 
-function getMedium() {
-  const cached = safeStorageGet(MEDIUM_KEY);
-
-  if (cached) return cached;
-
+function captureAttribution(pathname) {
   const utm = parseUTMParams();
+  const hasUtm = Object.values(utm).some(Boolean);
+  const touch = {
+    source: utm.source || inferSource(),
+    medium: utm.medium,
+    campaign: utm.campaign,
+    term: utm.term,
+    content: utm.content,
+    referrer: normalizeString(document.referrer, 500),
+    landingPath: pathname || window.location.pathname,
+    capturedAt: new Date().toISOString(),
+  };
 
-  if (utm.medium) {
-    safeStorageSet(MEDIUM_KEY, utm.medium);
-    return utm.medium;
+  let firstTouch;
+  try {
+    firstTouch = JSON.parse(safeStorageGet(FIRST_TOUCH_KEY) || 'null');
+  } catch {
+    firstTouch = null;
   }
 
-  return null;
-}
-
-function getCampaign() {
-  const cached = safeStorageGet(CAMPAIGN_KEY);
-
-  if (cached) return cached;
-
-  const utm = parseUTMParams();
-
-  if (utm.campaign) {
-    safeStorageSet(CAMPAIGN_KEY, utm.campaign);
-    return utm.campaign;
+  if (!firstTouch) {
+    firstTouch = touch;
+    safeStorageSet(FIRST_TOUCH_KEY, JSON.stringify(firstTouch));
   }
 
-  return null;
+  // Direct internal navigation must not overwrite attributable acquisition context.
+  if (hasUtm || touch.referrer) safeStorageSet(LAST_TOUCH_KEY, JSON.stringify(touch));
+  let lastTouch;
+  try {
+    lastTouch = JSON.parse(safeStorageGet(LAST_TOUCH_KEY) || 'null');
+  } catch {
+    lastTouch = null;
+  }
+
+  return { firstTouch, lastTouch: lastTouch || firstTouch || touch };
 }
 
 function getDevice() {
-  const ua = navigator.userAgent.toLowerCase();
-
-  if (BOT_REGEX.test(ua)) return "bot";
-
-  if (/tablet|ipad/i.test(ua)) return "tablet";
-
-  if (/mobile|android|iphone/i.test(ua)) return "mobile";
-
-  return "desktop";
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (BOT_REGEX.test(userAgent)) return 'bot';
+  if (/tablet|ipad/i.test(userAgent)) return 'tablet';
+  if (/mobile|android|iphone/i.test(userAgent)) return 'mobile';
+  return 'desktop';
 }
 
 function getBrowser() {
-  const ua = navigator.userAgent;
-
-  if (ua.includes("Firefox")) return "Firefox";
-  if (ua.includes("Edg")) return "Edge";
-  if (ua.includes("Chrome")) return "Chrome";
-  if (ua.includes("Safari")) return "Safari";
-
-  return "Unknown";
+  const userAgent = navigator.userAgent;
+  if (userAgent.includes('Firefox')) return 'Firefox';
+  if (userAgent.includes('Edg')) return 'Edge';
+  if (userAgent.includes('Chrome')) return 'Chrome';
+  if (userAgent.includes('Safari')) return 'Safari';
+  return 'Unknown';
 }
 
 function getOS() {
-  const ua = navigator.userAgent;
-
-  if (ua.includes("Windows")) return "Windows";
-  if (ua.includes("Mac")) return "MacOS";
-  if (ua.includes("Linux")) return "Linux";
-  if (ua.includes("Android")) return "Android";
-  if (ua.includes("iPhone") || ua.includes("iPad")) return "iOS";
-
-  return "Unknown";
+  const userAgent = navigator.userAgent;
+  if (userAgent.includes('Windows')) return 'Windows';
+  if (userAgent.includes('Android')) return 'Android';
+  if (userAgent.includes('iPhone') || userAgent.includes('iPad')) return 'iOS';
+  if (userAgent.includes('Mac')) return 'MacOS';
+  if (userAgent.includes('Linux')) return 'Linux';
+  return 'Unknown';
 }
 
-function shouldIgnorePath(path) {
-  if (!path) return true;
-
-  if (path.includes(mainSanWaterRoute)) return true;
-
-  const ignoredRoutes = [
-    mainSanWaterRoute,
-    "/admin",
-    "/dashboard",
-  ];
-
-  return ignoredRoutes.some((route) => path.startsWith(route));
-}
-
-function buildBaseEvent() {
+function baseEvent(pathname = window.location.pathname) {
+  const attribution = captureAttribution(pathname);
   return {
+    event_id: generateId(),
     session_id: getSessionId(),
     visitor_id: getVisitorId(),
-
-    source: detectSource(),
-    medium: getMedium(),
-    campaign: getCampaign(),
-
-    referrer: document.referrer || null,
+    source: attribution.lastTouch?.source || 'direct',
+    medium: attribution.lastTouch?.medium || null,
+    campaign: attribution.lastTouch?.campaign || null,
+    term: attribution.lastTouch?.term || null,
+    content: attribution.lastTouch?.content || null,
+    referrer: normalizeString(document.referrer, 500),
+    path: pathname,
+    title: normalizeString(document.title, 300),
     user_agent: navigator.userAgent,
-
     device: getDevice(),
     browser: getBrowser(),
     os: getOS(),
-
-    screen: {
-      width: window.screen.width,
-      height: window.screen.height,
-    },
-
     language: navigator.language,
-    timezone:
-      Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown",
-
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown',
+    screen: { width: window.screen?.width, height: window.screen?.height },
     ts: new Date().toISOString(),
   };
 }
 
-
-function sendEvent(event) {
+function postEvent(event) {
   try {
     const payload = JSON.stringify(event);
-
     if (navigator.sendBeacon) {
-      const blob = new Blob([payload], {
-        type: "application/json",
-      });
-
-      navigator.sendBeacon(API_URL, blob);
-      return;
+      const sent = navigator.sendBeacon(TRACK_URL, new Blob([payload], { type: 'application/json' }));
+      if (sent) return;
     }
 
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    fetch(TRACK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: payload,
       keepalive: true,
-    }).catch(() => {});
-  } catch (error) {
-    console.error("Analytics transport error:", error);
+    }).catch(() => queueEvent(event));
+  } catch {
+    queueEvent(event);
   }
+}
+
+function queueEvent(event) {
+  pendingEvents = [...pendingEvents.slice(-(MAX_PENDING_EVENTS - 1)), event];
+  if (!flushTimer) {
+    flushTimer = window.setTimeout(() => {
+      flushTimer = null;
+      flushPendingEvents();
+    }, 3000);
+  }
+}
+
+export function flushPendingEvents() {
+  if (!pendingEvents.length) return;
+  const events = pendingEvents.splice(0, MAX_PENDING_EVENTS);
+  fetch(BATCH_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ events }),
+    keepalive: true,
+  }).catch(() => {
+    pendingEvents = [...events, ...pendingEvents].slice(-MAX_PENDING_EVENTS);
+  });
+}
+
+export function trackEvent(type, properties = {}, options = {}) {
+  if (getDevice() === 'bot') return;
+  postEvent({
+    ...baseEvent(options.path || window.location.pathname),
+    type,
+    duration_ms: options.durationMs ?? null,
+    properties,
+  });
+}
+
+function trackRouteSpecificEvent(path) {
+  if (path === '/products') trackEvent('product_list_view', { feature: 'product_catalog' }, { path });
+  else if (path.startsWith('/products/')) trackEvent('product_view', { feature: 'product_detail', product_slug: path.split('/').pop() }, { path });
+  else if (path === '/hiring') trackEvent('hiring_list_view', { feature: 'hiring' }, { path });
+  else if (path === '/news') trackEvent('news_list_view', { feature: 'news' }, { path });
+  else if (path.startsWith('/news/')) trackEvent('news_article_view', { feature: 'news_article', article_slug: path.split('/').pop() }, { path });
+  else if (path.startsWith('/sanwater/admins/secure')) trackEvent('admin_feature_viewed', { feature: path, route: path }, { path });
 }
 
 export function trackPageView(path) {
-  if (shouldIgnorePath(path)) return;
-
-  sendEvent({
-    ...buildBaseEvent(),
-
-    type: "page_view",
-
-    path,
-  });
+  if (!path || path.startsWith('/sanwater/admins/secure/auth')) return;
+  trackEvent('page_view', { route: path, feature: path.startsWith('/sanwater/admins/secure') ? 'admin_dashboard' : 'public_site' }, { path });
+  trackRouteSpecificEvent(path);
 }
 
-export function trackConversion(
-  name = "default",
-  options = {}
-) {
-  sendEvent({
-    ...buildBaseEvent(),
-
-    type: "conversion",
-
-    conversion_name: name,
-
-    value:
-      typeof options.value === "number"
-        ? options.value
-        : 0,
-
-    meta: options.meta || {},
-  });
+export function trackPageExit(path, durationMs) {
+  if (!path || path.startsWith('/sanwater/admins/secure/auth')) return;
+  trackEvent('page_exit', { route: path }, { path, durationMs });
 }
 
-export function trackCTA(
-  name = "cta_click",
-  meta = {}
-) {
-  sendEvent({
-    ...buildBaseEvent(),
-
-    type: "cta_click",
-
-    conversion_name: name,
-
-    meta,
-  });
+export function trackRouteTiming(path, durationMs) {
+  trackEvent('route_timing', { route: path, duration_ms: Math.round(durationMs) }, { path, durationMs: Math.round(durationMs) });
 }
 
-export function trackCustomEvent(
-  type,
-  meta = {}
-) {
-  sendEvent({
-    ...buildBaseEvent(),
-
-    type,
-
-    meta,
-  });
+export function trackCTA(name, properties = {}) {
+  trackEvent('cta_click', { action: name, ...properties });
 }
 
+export function trackFeatureUsage(feature, action = 'used', properties = {}) {
+  trackEvent('feature_usage', { feature, action, ...properties });
+}
 
-export async function fetchAnalytics({
-  from,
-  to,
-}) {
-  try {
-    const params = new URLSearchParams();
+export function trackFormStarted(form, fieldCount) {
+  trackEvent('contact_form_started', { form, form_field_count: fieldCount });
+}
 
-    if (from) params.append("from", from);
-    if (to) params.append("to", to);
+export function trackFormSubmitted(form, fieldCount) {
+  trackEvent('contact_form_submitted', { form, form_field_count: fieldCount, result: 'success' });
+}
 
-    const query = params.toString();
+export function trackFormFailed(form, statusCode) {
+  trackEvent('contact_form_failed', { form, status_code: statusCode || 0, result: 'failure' });
+}
 
-    const endpoint = query
-      ? `${FETCH_API_URL}?${query}`
-      : FETCH_API_URL;
+export function trackClientError(error, component = 'window') {
+  const message = normalizeString(error?.message || String(error), 180)?.replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, '[redacted-email]');
+  trackEvent('client_error', { component, error_name: normalizeString(error?.name || 'Error', 80), error_message: message || 'Unknown client error' });
+}
 
-    const res = await analyticsAPI.get(endpoint);
+export function trackApiFailure({ method, status, url }) {
+  const route = normalizeString(url?.replace(import.meta.env.VITE_BACK_END_BASE_URL || '', ''), 300);
+  if (route?.startsWith('/analytics')) return;
+  trackEvent('api_failure', { method: normalizeString(method?.toUpperCase(), 20), status_code: Number(status) || 0, route: route || 'unknown' });
+}
 
-    if (res.status !== 200) {
-      throw new Error("Failed to fetch analytics");
-    }
+export function trackWebVital(name, value, rating) {
+  trackEvent('web_vital', { metric_name: name, metric_value: Math.round(value), rating: normalizeString(rating, 30) });
+}
 
-    return res.data?.data || null;
-  } catch (error) {
-    console.error("fetchAnalytics error:", error);
-    throw error;
-  }
+export function identifyAnalyticsUser() {
+  const visitorId = getVisitorId();
+  fetch(IDENTIFY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ visitor_id: visitorId }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+export async function fetchAnalytics({ from, to } = {}) {
+  const params = new URLSearchParams();
+  if (from) params.append('from', from);
+  if (to) params.append('to', to);
+  const response = await analyticsAPI.get(params.toString() ? `/summary?${params}` : '/summary');
+  return response.data?.data || null;
 }

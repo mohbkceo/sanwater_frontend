@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { contentAPI } from '@/services/baseAPIs';
+import { trackEvent } from '@/services/analytics/analytics';
 import MainLayout from '@/layouts/MainLayout';
 import {
   Search,
@@ -143,6 +144,7 @@ function HiringPage() {
                 <a
                   target='_blank'
                   href="https://forms.gle/4X5SmWTqAqhQCWRH6"
+                  onClick={() => trackEvent('hiring_application_intent', { feature: 'hiring', action: 'view_open_roles' })}
                   className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
                   {t('hiring.view_open_roles')} <ArrowRight size={16} />
@@ -205,13 +207,19 @@ function HiringPage() {
               <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  if (e.target.value.trim()) trackEvent('hiring_filter_applied', { feature: 'hiring', filter_name: 'search', search_term_length: e.target.value.trim().length });
+                }}
                 placeholder={t('hiring.search_placeholder')}
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-slate-400 focus:bg-white"
               />
             </div>
 
-            <Select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
+            <Select value={locationFilter} onChange={(e) => {
+              setLocationFilter(e.target.value);
+              trackEvent('hiring_filter_applied', { feature: 'hiring', filter_name: 'location', filter_value: e.target.value });
+            }}>
               <option value="all">{t('hiring.all_locations')}</option>
               {locationOptions.filter((item) => item !== 'all').map((location) => (
                 <option key={location} value={location}>
@@ -220,7 +228,10 @@ function HiringPage() {
               ))}
             </Select>
 
-            <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+            <Select value={typeFilter} onChange={(e) => {
+              setTypeFilter(e.target.value);
+              trackEvent('hiring_filter_applied', { feature: 'hiring', filter_name: 'type', filter_value: e.target.value });
+            }}>
               <option value="all">{t('hiring.all_types')}</option>
               {typeOptions.filter((item) => item !== 'all').map((type) => (
                 <option key={type} value={type}>
@@ -305,7 +316,7 @@ function HiringPage() {
                     </div>
 
                     <div className="flex shrink-0 flex-col gap-3 lg:min-w-[220px] lg:items-end">
-                      <a target='_blank' href="https://forms.gle/4X5SmWTqAqhQCWRH6">
+                      <a target='_blank' href="https://forms.gle/4X5SmWTqAqhQCWRH6" onClick={() => trackEvent('hiring_application_intent', { feature: 'hiring', action: 'apply_now', job_id: job._id || null })}>
                         <button
                           type="button"
                           className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"

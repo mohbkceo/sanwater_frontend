@@ -8,6 +8,7 @@ import { CtaButton } from "@/components";
 import { CONTACTSALES } from "@/configs/routes/routesConfig";
 import { ChevronLeft } from "lucide-react";
 import { ChevronRight } from "lucide-react";
+import { trackEvent } from '@/services/analytics/analytics';
 
 
 function ProductUIRender({ product }) {
@@ -94,7 +95,14 @@ function ProductUIRender({ product }) {
             
             
             
-            <div className="w-full">
+            <div
+              className="w-full"
+              onClick={() => trackEvent('product_inquiry_started', {
+                feature: 'product_detail',
+                product_id: product?._id || product?.productId || null,
+                product_slug: product?.serialNumber || null,
+              })}
+            >
               <CtaButton className={`w-full`} label={buttons.ctaButtonText} icon={<ChevronRight size={18} />} href={CONTACTSALES}/>
             </div>
 

@@ -26,12 +26,25 @@ const newsAPI = axios.create({
     withCredentials: true
 })
 
-export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI} ;
+export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI };
 
-[productAPI, userAPI, contentAPI, analyticsAPI, newsAPI].forEach(api => api.interceptors.response.use(res => res, 
-    async (error) => {   
-        await unauthorizeErrorHandle(api, error, SANWATERGROUPROUTES.auth.login.fullPath)
-        const apiPath = error.config?.baseURL?.substring(import.meta.env.VITE_BACK_END_BASE_URL.length)
+function captureApiFailure(error) {
+    const baseURL = error.config?.baseURL || '';
+    // Dynamic import avoids a static circular dependency: analytics uses analyticsAPI for dashboard reads.
+    import('./analytics/analytics')
+        .then(({ trackApiFailure }) => trackApiFailure({
+            method: error.config?.method,
+            status: error.response?.status,
+            url: `${baseURL}${error.config?.url || ''}`,
+        }))
+        .catch(() => {});
+}
+
+[productAPI, userAPI, contentAPI, analyticsAPI, newsAPI].forEach(api => api.interceptors.response.use(res => res,
+    async (error) => {
+        captureApiFailure(error);
+        await unauthorizeErrorHandle(api, error, SANWATERGROUPROUTES.auth.login.fullPath);
+        const apiPath = error.config?.baseURL?.substring(import.meta.env.VITE_BACK_END_BASE_URL.length);
         return errorAxiosInterceptor(error, apiPath);
     }
-))
+));
