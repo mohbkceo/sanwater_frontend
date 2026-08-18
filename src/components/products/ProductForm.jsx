@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createProduct, updateProduct } from "@/services/products/productServices";
+import { getCategories } from "@/services/products/categoryServices";
+import { getCollections } from "@/services/products/collectionServices";
 import ProductGalleryUpload from "./ProductGalleryUpload";
 import { Button } from "..";
 import { Trash2, Plus, Minus, GripVertical } from "lucide-react";
@@ -10,6 +12,32 @@ const emptyVariantGroup = () => ({
   variantType: "color",
   variants: [{ variantData: "" }],
 });
+
+const emptySpecification = () => ({ label: "", value: "" });
+const emptyDocument = () => ({ title: "", type: "technical_sheet", url: "" });
+
+const DOCUMENT_TYPES = [
+  { value: "catalogue", label: "Catalogue" },
+  { value: "technical_sheet", label: "Technical sheet" },
+  { value: "installation_guide", label: "Installation guide" },
+  { value: "warranty", label: "Warranty" },
+  { value: "presentation", label: "Presentation" },
+  { value: "other", label: "Other" },
+];
+
+// Flattens the category tree (as returned by GET /categories) into a flat
+// option list, indenting subcategories so the hierarchy stays visible in a
+// single <select>.
+function flattenCategoryOptions(categories) {
+  const options = [];
+  (categories || []).forEach((cat) => {
+    options.push({ value: cat._id, label: cat.name, depth: 0 });
+    (cat.subcategories || []).forEach((sub) => {
+      options.push({ value: sub._id, label: sub.name, depth: 1 });
+    });
+  });
+  return options;
+}
 
 export default function ProductForm({ product = null, currentUserId = "" }) {
   const isEditMode = !!product?.serialNumber;
@@ -38,6 +66,31 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                   : [{ variantData: "" }],
             }))
           : [],
+
+      // --- Catalog / digital-representation fields ---
+      slug: product?.slug || "",
+      status: product?.status || "draft",
+      category: product?.category?._id || product?.category || "",
+      subcategory: product?.subcategory?._id || product?.subcategory || "",
+      collection: product?.collectionRef?._id || product?.collectionRef || "",
+      shortDescription: product?.shortDescription || "",
+      description: product?.description || "",
+      material: product?.material || "",
+      finishes: Array.isArray(product?.finishes) ? product.finishes.join(", ") : "",
+      dimensions: product?.dimensions || "",
+      installation: product?.installation || "",
+      applications: Array.isArray(product?.applications) ? product.applications.join(", ") : "",
+      specifications:
+        Array.isArray(product?.specifications) && product.specifications.length > 0
+          ? product.specifications
+          : [],
+      documents: Array.isArray(product?.documents) ? product.documents : [],
+      seo: {
+        title: product?.seo?.title || "",
+        description: product?.seo?.description || "",
+        canonicalUrl: product?.seo?.canonicalUrl || "",
+        noIndex: product?.seo?.noIndex || false,
+      },
     }),
     [product, currentUserId]
   );
@@ -45,6 +98,23 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
   const [formData, setFormData] = useState(initialFormData);
   const [gallery, setGallery] = useState(product?.gallery || []);
   const [loading, setLoading] = useState(false);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [collectionOptions, setCollectionOptions] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [categoriesRes, collectionsRes] = await Promise.all([
+          getCategories({ isAdmin: true }),
+          getCollections({ isAdmin: true }),
+        ]);
+        setCategoryOptions(flattenCategoryOptions(categoriesRes?.data?.categories));
+        setCollectionOptions(collectionsRes?.data?.collections || []);
+      } catch (error) {
+        console.error("Failed to load categories/collections", error);
+      }
+    })();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -60,6 +130,14 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             },
           }
         : {}),
+    }));
+  };
+
+  const handleSeoChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      seo: { ...prev.seo, [name]: type === "checkbox" ? checked : value },
     }));
   };
 
@@ -125,6 +203,38 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
     });
   };
 
+  const addSpecification = () => {
+    setFormData((prev) => ({ ...prev, specifications: [...prev.specifications, emptySpecification()] }));
+  };
+
+  const updateSpecification = (index, key, value) => {
+    setFormData((prev) => {
+      const next = [...prev.specifications];
+      next[index] = { ...next[index], [key]: value };
+      return { ...prev, specifications: next };
+    });
+  };
+
+  const removeSpecification = (index) => {
+    setFormData((prev) => ({ ...prev, specifications: prev.specifications.filter((_, i) => i !== index) }));
+  };
+
+  const addDocument = () => {
+    setFormData((prev) => ({ ...prev, documents: [...prev.documents, emptyDocument()] }));
+  };
+
+  const updateDocument = (index, key, value) => {
+    setFormData((prev) => {
+      const next = [...prev.documents];
+      next[index] = { ...next[index], [key]: value };
+      return { ...prev, documents: next };
+    });
+  };
+
+  const removeDocument = (index) => {
+    setFormData((prev) => ({ ...prev, documents: prev.documents.filter((_, i) => i !== index) }));
+  };
+
   async function updateProductFunc(payload) {
     await updateProduct(product.serialNumber, payload);
     toast.success(`Product "${payload.name}" has been updated!`);
@@ -135,17 +245,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
     toast.success(`Product "${payload.name}" has been created!`);
 
-    setFormData((prev) => ({
-      ...prev,
-      name: "",
-      serialNumber: "",
-      productId: "",
-      family: "NO-FAMILLY",
-      tags: "",
-      isActive: true,
-      prices: { productPrice: 1509, shippingPrice: 800 },
-      productVariants: [],
-    }));
+    setFormData(initialFormData);
     setGallery([]);
   }
 
@@ -160,6 +260,19 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
           .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
+        finishes: formData.finishes
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean),
+        applications: formData.applications
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean),
+        specifications: formData.specifications.filter((s) => s.label?.trim() && s.value?.trim()),
+        documents: formData.documents.filter((d) => d.title?.trim() && d.url?.trim()),
+        category: formData.category || null,
+        subcategory: formData.subcategory || null,
+        collection: formData.collection || null,
         productVariants: formData.productVariants
           .map((group) => ({
             variantType: group.variantType?.trim() || "color",
@@ -174,6 +287,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
           shippingPrice: Number(formData.prices.shippingPrice) || 0,
         },
       };
+
+      if (!payload.slug) delete payload.slug;
 
       if (!payload.author) {
         toast.error("Author is required.");
@@ -336,6 +451,248 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
           />
         </div>
 
+        {/* --- Catalog: category, collection, publication status --- */}
+        <div className="pt-4 border-t border-slate-100">
+          <label className="text-sm font-semibold text-slate-700 block mb-3">Catalog</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-slate-700">Category</label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="border border-slate-300 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+              >
+                <option value="">Uncategorized</option>
+                {categoryOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.depth > 0 ? `— ${opt.label}` : opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-slate-700">Collection</label>
+              <select
+                name="collection"
+                value={formData.collection}
+                onChange={handleChange}
+                className="border border-slate-300 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+              >
+                <option value="">No collection</option>
+                {collectionOptions.map((c) => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-slate-700">Publication status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="border border-slate-300 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-slate-700">
+                URL slug {isEditMode ? "" : "(leave blank to auto-generate)"}
+              </label>
+              <input
+                name="slug"
+                className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+                placeholder="mitigeur-lavabo-sm19"
+                value={formData.slug}
+                onChange={handleChange}
+              />
+              {isEditMode && (
+                <p className="text-xs text-amber-600">Changing this breaks the product's existing public URL.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* --- Content --- */}
+        <div className="pt-4 border-t border-slate-100 space-y-4">
+          <label className="text-sm font-semibold text-slate-700 block">Content</label>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-600">Short description</label>
+            <textarea
+              name="shortDescription"
+              rows={2}
+              maxLength={300}
+              className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="One or two sentences shown in listings"
+              value={formData.shortDescription}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-600">Full description</label>
+            <textarea
+              name="description"
+              rows={5}
+              className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="Detailed description shown on the product page"
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* --- Technical --- */}
+        <div className="pt-4 border-t border-slate-100 space-y-4">
+          <label className="text-sm font-semibold text-slate-700 block">Technical</label>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-600">Material</label>
+              <input
+                name="material"
+                className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+                placeholder="e.g. Aluminium"
+                value={formData.material}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-600">Finishes</label>
+              <input
+                name="finishes"
+                className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+                placeholder="Chromé, Noir mat"
+                value={formData.finishes}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-600">Dimensions</label>
+              <input
+                name="dimensions"
+                className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+                placeholder="e.g. 15 x 20 x 8 cm"
+                value={formData.dimensions}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-600">Installation</label>
+              <input
+                name="installation"
+                className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+                placeholder="e.g. Montage mural"
+                value={formData.installation}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-600">Applications</label>
+            <input
+              name="applications"
+              className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="Hôtellerie, Résidentiel, Commercial"
+              value={formData.applications}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-slate-600">Specifications</label>
+              <Button type="button" onClick={addSpecification} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs flex items-center gap-1 hover:bg-slate-100">
+                <Plus size={12} /> Add
+              </Button>
+            </div>
+            {formData.specifications.length === 0 ? (
+              <div className="text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-lg p-3">
+                No technical specifications added yet.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {formData.specifications.map((spec, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input
+                      value={spec.label}
+                      onChange={(e) => updateSpecification(index, "label", e.target.value)}
+                      className="flex-1 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-black outline-none transition-all"
+                      placeholder="Pression"
+                    />
+                    <input
+                      value={spec.value}
+                      onChange={(e) => updateSpecification(index, "value", e.target.value)}
+                      className="flex-1 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-black outline-none transition-all"
+                      placeholder="1-5 bar"
+                    />
+                    <Button type="button" onClick={() => removeSpecification(index)} className="p-2 text-slate-500 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg">
+                      <Minus size={16} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* --- Documents --- */}
+        <div className="pt-4 border-t border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-semibold text-slate-700">Documents</label>
+            <Button type="button" onClick={addDocument} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs flex items-center gap-1 hover:bg-slate-100">
+              <Plus size={12} /> Add document
+            </Button>
+          </div>
+          {formData.documents.length === 0 ? (
+            <div className="text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-lg p-3">
+              No documents linked (catalogue, technical sheet, installation guide...).
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {formData.documents.map((doc, index) => (
+                <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_auto_2fr_auto] gap-2 items-center">
+                  <input
+                    value={doc.title}
+                    onChange={(e) => updateDocument(index, "title", e.target.value)}
+                    className="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="Fiche technique SM19"
+                  />
+                  <select
+                    value={doc.type}
+                    onChange={(e) => updateDocument(index, "type", e.target.value)}
+                    className="border border-slate-300 rounded-lg p-2 bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+                  >
+                    {DOCUMENT_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+                  <input
+                    value={doc.url}
+                    onChange={(e) => updateDocument(index, "url", e.target.value)}
+                    className="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-black outline-none transition-all"
+                    placeholder="https://.../fiche-sm19.pdf"
+                  />
+                  <Button type="button" onClick={() => removeDocument(index)} className="p-2 text-slate-500 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg">
+                    <Minus size={16} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="pt-4 border-t border-slate-100">
           <div className="flex items-center justify-between mb-3">
             <label className="text-sm font-semibold text-slate-700 block">
@@ -445,6 +802,58 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* --- SEO --- */}
+        <div className="pt-4 border-t border-slate-100 space-y-4">
+          <label className="text-sm font-semibold text-slate-700 block">SEO</label>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-600">SEO title</label>
+            <input
+              name="title"
+              className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="Defaults to the product name if left blank"
+              value={formData.seo.title}
+              onChange={handleSeoChange}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-600">SEO description</label>
+            <textarea
+              name="description"
+              rows={2}
+              className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+              value={formData.seo.description}
+              onChange={handleSeoChange}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-600">Canonical URL</label>
+            <input
+              name="canonicalUrl"
+              className="border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="https://sanwater.official/produits/..."
+              value={formData.seo.canonicalUrl}
+              onChange={handleSeoChange}
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              id="noIndex"
+              name="noIndex"
+              type="checkbox"
+              checked={formData.seo.noIndex}
+              onChange={handleSeoChange}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            <label htmlFor="noIndex" className="text-sm font-semibold text-slate-700">
+              Hide from search engines (noindex)
+            </label>
           </div>
         </div>
 

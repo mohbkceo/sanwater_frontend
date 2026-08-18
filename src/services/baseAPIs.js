@@ -26,9 +26,19 @@ const newsAPI = axios.create({
     withCredentials: true
 })
 
-export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI} ;
+const categoryAPI = axios.create({
+    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/categories`,
+    withCredentials: true
+})
 
-[productAPI, userAPI, contentAPI, analyticsAPI, newsAPI].forEach(api => api.interceptors.response.use(res => res, 
+const collectionAPI = axios.create({
+    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/collections`,
+    withCredentials: true
+})
+
+export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI} ;
+
+[productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI].forEach(api => api.interceptors.response.use(res => res,
     async (error) => {   
         await unauthorizeErrorHandle(api, error, SANWATERGROUPROUTES.auth.login.fullPath)
         const apiPath = error.config?.baseURL?.substring(import.meta.env.VITE_BACK_END_BASE_URL.length)

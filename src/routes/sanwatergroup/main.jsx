@@ -3,7 +3,15 @@ import { PERMISSIONS } from '@/configs/permissions'
 import React from 'react'
 import { Route } from 'react-router-dom'
 import { Routes } from 'react-router-dom'
-import { CreateProductPage, EditProductPage, ProductsListPage } from '..'
+import {
+  CreateProductPage,
+  EditProductPage,
+  ProductsListPage,
+  CategoriesManagementPage,
+  CreateEditCategoryPage,
+  CollectionsManagementPage,
+  CreateEditCollectionPage,
+} from '..'
 import { Navigate } from 'react-router-dom'
 import LoginPage from './auth/login/login'
 import RegisterPage from './auth/register/register'
@@ -29,6 +37,15 @@ function SanWaterGroupMain() {
         <Route path={SANWATERGROUPROUTES.products.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><ProductsListPage /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.products.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateProductPage /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.products.edit.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><EditProductPage /></PermissionGuard>} />
+
+        <Route path={SANWATERGROUPROUTES.products.categories.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><CategoriesManagementPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.categories.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCategoryPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.categories.edit.subPath + '/:slug'} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCategoryPage /></PermissionGuard>} />
+
+        <Route path={SANWATERGROUPROUTES.products.collections.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><CollectionsManagementPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.collections.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCollectionPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.collections.edit.subPath + '/:slug'} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCollectionPage /></PermissionGuard>} />
+
         <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<PermissionGuard permission={PERMISSIONS.ANALYTICS.VIEW}><Analytics /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.content.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.VIEW}><Content /></PermissionGuard>} />

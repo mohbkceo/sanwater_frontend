@@ -5,12 +5,14 @@ import { Box } from "lucide-react";
 import { ListOrdered } from "lucide-react";
 import { Rss } from "lucide-react";
 import { Settings } from "lucide-react";
-import { ChartColumnBig, Users, ClipboardList, Briefcase, MessageSquare, User } from "lucide-react";
+import { ChartColumnBig, Users, ClipboardList, Briefcase, MessageSquare, User, FolderTree, Layers } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
   { name: "Analytics", icon:<ChartColumnBig  /> , path: SANWATERGROUPROUTES.analystics.fullPath, permission: PERMISSIONS.ANALYTICS.VIEW },
   { name: "Products",  icon:<Box  /> , path: SANWATERGROUPROUTES.products.list.fullPath, permission: PERMISSIONS.PRODUCTS.VIEW },
+  { name: "Categories", icon:<FolderTree /> , path: SANWATERGROUPROUTES.products.categories.list.fullPath, permission: PERMISSIONS.PRODUCTS.VIEW },
+  { name: "Collections", icon:<Layers /> , path: SANWATERGROUPROUTES.products.collections.list.fullPath, permission: PERMISSIONS.PRODUCTS.VIEW },
   { name: "Orders",  icon:<ListOrdered  /> , path: SANWATERGROUPROUTES.orders.fullPath, permission: PERMISSIONS.ORDERS.VIEW },
   { name: "Hiring",    icon:<Briefcase /> , path: SANWATERGROUPROUTES.hiring.list.fullPath, permission: PERMISSIONS.HIRING.VIEW },
   { name: "Submissions", icon:<MessageSquare /> , path: SANWATERGROUPROUTES.submissions.list.fullPath, permission: PERMISSIONS.SUBMISSIONS.VIEW },
