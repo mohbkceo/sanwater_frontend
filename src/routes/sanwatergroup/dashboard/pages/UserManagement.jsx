@@ -22,10 +22,10 @@ const PERMISSION_GROUPS = [
     ],
   },
   {
-    label: 'Orders',
+    label: 'Quotations',
     permissions: [
-      { value: PERMISSIONS.ORDERS.VIEW, label: 'View orders' },
-      { value: PERMISSIONS.ORDERS.MANAGE, label: 'Manage orders' },
+      { value: PERMISSIONS.QUOTATIONS.VIEW, label: 'View quotations' },
+      { value: PERMISSIONS.QUOTATIONS.MANAGE, label: 'Manage quotations' },
     ],
   },
   {

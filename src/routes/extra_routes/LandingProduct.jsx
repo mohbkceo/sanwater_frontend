@@ -97,20 +97,28 @@ export default function ProductPage() {
     setSubmitError("");
 
     try {
+      // This direct "Place Order" form now submits into the B2B/B2C
+      // quotation pipeline (see server/src/models/quotation.model.js) rather
+      // than the old, unused Order model — same customer experience, one
+      // request-handling system instead of two.
       const payload = {
-        productId: product?.productId,
-        serialNumber: product?.serialNumber,
-        productName: product?.name,
-        fullName: orderForm.fullName.trim(),
-        phoneNumber: orderForm.phoneNumber.trim(),
-        address: orderForm.address.trim(),
-        quantity: quantity,
-        subtotal: orderSubtotal,
-        shippingPrice: orderShipping,
-        total: orderTotal,
+        items: [{
+          product: product?._id,
+          productName: product?.name || product?.productId || "Produit",
+          productSerialNumber: product?.serialNumber,
+          quantity,
+          note: `Sous-total: ${orderSubtotal} DA, Livraison: ${orderShipping} DA, Total: ${orderTotal} DA`,
+        }],
+        requester: {
+          fullName: orderForm.fullName.trim(),
+          phone: orderForm.phoneNumber.trim(),
+          address: orderForm.address.trim(),
+          customerType: "consumer",
+        },
+        source: "landing_product_page",
       };
 
-      const response = await fetch(import.meta.env.VITE_BACK_END_BASE_URL + "/content/order/place", {
+      const response = await fetch(import.meta.env.VITE_BACK_END_BASE_URL + "/quotations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

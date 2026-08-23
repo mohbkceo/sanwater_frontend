@@ -36,10 +36,35 @@ const collectionAPI = axios.create({
     withCredentials: true
 })
 
-export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI} ;
+const quotationAPI = axios.create({
+    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/quotations`,
+    withCredentials: true
+})
 
-[productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI].forEach(api => api.interceptors.response.use(res => res,
-    async (error) => {   
+export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI} ;
+
+const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI];
+
+// Read the CSRF double-submit cookie (server: middlewares/authentication/csrf.js)
+// and echo it back as a header on state-changing requests — the server
+// rejects POST/PUT/PATCH/DELETE under an admin session without a match.
+// Safe to attach on every instance: it's a no-op for public/unauthenticated
+// calls (no cookie, header omitted) and for GET requests (not checked).
+function readCookie(name) {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+allAPIs.forEach(api => api.interceptors.request.use(config => {
+    if (config.method && !['get', 'head', 'options'].includes(config.method)) {
+        const csrfToken = readCookie('csrf_token');
+        if (csrfToken) config.headers['X-CSRF-Token'] = csrfToken;
+    }
+    return config;
+}))
+
+allAPIs.forEach(api => api.interceptors.response.use(res => res,
+    async (error) => {
         await unauthorizeErrorHandle(api, error, SANWATERGROUPROUTES.auth.login.fullPath)
         const apiPath = error.config?.baseURL?.substring(import.meta.env.VITE_BACK_END_BASE_URL.length)
         return errorAxiosInterceptor(error, apiPath);

@@ -7,11 +7,13 @@ import "swiper/css/thumbs";
 import { CtaButton } from "@/components";
 import { CONTACTSALES } from "@/configs/routes/routesConfig";
 import { ChevronLeft } from "lucide-react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, FileText } from "lucide-react";
+import RequestQuoteModal from "@/components/products/RequestQuoteModal";
 
 
 function ProductUIRender({ product }) {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const buttons = {
     ctaButtonText: 'Contactez ventes pour ce produit'
   }
@@ -94,11 +96,23 @@ function ProductUIRender({ product }) {
             
             
             
-            <div className="w-full">
+            <div className="w-full flex flex-col sm:flex-row gap-3">
               <CtaButton className={`w-full`} label={buttons.ctaButtonText} icon={<ChevronRight size={18} />} href={CONTACTSALES}/>
+              <button
+                type="button"
+                onClick={() => setQuoteModalOpen(true)}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#1D4ED8] bg-white px-5 py-3 text-sm font-semibold text-[#1D4ED8] hover:bg-[#1D4ED8]/5 transition"
+              >
+                <FileText size={18} />
+                Demander un devis
+              </button>
             </div>
 
-            
+            {quoteModalOpen && (
+              <RequestQuoteModal product={product} onClose={() => setQuoteModalOpen(false)} />
+            )}
+
+
             <div className="text-sm font-mono text-[#1D4ED8] space-y-1">
               <p><strong>Product ID:</strong> {product?.productId}</p>
               <p><strong>Serial:</strong> {product?.serialNumber}</p>

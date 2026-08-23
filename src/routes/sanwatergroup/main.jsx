@@ -14,7 +14,7 @@ import {
 } from '..'
 import { Navigate } from 'react-router-dom'
 import LoginPage from './auth/login/login'
-import RegisterPage from './auth/register/register'
+import CreateAdminPage from './auth/register/register'
 import Analytics from './dashboard/pages/Analytics'
 import Content from './dashboard/pages/Content'
 import Settings from './dashboard/pages/Settings'
@@ -27,7 +27,7 @@ import EditSalesPage from './dashboard/pages/EditSales'
 import NewsManagementPage from './dashboard/pages/News/NewsManagementPage'
 import CreateEditNewsPage from './dashboard/pages/News/CreateEditNewsPage'
 import UserProfile from './dashboard/pages/UserProfile'
-import OrderManagementPage from './dashboard/pages/OrderManagementPage'
+import QuotationsManagementPage from './dashboard/pages/QuotationsManagementPage'
 import PermissionGuard from '@/components/shared_uis/PermissionGuard'
 
 function SanWaterGroupMain() {
@@ -56,8 +56,12 @@ function SanWaterGroupMain() {
 
         <Route path={SANWATERGROUPROUTES.settings.subPath} element={<Settings />} />
         <Route path={SANWATERGROUPROUTES.settings.children.manage_users.subPath} element={<PermissionGuard permission={PERMISSIONS.USERS.VIEW}><UserManagement /></PermissionGuard>} />
+        {/* Creating a new admin account is now an authenticated, permissioned
+            action (see server/src/routes/user.routes.js) — no longer public
+            self-registration — so it lives inside the guarded dashboard shell. */}
+        <Route path={SANWATERGROUPROUTES.auth.register.subPath} element={<PermissionGuard permission={PERMISSIONS.USERS.CREATE}><CreateAdminPage /></PermissionGuard>} />
 
-        <Route path={SANWATERGROUPROUTES.orders.subPath} element={<PermissionGuard permission={PERMISSIONS.ORDERS.VIEW}><OrderManagementPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.quotations.subPath} element={<PermissionGuard permission={PERMISSIONS.QUOTATIONS.VIEW}><QuotationsManagementPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.profile.subPath} element={<UserProfile />} />
 
@@ -67,7 +71,6 @@ function SanWaterGroupMain() {
 
         </Route>
         <Route path={SANWATERGROUPROUTES.auth.login.subPath} element={<LoginPage />} />
-        <Route path={SANWATERGROUPROUTES.auth.register.subPath} element={<RegisterPage />} />
         <Route index element={<Navigate to={SANWATERGROUPROUTES.analystics.fullPath} replace/>}/>
     </Routes>
   )

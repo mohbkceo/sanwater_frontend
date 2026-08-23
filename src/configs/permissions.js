@@ -7,9 +7,9 @@ export const PERMISSIONS = {
     VIEW: 'products.view',
     MANAGE: 'products.manage',
   },
-  ORDERS: {
-    VIEW: 'orders.view',
-    MANAGE: 'orders.manage',
+  QUOTATIONS: {
+    VIEW: 'quotations.view',
+    MANAGE: 'quotations.manage',
   },
   HIRING: {
     VIEW: 'hiring.view',

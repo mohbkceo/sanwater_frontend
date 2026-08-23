@@ -12,8 +12,6 @@ const PAGE_CONTENT = {
     subtitle: "Fetch every details happnes in your website.",
     forgotPasswordText: "Forgot Password?",
     buttonText: "Login",
-    footerText: "Don’t have an account?",
-    signUpText: "Sign Up"
   },
   promoSection: {
     title: "Control your Data With Our Smart Tool",
@@ -139,13 +137,6 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* FOOTER */}
-          <div className="mt-8 text-center text-sm text-slate-500">
-            {PAGE_CONTENT.loginSection.footerText}{" "}
-            <a href="/register" className="font-semibold text-indigo-600 hover:text-indigo-500">
-              {PAGE_CONTENT.loginSection.signUpText}
-            </a>
-          </div>
         </div>
       </section>
 
