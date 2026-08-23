@@ -4,8 +4,10 @@ import { Routes, Route} from 'react-router-dom'
 import Main from './routes/main'
 import HiringPage from './routes/HiringPage'
 import { About, ContactSales, ProductsViewList, SanWaterGroupMain } from './routes'
-import { ABOUT, CONTACTSALES, LANDINGPRODUCT, mainSanWaterRoute, PRODUCTS, PRODUCTVIEWDETAIL, NEWS } from './configs/routes/routesConfig'
+import { ABOUT, CONTACTSALES, LANDINGPRODUCT, mainSanWaterRoute, PRODUCTS, PRODUCTVIEWDETAIL, NEWS, COMPARE, FAVORITES } from './configs/routes/routesConfig'
 import ProductDetailedPage from './routes/products/ProductDetailedPage'
+import ComparePage from './routes/products/ComparePage'
+import FavoritesPage from './routes/products/FavoritesPage'
 import NewsListingPage from './routes/news/NewsListingPage'
 import NewsArticlePage from './routes/news/NewsArticlePage'
 import {useAnalytics} from './hooks/useAnalytics'
@@ -21,6 +23,8 @@ function App() {
          <Route path="/hiring" element={<HiringPage />} />
          <Route path={ABOUT} element={<About />}/>
          <Route path={PRODUCTS} element={<ProductsViewList />}/>
+         <Route path={COMPARE} element={<ComparePage />}/>
+         <Route path={FAVORITES} element={<FavoritesPage />}/>
          <Route path={PRODUCTVIEWDETAIL} element={<ProductDetailedPage />}/>
          <Route path={LANDINGPRODUCT} element={<LandingProduct />}/>
          <Route path={CONTACTSALES} element={<ContactSales />}/>

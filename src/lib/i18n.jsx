@@ -9,7 +9,10 @@ const translations = {
       about: 'About',
       news: 'News',
       hiring: 'Hiring',
-      contact: 'Contact Sales'
+      contact: 'Contact Sales',
+      search_placeholder: 'Search products...',
+      favorites: 'Favorites',
+      compare: 'Compare',
     },
     news: {
     title: 'News',
@@ -87,6 +90,45 @@ const translations = {
       no_image: 'No Image',
       serial: 'Serial Number:',
       read_more: 'Read More',
+      category: 'Category',
+      all_categories: 'All categories',
+      collection: 'Collection',
+      all_collections: 'All collections',
+      filters: 'Filters',
+      clear_filters: 'Clear filters',
+      apply_filters: 'Apply filters',
+      results_label: 'product(s)',
+      add_to_compare: 'Add to compare',
+      remove_from_compare: 'Remove from compare',
+      compare_full: 'Your comparison list is full. Remove a product to add another.',
+      add_to_favorites: 'Add to favorites',
+      remove_from_favorites: 'Remove from favorites',
+      share: 'Share',
+      link_copied: 'Link copied to clipboard',
+      specifications: 'Specifications',
+      material: 'Material',
+      dimensions: 'Dimensions',
+      installation: 'Installation type',
+      finishes: 'Finishes',
+      downloads: 'Downloads & documents',
+      related_products: 'Related products',
+      breadcrumb_home: 'Home',
+      quick_view: 'Quick view',
+    },
+    compare_page: {
+      title: 'Compare products',
+      empty_title: 'Nothing to compare yet',
+      empty_description: 'Add products to your comparison list from the catalog to see them side by side here.',
+      browse_products: 'Browse products',
+      clear_all: 'Clear all',
+      attribute: 'Attribute',
+    },
+    favorites_page: {
+      title: 'My favorites',
+      empty_title: 'No favorites yet',
+      empty_description: 'Tap the heart icon on a product to save it here for later.',
+      browse_products: 'Browse products',
+      unavailable_notice: 'This product is no longer available and was removed from your favorites.',
     },
     contact_sales: {
       main_title: 'Contact our team',
@@ -200,7 +242,7 @@ export function I18nProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('lang', lang);
-    // document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
   }, [lang]);
 

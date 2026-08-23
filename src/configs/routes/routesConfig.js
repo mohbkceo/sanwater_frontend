@@ -6,6 +6,8 @@ export const NEWS = `/news`
 export const CONTACTSALES = `/contact_sales`
 export const PRODUCTVIEWDETAIL = `/products/view/:serialNumber`;
 export const LANDINGPRODUCT = `/products/landing_product/:serialNumber`;
+export const COMPARE = `/products/compare`;
+export const FAVORITES = `/favorites`;
 export const AUTH = `${mainSanWaterRoute}/auth`
 
 export const SANWATERGROUPROUTES = {

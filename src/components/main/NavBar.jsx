@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { cn } from "../../lib/utils";
 import { Button } from "..";
-import { Menu, X, CircleArrowRight, Globe } from "lucide-react";
-import { ABOUT, NEWS, PRODUCTS } from "@/configs/routes/routesConfig";
+import { Menu, X, CircleArrowRight, Globe, Search, Heart, GitCompareArrows } from "lucide-react";
+import { ABOUT, NEWS, PRODUCTS, FAVORITES, COMPARE } from "@/configs/routes/routesConfig";
 import { useTranslation } from "../../lib/i18n.jsx";
 import { ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useCompare } from "@/hooks/useCompare";
+import QuickSearch from "@/components/products/QuickSearch";
 
 const getLinks = (t) => [
   { id: "products", label: t("nav.products"), href: PRODUCTS },
@@ -23,7 +27,11 @@ const getCtaBtn = (t) => ({
 function NavBar({ className, ...props }) {
   const [isOpen, setIsOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { lang, setLang, t } = useTranslation();
+  const navigate = useNavigate();
+  const { count: favoritesCount } = useFavorites();
+  const { count: compareCount } = useCompare();
   const links = getLinks(t);
   const ctaBtn = getCtaBtn(t);
 
@@ -68,6 +76,43 @@ function NavBar({ className, ...props }) {
             ))}
           </div>
             <div className="hidden md:flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                title={t("nav.search_placeholder")}
+                className="flex items-center justify-center h-9 w-9 rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:text-[#0050A4] transition-colors"
+              >
+                <Search size={16} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate(FAVORITES)}
+                title={t("nav.favorites")}
+                className="relative flex items-center justify-center h-9 w-9 rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:text-rose-500 transition-colors"
+              >
+                <Heart size={16} />
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                    {favoritesCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate(COMPARE)}
+                title={t("nav.compare")}
+                className="relative flex items-center justify-center h-9 w-9 rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:text-[#0050A4] transition-colors"
+              >
+                <GitCompareArrows size={16} />
+                {compareCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0050A4] px-1 text-[10px] font-bold text-white">
+                    {compareCount}
+                  </span>
+                )}
+              </button>
+
               <div className="relative">
                 <button
                   type="button"
@@ -135,13 +180,48 @@ function NavBar({ className, ...props }) {
                 </a>
               </Button>
             </div>
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-black/5 transition"
-          >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          <div className="flex items-center gap-1 md:hidden">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="p-2 rounded-lg hover:bg-black/5 transition"
+              title={t("nav.search_placeholder")}
+            >
+              <Search size={18} />
+            </button>
+            <button
+              onClick={() => navigate(FAVORITES)}
+              className="relative p-2 rounded-lg hover:bg-black/5 transition"
+              title={t("nav.favorites")}
+            >
+              <Heart size={18} />
+              {favoritesCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">
+                  {favoritesCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => navigate(COMPARE)}
+              className="relative p-2 rounded-lg hover:bg-black/5 transition"
+              title={t("nav.compare")}
+            >
+              <GitCompareArrows size={18} />
+              {compareCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0050A4] px-1 text-[9px] font-bold text-white">
+                  {compareCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg hover:bg-black/5 transition"
+            >
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
+
+        {searchOpen && <QuickSearch onClose={() => setSearchOpen(false)} />}
 
         <div
           className={cn(
