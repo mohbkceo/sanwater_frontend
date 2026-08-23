@@ -9,6 +9,8 @@ import { getProduct } from "@/services/products/productServices";
 import { useTranslation } from "@/lib/i18n";
 import { PRODUCTS } from "@/configs/routes/routesConfig";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { SPRING_DEFAULT } from "@/lib/springs";
 
 export default function FavoritesPage() {
   const { t } = useTranslation();
@@ -79,9 +81,20 @@ export default function FavoritesPage() {
           />
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
+            <AnimatePresence mode="popLayout">
+              {products.map((product) => (
+                <motion.div
+                  key={product._id}
+                  layout
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={SPRING_DEFAULT}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
 

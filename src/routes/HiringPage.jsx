@@ -18,6 +18,8 @@ import {
   Clock3,
 } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SPRING_DEFAULT, REDUCED_MOTION_TRANSITION } from '@/lib/springs';
 
 function getStatusMeta(t) {
   return {
@@ -56,6 +58,8 @@ function HiringPage() {
   const [sortBy, setSortBy] = useState('newest');
   const [refreshing, setRefreshing] = useState(false);
   const { t } = useTranslation();
+  const prefersReducedMotion = useReducedMotion();
+  const spring = prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DEFAULT;
 
   const statusMeta = useMemo(() => getStatusMeta(t), [t]);
 
@@ -116,7 +120,10 @@ function HiringPage() {
     return data;
   }, [jobs, search, locationFilter, typeFilter, sortBy]);
 
-  const rolesCountText = t('hiring.roles_available', { count: filteredJobs.length });
+  const rolesCountText = t(
+    filteredJobs.length === 1 ? 'hiring.role_available' : 'hiring.roles_available',
+    { count: filteredJobs.length }
+  );
 
   return (
     <MainLayout>
@@ -271,9 +278,12 @@ function HiringPage() {
               const meta = statusMeta[job.status] || statusMeta.published;
 
               return (
-                <article
+                <motion.article
                   key={job._id}
-                  className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...spring, delay: prefersReducedMotion ? 0 : Math.min(index, 6) * 0.05 }}
+                  className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:-translate-y-1 hover:shadow-xl"
                 >
                   <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1">
@@ -316,7 +326,7 @@ function HiringPage() {
                       <p className="text-xs text-slate-500">{t('hiring.fast_response')}</p>
                     </div>
                   </div>
-                </article>
+                </motion.article>
               );
             })}
           </div>

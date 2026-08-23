@@ -1,7 +1,9 @@
-import React, {lazy} from 'react';
+import React from 'react';
 import { CounterAnimate, CtaButton } from '@/components';
 import { CircleArrowRight } from 'lucide-react';
 import { useTranslation } from "@/lib/i18n.jsx";
+import { motion } from 'framer-motion';
+import { SPRING_DEFAULT } from '@/lib/springs';
 
 const AboutSection = () => {
   const { t } = useTranslation();
@@ -46,31 +48,43 @@ const AboutSection = () => {
   return (
     <section className="max-w-7xl relative bg-slate-50/20 rounded-3xl border border-white/20 mx-auto px-6 py-16 font-sans">
       <div className="grid relative grid-cols-1 z-10 lg:grid-cols-2 gap-12 items-center">
-        <div className=" flex gap-3">
-          <img 
-            src={sectionData.images[0].url} 
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={SPRING_DEFAULT}
+          className="flex gap-3"
+        >
+          <img
+            src={sectionData.images[0].url}
             alt={sectionData.images[0].alt}
             className={sectionData.images[0].className}
           />
           <div className="col-span-1 flex flex-col gap-4">
-            <img 
-              src={sectionData.images[1].url} 
+            <img
+              src={sectionData.images[1].url}
               alt={sectionData.images[1].alt}
               className={sectionData.images[1].className}
             />
-            <img 
-              src={sectionData.images[2].url} 
+            <img
+              src={sectionData.images[2].url}
               alt={sectionData.images[2].alt}
               className={sectionData.images[2].className}
             />
           </div>
-        </div>
+        </motion.div>
 
-        <div className="space-y-6 ">
+        <motion.div
+          initial={{ opacity: 0, x: 24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ ...SPRING_DEFAULT, delay: 0.1 }}
+          className="space-y-6"
+        >
           <h4 className="text-zinc-600 font-medium tracking-wider uppercase text-sm">
             {sectionData.badge}
           </h4>
-          <h2 className="text-5xl md:text-4xl bg-linear-to-b from-zinc-950 to-zinc-800 bg-clip-text text-transparent font-bold  leading-tight">
+          <h2 className="text-display text-4xl md:text-5xl bg-linear-to-b from-zinc-950 to-zinc-800 bg-clip-text text-transparent font-bold">
             {sectionData.title}
           </h2>
           <p className="text-zinc-600 font-semibold leading-relaxed max-w-xl">
@@ -79,8 +93,8 @@ const AboutSection = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
             {sectionData.stats.map((item, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="flex flex-col gap-1 items-start px-4 py-2 "
               >
                 <span className="text-zinc-950 flex font-mono font-bold text-4xl mr-3">
@@ -94,7 +108,7 @@ const AboutSection = () => {
           </div>
 
          <CtaButton className={`w-full`} label={Buttons.primary.label} href={Buttons.primary.href} icon={Buttons.primary.icon}/>
-        </div>
+        </motion.div>
 
       </div>
     </section>

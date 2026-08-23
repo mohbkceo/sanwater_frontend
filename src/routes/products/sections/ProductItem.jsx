@@ -7,6 +7,8 @@ import { formatPrice, cn } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/hooks/useCompare";
 import { toast } from "sonner";
+import { motion, useReducedMotion } from "framer-motion";
+import { SPRING_DEFAULT, REDUCED_MOTION_TRANSITION } from "@/lib/springs";
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -14,6 +16,8 @@ export default function ProductCard({ product }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCompare, toggleCompare } = useCompare();
   const { name, gallery, tags, family, productId, serialNumber, prices } = product;
+  const prefersReducedMotion = useReducedMotion();
+  const spring = prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DEFAULT;
 
   const image = gallery?.[0];
   const favorited = isFavorite(serialNumber);
@@ -33,8 +37,11 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <div
+    <motion.div
       onClick={goToDetail}
+      whileTap={{ scale: 0.98 }}
+      whileHover={{ y: -4 }}
+      transition={spring}
       className="group flex flex-col gap-3 bg-white/40 hover:bg-white/60 transition-colors px-4 py-4 rounded-3xl border border-white/30 cursor-pointer"
     >
       <div className="relative shrink-0 rounded-2xl overflow-hidden bg-gray-100 aspect-square">
@@ -53,30 +60,36 @@ export default function ProductCard({ product }) {
         )}
 
         <div className="absolute top-3 right-3 flex flex-col gap-2">
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.8 }}
+            transition={spring}
             onClick={handleToggleFavorite}
             title={favorited ? t("products.remove_from_favorites") : t("products.add_to_favorites")}
             aria-pressed={favorited}
             className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur transition",
+              "flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors",
               favorited ? "bg-rose-500 text-white" : "bg-white/90 text-gray-600 hover:text-rose-500"
             )}
           >
-            <Heart size={16} className={favorited ? "fill-current" : ""} />
-          </button>
-          <button
+            <motion.span animate={favorited ? { scale: [1, 1.3, 1] } : { scale: 1 }} transition={spring}>
+              <Heart size={16} className={favorited ? "fill-current" : ""} />
+            </motion.span>
+          </motion.button>
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.8 }}
+            transition={spring}
             onClick={handleToggleCompare}
             title={inCompare ? t("products.remove_from_compare") : t("products.add_to_compare")}
             aria-pressed={inCompare}
             className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur transition",
+              "flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors",
               inCompare ? "bg-[#0050A4] text-white" : "bg-white/90 text-gray-600 hover:text-[#0050A4]"
             )}
           >
             <GitCompareArrows size={16} />
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -109,13 +122,15 @@ export default function ProductCard({ product }) {
         )}
       </div>
 
-      <Button
-        onClick={(e) => { e.stopPropagation(); goToDetail(); }}
-        variant="outline"
-        className="flex items-center bg-white/40 hover:bg-white/60 border border-gray-900/20"
-      >
-        <span>{t("products.read_more")}</span> <ChevronRight size={15} />
-      </Button>
-    </div>
+      <motion.div whileTap={{ scale: 0.97 }} transition={spring}>
+        <Button
+          onClick={(e) => { e.stopPropagation(); goToDetail(); }}
+          variant="outline"
+          className="flex items-center bg-white/40 hover:bg-white/60 border border-gray-900/20 w-full"
+        >
+          <span>{t("products.read_more")}</span> <ChevronRight size={15} />
+        </Button>
+      </motion.div>
+    </motion.div>
   );
 }

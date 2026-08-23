@@ -10,3 +10,39 @@
 @theme{
     --font-main-font: "Poppins-Medium"
 }
+
+/* Base leading/tracking discipline — see apple-design-skill.md §15.
+   Body copy: comfortable leading, no tracking adjustment needed at small
+   sizes. Large display headings get tighter leading + negative tracking
+   at the point of use (`.text-display`) since letters read too far apart
+   as text grows. */
+body {
+  line-height: 1.5;
+}
+
+.text-display {
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+/* Accessibility — apple-design-skill.md §14. Reduced motion doesn't mean
+   no feedback, it means no vestibular movement: kill transform-based
+   motion (slides, springs, parallax) and fall back to a short opacity
+   cross-fade wherever a component doesn't already branch on
+   useReducedMotion(). Framer Motion respects this automatically for its
+   own animations; this covers the plain CSS transitions in the app. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .material-surface {
+    backdrop-filter: none !important;
+    background-color: var(--material-solid-fallback, white) !important;
+  }
+}

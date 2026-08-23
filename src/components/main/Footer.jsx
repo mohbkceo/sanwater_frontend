@@ -1,6 +1,9 @@
 import { CONTACTSALES, PRODUCTS, NEWS } from '@/configs/routes/routesConfig';
 import { Instagram, Facebook } from 'lucide-react';
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { SPRING_DEFAULT } from '@/lib/springs';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -38,48 +41,51 @@ const Footer = () => {
     <footer className="bg-gray-900 w-full py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center">
-          
-          <a href="/" className="inline-flex justify-center mb-8">
-            <img className="w-36" src="./logo-white.svg" alt="San water logo" />
-          </a>
 
-          
+          <Link to="/" className="inline-flex justify-center mb-8">
+            <motion.img whileTap={{ scale: 0.92 }} transition={SPRING_DEFAULT} className="w-36" src="./logo-white.svg" alt="San water logo" />
+          </Link>
+
+
           <ul className="flex text-white flex-col md:flex-row justify-center items-center gap-7 md:gap-12 text-lg mb-10 border-b border-gray-200/20 pb-10 transition-all duration-300">
             {navLinks.map((link) => (
               <li key={link.label}>
-                <a
-                  href={link.href}
-                  className="hover:text-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                <Link
+                  to={link.href}
+                  className="hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
                 >
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
 
-          
+
           <div className="flex text-white justify-center items-center gap-8 mb-10">
             {socialLinks.map((social) => (
-              <a
+              <motion.a
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
-                className="hover:text-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                whileTap={{ scale: 0.85 }}
+                whileHover={{ y: -2 }}
+                transition={SPRING_DEFAULT}
+                className="hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
               >
                 {social.icon}
-              </a>
+              </motion.a>
             ))}
           </div>
 
-          
+
           <span className="text-gray-500 dark:text-gray-400 text-lg block">
             &copy; {currentYear}{' '}
-            <a
-              href="/"
-              className="hover:text-indigo-600 transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded"
+            <Link
+              to="/"
+              className="hover:text-indigo-400 transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded"
             >
               San water
-            </a>
+            </Link>
             , Tous droits réservés.
           </span>
         </div>

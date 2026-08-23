@@ -1,6 +1,7 @@
 import GoBacKButton from "@/components/shared_uis/gobackbutton";
 import MainLayout from "@/layouts/MainLayout";
 import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 
 const metrics = [
   { value: "15+", label: "ANNÉES D'EXPÉRIENCE", desc: "Une décennie et demie de savoir-faire" },
@@ -29,7 +30,7 @@ function useCountUp(target, duration = 1800, isVisible) {
   return display;
 }
 
-function MetricCard({ value, label, desc, delay }) {
+function MetricCard({ value, label, desc, delay, reduced }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   const display = useCountUp(value, 1600, visible);
@@ -47,7 +48,7 @@ function MetricCard({ value, label, desc, delay }) {
     <div
       ref={ref}
       className="group relative"
-      style={{
+      style={reduced ? { opacity: 1 } : {
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(28px)",
         transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
@@ -84,21 +85,15 @@ function MetricCard({ value, label, desc, delay }) {
         />
 
         <p
-          className="font-mono text-slate-900 leading-none tracking-tight mb-3"
-          style={{ fontSize: "clamp(2.4rem, 5vw, 3.2rem)", fontFamily: "'Playfair Display', Georgia, serif" }}
+          className="font-mainFont text-slate-900 leading-none tracking-tight mb-3"
+          style={{ fontSize: "clamp(2.4rem, 5vw, 3.2rem)" }}
         >
           {display}
         </p>
-        <p
-          className="text-xs font-bold tracking-[0.18em] text-sky-500 uppercase mb-2"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
+        <p className="text-xs font-bold tracking-[0.18em] text-sky-500 uppercase mb-2">
           {label}
         </p>
-        <p
-          className="text-sm text-slate-400 leading-relaxed"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
+        <p className="text-sm text-slate-400 leading-relaxed">
           {desc}
         </p>
       </div>
@@ -109,6 +104,7 @@ function MetricCard({ value, label, desc, delay }) {
 export default function About() {
   const heroRef = useRef(null);
   const [heroVisible, setHeroVisible] = useState(false);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -119,11 +115,10 @@ export default function About() {
     return () => observer.disconnect();
   }, []);
 
+  const visible = reduced || heroVisible;
+
   return (
     <MainLayout style={{ background: "linear-gradient(160deg, #f8fafc 0%, #f1f5f9 50%, #e0f2fe 100%)" }} className={`bg-white w-full`}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap');
-      `}</style>
       <GoBacKButton variant="link" className={`w-1/2 border-none px-0`} text="Retour"/>
 
       <section
@@ -143,15 +138,14 @@ export default function About() {
             <div
               className="inline-flex items-center gap-2 mb-6"
               style={{
-                opacity: heroVisible ? 1 : 0,
-                transform: heroVisible ? "translateY(0)" : "translateY(16px)",
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(16px)",
                 transition: "opacity 0.6s ease 0ms, transform 0.6s ease 0ms",
               }}
             >
               <span className="h-px w-8 bg-sky-400 block" />
               <span
                 className="text-xs font-semibold tracking-[0.2em] text-sky-500 uppercase"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
               >
                 À propos
               </span>
@@ -160,14 +154,12 @@ export default function About() {
 
             
             <h2
-              className="text-slate-900 leading-none mb-4"
+              className="text-display font-mainFont text-slate-900 mb-4"
               style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: "clamp(2.6rem, 6vw, 4.2rem)",
                 fontWeight: 900,
-                letterSpacing: "-0.01em",
-                opacity: heroVisible ? 1 : 0,
-                transform: heroVisible ? "translateY(0)" : "translateY(20px)",
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(20px)",
                 transition: "opacity 0.7s ease 100ms, transform 0.7s ease 100ms",
               }}
             >
@@ -178,9 +170,8 @@ export default function About() {
             <p
               className="text-sky-500 font-semibold mb-7 text-lg"
               style={{
-                fontFamily: "'DM Sans', sans-serif",
-                opacity: heroVisible ? 1 : 0,
-                transform: heroVisible ? "translateY(0)" : "translateY(20px)",
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(20px)",
                 transition: "opacity 0.7s ease 200ms, transform 0.7s ease 200ms",
               }}
             >
@@ -191,7 +182,7 @@ export default function About() {
             <div
               className="flex justify-center mb-8"
               style={{
-                opacity: heroVisible ? 1 : 0,
+                opacity: visible ? 1 : 0,
                 transition: "opacity 0.6s ease 280ms",
               }}
             >
@@ -205,12 +196,11 @@ export default function About() {
             <p
               className="text-slate-500 leading-relaxed text-base md:text-lg"
               style={{
-                fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 300,
                 maxWidth: "56ch",
                 margin: "0 auto",
-                opacity: heroVisible ? 1 : 0,
-                transform: heroVisible ? "translateY(0)" : "translateY(20px)",
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(20px)",
                 transition: "opacity 0.7s ease 340ms, transform 0.7s ease 340ms",
               }}
             >
@@ -224,7 +214,7 @@ export default function About() {
          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {metrics.map((m, i) => (
-              <MetricCard key={m.label} {...m} delay={i * 100} />
+              <MetricCard key={m.label} {...m} delay={i * 100} reduced={reduced} />
             ))}
           </div>
 

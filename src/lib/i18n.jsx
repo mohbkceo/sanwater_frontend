@@ -246,13 +246,21 @@ export function I18nProvider({ children }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  const t = (path) => {
+  // `vars` fills {{placeholders}} in the translation string (e.g.
+  // t('hiring.roles_available', { count: 3 })). Several existing strings
+  // (hiring.role_available, hiring.latest_post, ...) already contain
+  // {{count}}/{{date}} placeholders and were being called with a second
+  // argument — but until now nothing substituted them, so real visitors
+  // saw the literal "{{count}} roles available." text.
+  const t = (path, vars) => {
     const keys = path.split('.');
     let result = translations[lang];
     for (const key of keys) {
       if (result) result = result[key];
     }
-    return result || path;
+    if (typeof result !== 'string') return result || path;
+    if (!vars) return result;
+    return result.replace(/\{\{(\w+)\}\}/g, (match, key) => (key in vars ? String(vars[key]) : match));
   };
 
   return (

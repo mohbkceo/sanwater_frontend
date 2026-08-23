@@ -9,6 +9,8 @@ import { useTranslation } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
 import { PRODUCTS, PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { SPRING_DEFAULT } from "@/lib/springs";
 
 export default function ComparePage() {
   const { t } = useTranslation();
@@ -99,33 +101,49 @@ export default function ComparePage() {
             </div>
           </>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={SPRING_DEFAULT}
+            className="overflow-x-auto rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md"
+          >
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
                   <th className="sticky left-0 z-10 bg-white/60 backdrop-blur-md p-4 text-left font-bold min-w-[140px]">
                     {t("compare_page.attribute")}
                   </th>
-                  {products.map((p) => (
-                    <th key={p._id} className="p-4 min-w-[220px] align-top">
-                      <button
-                        onClick={() => removeFromCompare(p.serialNumber)}
-                        className="mb-2 ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-gray-500 hover:text-rose-600"
-                        title={t("products.remove_from_compare")}
+                  <AnimatePresence mode="popLayout">
+                    {products.map((p) => (
+                      <motion.th
+                        key={p._id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={SPRING_DEFAULT}
+                        className="p-4 min-w-[220px] align-top"
                       >
-                        <X size={14} />
-                      </button>
-                      {p.gallery?.[0] && (
-                        <img src={p.gallery[0]} alt={p.name} className="w-full h-32 object-cover rounded-xl mb-2" />
-                      )}
-                      <div
-                        className="font-bold text-gray-900 cursor-pointer hover:text-[#0050A4]"
-                        onClick={() => navigate(PRODUCTVIEWDETAIL.replace(":serialNumber", p.serialNumber))}
-                      >
-                        {p.name}
-                      </div>
-                    </th>
-                  ))}
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
+                          onClick={() => removeFromCompare(p.serialNumber)}
+                          className="mb-2 ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-gray-500 hover:text-rose-600"
+                          title={t("products.remove_from_compare")}
+                        >
+                          <X size={14} />
+                        </motion.button>
+                        {p.gallery?.[0] && (
+                          <img src={p.gallery[0]} alt={p.name} className="w-full h-32 object-cover rounded-xl mb-2" />
+                        )}
+                        <div
+                          className="font-bold text-gray-900 cursor-pointer hover:text-[#0050A4]"
+                          onClick={() => navigate(PRODUCTVIEWDETAIL.replace(":serialNumber", p.serialNumber))}
+                        >
+                          {p.name}
+                        </div>
+                      </motion.th>
+                    ))}
+                  </AnimatePresence>
                 </tr>
               </thead>
               <tbody>
@@ -141,7 +159,7 @@ export default function ComparePage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </motion.div>
         )}
       </div>
     </MainLayout>

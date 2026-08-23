@@ -1,6 +1,8 @@
 import React from "react";
 import { useTranslation } from "@/lib/i18n.jsx";
 import { House } from "lucide-react";
+import { motion } from "framer-motion";
+import { SPRING_DEFAULT } from "@/lib/springs";
 
 const testimonials = [
   {
@@ -53,7 +55,7 @@ export default function Testimonials() {
               {t("why_choose_us.testimonial_badge")}
             </span>
 
-            <h2 className="text-4xl font-mainFont pb-2 sm:text-5xl bg-gradient-to-b from-zinc-900 to-zinc-600 bg-clip-text text-transparent font-bold leading-tight">
+            <h2 className="text-display text-4xl font-mainFont pb-2 sm:text-5xl bg-gradient-to-b from-zinc-900 to-zinc-600 bg-clip-text text-transparent font-bold">
               {t("why_choose_us.testimonial_heading")}
             </h2>
           </div>
@@ -88,8 +90,15 @@ export default function Testimonials() {
 /* Extracted Card Structure matching the new layout positioning */
 function TestimonialCard({ testimonial }) {
   return (
-    <div className="group relative bg-white/50 font-semibold backdrop-blur-md border border-blue-200 rounded-3xl p-8 transition-all duration-500 hover:border-indigo-200 hover:shadow-[0_20px_60px_rgba(79,70,229,0.12)] flex flex-col justify-between min-h-[220px]">
-      
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={SPRING_DEFAULT}
+      className="material-surface group relative bg-white/50 font-semibold backdrop-blur-md border border-blue-200 rounded-3xl p-8 transition-colors duration-500 hover:border-indigo-200 hover:shadow-[0_20px_60px_rgba(79,70,229,0.12)] flex flex-col justify-between min-h-[220px]"
+      style={{ "--material-solid-fallback": "rgba(255,255,255,0.95)" }}
+    >
+
       
       <div className="text-indigo-200 group-hover:text-indigo-400 transition-colors duration-500 mb-4 self-start">
         <svg width="36" height="26" viewBox="0 0 40 30" fill="currentColor">
@@ -127,7 +136,7 @@ function TestimonialCard({ testimonial }) {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

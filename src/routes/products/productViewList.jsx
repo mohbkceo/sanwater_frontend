@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 import MainLayout from "@/layouts/MainLayout";
 import useProducts from "@/services/products/useProducts";
@@ -10,6 +11,7 @@ import ProductNotFound from "@/components/products/ProductNotFound";
 import { useTranslation } from "@/lib/i18n";
 import { getCategories } from "@/services/products/categoryServices";
 import { getCollections } from "@/services/products/collectionServices";
+import { SPRING_DEFAULT, SPRING_DRAWER, SCRIM_VARIANTS, REDUCED_MOTION_TRANSITION } from "@/lib/springs";
 
 const DEFAULT_FILTERS = {
   search: "",
@@ -37,6 +39,7 @@ export default function ProductViewList() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, refetch, loading, hasMore, nextLastId } = useProducts();
+  const prefersReducedMotion = useReducedMotion();
 
   const [filters, setFilters] = useState(() => ({
     ...DEFAULT_FILTERS,
@@ -202,6 +205,13 @@ export default function ProductViewList() {
     </div>
   );
 
+  // Drag-to-dismiss for the mobile filter sheet — rubber-bands past its
+  // resting position, snaps back unless the drag/velocity clearly commits
+  // to closing (apple-design-skill.md §3, §9).
+  const handleSheetDragEnd = (_, info) => {
+    if (info.offset.y > 120 || info.velocity.y > 600) setShowFilterDrawer(false);
+  };
+
   return (
     <MainLayout>
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -215,66 +225,96 @@ export default function ProductViewList() {
                 placeholder={t("products.search_placeholder")}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 pl-11 outline-none transition focus:border-white/30"
+                className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 pl-11 outline-none transition-colors focus:border-white/30"
               />
               <Search className="absolute left-3 top-3.5 h-5 w-5 opacity-70" />
             </div>
 
             <div className="flex gap-2">
-              <Button
-                type="button" variant="secondary"
-                className="border border-white/20 bg-white/20 hover:bg-white/30 relative"
-                onClick={() => setShowFilterDrawer(true)}
-              >
-                <SlidersHorizontal className="mr-2 h-4 w-4" />
-                {t("products.filters")}
-                {activeFilterCount > 0 && (
-                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0050A4] px-1 text-xs font-bold text-white">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
+              <motion.div whileTap={{ scale: 0.96 }} transition={SPRING_DEFAULT}>
+                <Button
+                  type="button" variant="secondary"
+                  className="border border-white/20 bg-white/20 hover:bg-white/30 relative"
+                  onClick={() => setShowFilterDrawer(true)}
+                >
+                  <SlidersHorizontal className="mr-2 h-4 w-4" />
+                  {t("products.filters")}
+                  <AnimatePresence>
+                    {activeFilterCount > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                        transition={SPRING_DEFAULT}
+                        className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0050A4] px-1 text-xs font-bold text-white"
+                      >
+                        {activeFilterCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Button>
+              </motion.div>
 
-              <Button
-                type="button" variant="secondary"
-                className="border border-white/20 bg-white/20 hover:bg-white/30"
-                onClick={clearFilters}
-              >
-                <X className="mr-2 h-4 w-4" />
-                {t("products.reset")}
-              </Button>
+              <motion.div whileTap={{ scale: 0.96 }} transition={SPRING_DEFAULT}>
+                <Button
+                  type="button" variant="secondary"
+                  className="border border-white/20 bg-white/20 hover:bg-white/30"
+                  onClick={clearFilters}
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  {t("products.reset")}
+                </Button>
+              </motion.div>
             </div>
           </div>
 
-          {/* Desktop: inline panel. Mobile: drawer (toggled below). */}
+          {/* Desktop: inline panel. Mobile: bottom sheet (below). */}
           <div className="mt-4 hidden lg:block">{filterPanel}</div>
         </div>
 
-        {/* Mobile filter drawer */}
-        {showFilterDrawer && (
-          <div className="fixed inset-0 z-50 flex lg:hidden">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilterDrawer(false)} />
-            <div className="relative ml-auto h-full w-full max-w-sm overflow-y-auto bg-[#eaf6fc] p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  <SlidersHorizontal size={18} /> {t("products.filters")}
-                </h2>
-                <button onClick={() => setShowFilterDrawer(false)} aria-label="Close" className="text-gray-500">
-                  <X size={22} />
-                </button>
-              </div>
-              {filterPanel}
-              <div className="mt-6 flex gap-3">
-                <Button variant="secondary" className="flex-1" onClick={clearFilters}>
-                  {t("products.clear_filters")}
-                </Button>
-                <Button className="flex-1" onClick={() => setShowFilterDrawer(false)}>
-                  {t("products.apply_filters")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Mobile filter sheet — anchored to the bottom edge, drag to dismiss */}
+        <AnimatePresence>
+          {showFilterDrawer && (
+            <motion.div
+              variants={SCRIM_VARIANTS}
+              initial="initial" animate="animate" exit="exit"
+              transition={prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DEFAULT}
+              className="fixed inset-0 z-50 flex items-end lg:hidden"
+              onClick={() => setShowFilterDrawer(false)}
+            >
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DRAWER}
+                drag={prefersReducedMotion ? false : "y"}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.5 }}
+                onDragEnd={handleSheetDragEnd}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-h-[85vh] overflow-y-auto bg-[#eaf6fc] rounded-t-3xl p-6 pt-3 shadow-xl touch-none"
+                role="dialog" aria-modal="true"
+              >
+                <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-300" aria-hidden="true" />
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-bold flex items-center gap-2">
+                    <SlidersHorizontal size={18} /> {t("products.filters")}
+                  </h2>
+                  <motion.button whileTap={{ scale: 0.85 }} onClick={() => setShowFilterDrawer(false)} aria-label="Close" className="text-gray-500">
+                    <X size={22} />
+                  </motion.button>
+                </div>
+                {filterPanel}
+                <div className="mt-6 flex gap-3">
+                  <Button variant="secondary" className="flex-1" onClick={clearFilters}>
+                    {t("products.clear_filters")}
+                  </Button>
+                  <Button className="flex-1" onClick={() => setShowFilterDrawer(false)}>
+                    {t("products.apply_filters")}
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="mt-6 text-sm opacity-70">
           {!loading && `${products.length}${hasMore ? "+" : ""} ${t("products.results_label")}`}
@@ -289,7 +329,16 @@ export default function ProductViewList() {
             ? Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="h-96 animate-pulse rounded-3xl bg-white/20" />
               ))
-            : products.map((product) => <ProductCard key={product._id} product={product} />)}
+            : products.map((product, i) => (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...SPRING_DEFAULT, delay: prefersReducedMotion ? 0 : Math.min(i, 8) * 0.04 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
         </div>
 
         {!loading && products.length === 0 && (
@@ -302,14 +351,16 @@ export default function ProductViewList() {
 
         {products.length > 0 && (
           <div className="mt-12 w-full">
-            <Button
-              variant="secondary"
-              disabled={!hasMore || loading}
-              onClick={handleLoadMore}
-              className="w-full border border-white/20 bg-white/20 text-black hover:bg-white/30 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {loading ? t("products.loading_products") : hasMore ? t("products.load_more") : t("products.no_more_products")}
-            </Button>
+            <motion.div whileTap={{ scale: 0.98 }} transition={SPRING_DEFAULT}>
+              <Button
+                variant="secondary"
+                disabled={!hasMore || loading}
+                onClick={handleLoadMore}
+                className="w-full border border-white/20 bg-white/20 text-black hover:bg-white/30 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {loading ? t("products.loading_products") : hasMore ? t("products.load_more") : t("products.no_more_products")}
+              </Button>
+            </motion.div>
           </div>
         )}
       </div>

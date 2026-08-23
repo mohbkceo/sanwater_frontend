@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Thumbs } from "swiper/modules";
 
@@ -26,6 +26,8 @@ import { useTranslation } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { SPRING_DEFAULT, SPRING_SNAPPY, SCRIM_VARIANTS, REDUCED_MOTION_TRANSITION } from "@/lib/springs";
 
 function ProductUIRender({ product }) {
   const { t } = useTranslation();
@@ -34,6 +36,9 @@ function ProductUIRender({ product }) {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCompare, toggleCompare } = useCompare();
+  const prefersReducedMotion = useReducedMotion();
+  const spring = prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DEFAULT;
+  const snappySpring = prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_SNAPPY;
 
   const images = product?.gallery?.length ? product.gallery : [];
   const favorited = isFavorite(product?.serialNumber);
@@ -63,6 +68,21 @@ function ProductUIRender({ product }) {
     } catch { /* clipboard unavailable */ }
   };
 
+  const showPrev = () => setLightboxIndex((i) => (i - 1 + images.length) % images.length);
+  const showNext = () => setLightboxIndex((i) => (i + 1) % images.length);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowLeft") showPrev();
+      if (e.key === "ArrowRight") showNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxIndex, images.length]);
+
   return (
     <section className="py-16">
       {/* Breadcrumb */}
@@ -81,7 +101,11 @@ function ProductUIRender({ product }) {
       </nav>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={spring}
+        >
           {images.length > 0 ? (
             <>
               <Swiper
@@ -91,8 +115,10 @@ function ProductUIRender({ product }) {
               >
                 {images.map((img, i) => (
                   <SwiperSlide key={i}>
-                    <button
+                    <motion.button
                       type="button"
+                      whileTap={{ scale: 0.98 }}
+                      transition={spring}
                       onClick={() => setLightboxIndex(i)}
                       className="block w-full cursor-zoom-in"
                     >
@@ -101,7 +127,7 @@ function ProductUIRender({ product }) {
                         alt={`${product?.name || "product"} ${i + 1}`}
                         className="w-full border-2 border-blue-300/20 rounded-2xl object-cover"
                       />
-                    </button>
+                    </motion.button>
                   </SwiperSlide>
                 ))}
               </Swiper>
@@ -118,7 +144,7 @@ function ProductUIRender({ product }) {
                       <img
                         src={img}
                         alt="thumb"
-                        className="cursor-pointer w-full rounded-xl border-2 border-blue-200/40 hover:border-blue-500 transition"
+                        className="cursor-pointer w-full rounded-xl border-2 border-blue-200/40 hover:border-blue-500 transition-colors"
                       />
                     </SwiperSlide>
                   ))}
@@ -131,47 +157,60 @@ function ProductUIRender({ product }) {
               <span>{t("products.no_image")}</span>
             </div>
           )}
-        </div>
+        </motion.div>
 
-        <div className="flex bg-gray-300/80 rounded-3xl p-4 items-center">
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ ...spring, delay: prefersReducedMotion ? 0 : 0.08 }}
+          className="flex bg-gray-300/80 rounded-3xl p-4 items-center"
+        >
           <div className="w-full space-y-5">
             <div className="flex justify-between gap-5 items-start">
               <div>
-                <h1 className="text-4xl lg:text-5xl font-bold font-mainFont text-[#1F2933]">
+                <h1 className="text-display text-4xl lg:text-5xl font-bold font-mainFont text-[#1F2933]">
                   {product?.name}
                 </h1>
                 <p className="text-[#1D4ED8] font-mono text-sm mt-1">{product?.family}</p>
               </div>
 
               <div className="flex gap-2 shrink-0">
-                <button
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.8 }}
+                  transition={spring}
                   onClick={() => toggleFavorite(product?.serialNumber)}
                   title={favorited ? t("products.remove_from_favorites") : t("products.add_to_favorites")}
-                  className={`flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition ${
+                  className={`flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition-colors ${
                     favorited ? "bg-rose-500 text-white" : "bg-white/80 text-gray-600 hover:text-rose-500"
                   }`}
                 >
-                  <Heart size={18} className={favorited ? "fill-current" : ""} />
-                </button>
-                <button
+                  <motion.span animate={favorited ? { scale: [1, 1.3, 1] } : { scale: 1 }} transition={spring}>
+                    <Heart size={18} className={favorited ? "fill-current" : ""} />
+                  </motion.span>
+                </motion.button>
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.8 }}
+                  transition={spring}
                   onClick={handleCompareClick}
                   title={inCompare ? t("products.remove_from_compare") : t("products.add_to_compare")}
-                  className={`flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition ${
+                  className={`flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition-colors ${
                     inCompare ? "bg-[#0050A4] text-white" : "bg-white/80 text-gray-600 hover:text-[#0050A4]"
                   }`}
                 >
                   <GitCompareArrows size={18} />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.8 }}
+                  transition={spring}
                   onClick={handleShare}
                   title={t("products.share")}
-                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-gray-600 shadow-sm hover:text-[#0050A4] transition"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-gray-600 shadow-sm hover:text-[#0050A4] transition-colors"
                 >
                   <Share2 size={18} />
-                </button>
+                </motion.button>
               </div>
             </div>
 
@@ -209,19 +248,23 @@ function ProductUIRender({ product }) {
 
             <div className="w-full flex flex-col sm:flex-row gap-3">
               <CtaButton className="w-full" label="Contactez ventes pour ce produit" icon={<ChevronRight size={18} />} href={CONTACTSALES} />
-              <button
+              <motion.button
                 type="button"
+                whileTap={{ scale: 0.97 }}
+                transition={spring}
                 onClick={() => setQuoteModalOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#1D4ED8] bg-white px-5 py-3 text-sm font-semibold text-[#1D4ED8] hover:bg-[#1D4ED8]/5 transition"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#1D4ED8] bg-white px-5 py-3 text-sm font-semibold text-[#1D4ED8] hover:bg-[#1D4ED8]/5 transition-colors"
               >
                 <FileText size={18} />
                 Demander un devis
-              </button>
+              </motion.button>
             </div>
 
-            {quoteModalOpen && (
-              <RequestQuoteModal product={product} onClose={() => setQuoteModalOpen(false)} />
-            )}
+            <AnimatePresence>
+              {quoteModalOpen && (
+                <RequestQuoteModal product={product} onClose={() => setQuoteModalOpen(false)} />
+              )}
+            </AnimatePresence>
 
             {product?.specifications?.length > 0 && (
               <div className="pt-2">
@@ -246,16 +289,18 @@ function ProductUIRender({ product }) {
                 </h2>
                 <div className="flex flex-col gap-2">
                   {product.documents.map((doc, i) => (
-                    <a
+                    <motion.a
                       key={i}
+                      whileTap={{ scale: 0.98 }}
+                      transition={spring}
                       href={doc.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-xl bg-white/50 px-4 py-3 text-sm font-medium text-[#1F2933] hover:bg-white/80 transition"
+                      className="flex items-center gap-3 rounded-xl bg-white/50 px-4 py-3 text-sm font-medium text-[#1F2933] hover:bg-white/80 transition-colors"
                     >
                       <Download size={16} className="text-[#0050A4] shrink-0" />
                       <span className="flex-1 truncate">{doc.title}</span>
-                    </a>
+                    </motion.a>
                   ))}
                 </div>
               </div>
@@ -267,7 +312,7 @@ function ProductUIRender({ product }) {
               {product?.collectionRef?.name && <p><strong>{t("products.collection")}:</strong> {product.collectionRef.name}</p>}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {product?.relatedProducts?.length > 0 && (
@@ -276,23 +321,31 @@ function ProductUIRender({ product }) {
             {t("products.related_products")}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-            {product.relatedProducts.map((rp) => (
-              <Link
+            {product.relatedProducts.map((rp, i) => (
+              <motion.div
                 key={rp._id}
-                to={PRODUCTVIEWDETAIL.replace(":serialNumber", rp.slug || rp.productId)}
-                className="group rounded-2xl overflow-hidden bg-white/60 border border-gray-200/60 hover:shadow-md transition"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ ...spring, delay: prefersReducedMotion ? 0 : i * 0.04 }}
+                whileTap={{ scale: 0.97 }}
               >
-                <div className="aspect-square bg-gray-100 overflow-hidden">
-                  {rp.gallery?.[0] ? (
-                    <img src={rp.gallery[0]} alt={rp.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-gray-300"><ImageOff size={24} /></div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold text-[#1F2933] truncate">{rp.name}</div>
-                </div>
-              </Link>
+                <Link
+                  to={PRODUCTVIEWDETAIL.replace(":serialNumber", rp.slug || rp.productId)}
+                  className="group block rounded-2xl overflow-hidden bg-white/60 border border-gray-200/60 hover:shadow-md transition-shadow"
+                >
+                  <div className="aspect-square bg-gray-100 overflow-hidden">
+                    {rp.gallery?.[0] ? (
+                      <img src={rp.gallery[0]} alt={rp.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-gray-300"><ImageOff size={24} /></div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <div className="text-sm font-semibold text-[#1F2933] truncate">{rp.name}</div>
+                  </div>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -300,44 +353,63 @@ function ProductUIRender({ product }) {
 
       <WhatsAppButton message={`Bonjour, je suis intéressé par ce produit: ${product?.name} (${product?.serialNumber})`} />
 
-      {lightboxIndex !== null && images.length > 0 && (
-        <div
-          className="fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightboxIndex(null)}
-        >
-          <button
+      <AnimatePresence>
+        {lightboxIndex !== null && images.length > 0 && (
+          <motion.div
+            variants={SCRIM_VARIANTS}
+            initial="initial" animate="animate" exit="exit"
+            transition={snappySpring}
+            className="fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4"
             onClick={() => setLightboxIndex(null)}
-            className="absolute top-4 right-4 text-white/80 hover:text-white"
-            aria-label="Close"
           >
-            <X size={28} />
-          </button>
-          {images.length > 1 && (
-            <button
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + images.length) % images.length); }}
-              className="absolute left-4 text-white/80 hover:text-white"
-              aria-label="Previous"
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={() => setLightboxIndex(null)}
+              className="absolute top-4 right-4 text-white/80 hover:text-white"
+              aria-label="Close"
             >
-              <ChevronLeftIcon size={32} />
-            </button>
-          )}
-          <img
-            src={images[lightboxIndex]}
-            alt={product?.name}
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-[85vh] max-w-full object-contain rounded-lg"
-          />
-          {images.length > 1 && (
-            <button
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % images.length); }}
-              className="absolute right-4 text-white/80 hover:text-white"
-              aria-label="Next"
-            >
-              <ChevronRightIcon size={32} />
-            </button>
-          )}
-        </div>
-      )}
+              <X size={28} />
+            </motion.button>
+            {images.length > 1 && (
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                onClick={(e) => { e.stopPropagation(); showPrev(); }}
+                className="absolute left-4 text-white/80 hover:text-white"
+                aria-label="Previous"
+              >
+                <ChevronLeftIcon size={32} />
+              </motion.button>
+            )}
+            <motion.img
+              key={lightboxIndex}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={snappySpring}
+              drag={prefersReducedMotion ? false : "x"}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.6}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -80 || info.velocity.x < -400) showNext();
+                else if (info.offset.x > 80 || info.velocity.x > 400) showPrev();
+              }}
+              src={images[lightboxIndex]}
+              alt={product?.name}
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-[85vh] max-w-full object-contain rounded-lg touch-none"
+            />
+            {images.length > 1 && (
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                onClick={(e) => { e.stopPropagation(); showNext(); }}
+                className="absolute right-4 text-white/80 hover:text-white"
+                aria-label="Next"
+              >
+                <ChevronRightIcon size={32} />
+              </motion.button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
