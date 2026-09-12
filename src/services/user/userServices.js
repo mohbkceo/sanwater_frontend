@@ -1,4 +1,3 @@
-import axios from "axios";
 import { userAPI } from "../baseAPIs";
 
 
@@ -11,6 +10,11 @@ export const getUserProfile = async () => {
 
 export const getSecurityInfo = async () => {
   const res = await userAPI.get("/security/me");
+  return res.data;
+};
+
+export const getUsers = async () => {
+  const res = await userAPI.get("/");
   return res.data;
 };
 

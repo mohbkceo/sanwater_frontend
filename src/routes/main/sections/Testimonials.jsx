@@ -1,14 +1,18 @@
 import React from "react";
+import { ArrowRight, House, Quote, Star } from "lucide-react";
+
+import { motion, useReducedMotion } from "framer-motion";
+
 import { useTranslation } from "@/lib/i18n.jsx";
-import { House } from "lucide-react";
-import { motion } from "framer-motion";
-import { SPRING_DEFAULT } from "@/lib/springs";
+
+import { REDUCED_MOTION_TRANSITION, SPRING_DEFAULT } from "@/lib/springs";
 
 const testimonials = [
   {
     name: "Karim B.",
     role: "Propriétaire",
-    avatar: "https://images.unsplash.com/photo-1615109398623-88346a601842?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFufGVufDB8fDB8fHww",
+    avatar:
+      "https://images.unsplash.com/photo-1615109398623-88346a601842?fm=jpg&q=60&w=3000&auto=format&fit=crop",
     rating: 5,
     feedback:
       "Très satisfait de la qualité des accessoires. Les finitions sont impeccables et l'installation s'est faite sans difficulté. Excellent rapport qualité-prix.",
@@ -37,114 +41,204 @@ const testimonials = [
     feedback:
       "Le design est élégant et la qualité est au rendez-vous. Après plusieurs mois d'utilisation, les accessoires sont toujours comme neufs.",
   },
-  
 ];
+
+function Rating({ rating }) {
+  return (
+    <div className="flex items-center gap-1" aria-label={`${rating} sur 5`}>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Star
+          key={index}
+          size={14}
+          strokeWidth={2}
+          className={
+            index < rating ? "fill-blue-500 text-blue-500" : "text-slate-200"
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+function Customer({ testimonial, featured = false }) {
+  return (
+    <div className="flex items-center gap-3">
+      <img
+        src={testimonial.avatar}
+        alt={testimonial.name}
+        loading="lazy"
+        className={[
+          "shrink-0 rounded-full object-cover",
+          featured ? "h-12 w-12" : "h-10 w-10",
+        ].join(" ")}
+      />
+
+      <div className="min-w-0">
+        <div className="truncate text-sm font-bold text-slate-950">
+          {testimonial.name}
+        </div>
+
+        <div className="truncate text-xs font-medium text-slate-400">
+          {testimonial.role}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TestimonialCard({ testimonial, featured = false, index = 0 }) {
+  const prefersReducedMotion = useReducedMotion();
+
+  const spring = prefersReducedMotion
+    ? REDUCED_MOTION_TRANSITION
+    : SPRING_DEFAULT;
+
+  return (
+    <motion.article
+      initial={{
+        opacity: 0,
+        y: prefersReducedMotion ? 0 : 18,
+      }}
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+      viewport={{
+        once: true,
+        margin: "-60px",
+      }}
+      whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+      transition={{
+        ...spring,
+        delay: prefersReducedMotion ? 0 : index * 0.04,
+      }}
+      className={[
+        "group flex flex-col",
+        "rounded-[26px]",
+        "border border-slate-200",
+        "bg-white",
+        "transition-colors duration-300",
+        "hover:border-blue-200",
+        featured ? "min-h-[390px] p-7 sm:p-9 lg:p-10" : "min-h-[240px] p-6",
+      ].join(" ")}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div
+          className={[
+            "flex items-center justify-center rounded-2xl",
+            featured ? "h-12 w-12" : "h-10 w-10",
+            "bg-blue-50 text-blue-500",
+          ].join(" ")}
+        >
+          <Quote size={featured ? 21 : 18} fill="currentColor" />
+        </div>
+
+        <Rating rating={testimonial.rating} />
+      </div>
+
+      <p
+        className={[
+          "flex-1 text-slate-600",
+          "transition-colors duration-300",
+          "group-hover:text-slate-800",
+          featured
+            ? "mt-8 text-xl font-medium leading-8 tracking-[-0.015em] sm:text-2xl"
+            : "mt-6 text-sm font-medium leading-6",
+        ].join(" ")}
+      >
+        “{testimonial.feedback}”
+      </p>
+
+      <div className="mt-7 border-t border-slate-100 pt-5">
+        <Customer testimonial={testimonial} featured={featured} />
+      </div>
+    </motion.article>
+  );
+}
 
 export default function Testimonials() {
   const { t } = useTranslation();
 
   return (
-    <section className="py-24 relative bg-zinc-50/10 overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          
-          <div className="lg:col-span-5 max-w-xl">
-            <span className="text-sm flex items-center gap-2 text-zinc-500 font-medium mb-4  tracking-wider uppercase">
-            <House size={20}/>
-              {t("why_choose_us.testimonial_badge")}
-            </span>
+    <section className="relative overflow-hidden py-24 lg:py-32">
+      {/* Ambient blue atmosphere */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+      >
+        <div className="absolute left-[-120px] top-[20%] h-72 w-72 rounded-full bg-blue-200/20 blur-3xl" />
 
-            <h2 className="text-display text-4xl font-mainFont pb-2 sm:text-5xl bg-gradient-to-b from-zinc-900 to-zinc-600 bg-clip-text text-transparent font-bold">
-              {t("why_choose_us.testimonial_heading")}
-            </h2>
-          </div>
+        <div className="absolute right-[-100px] bottom-[10%] h-80 w-80 rounded-full bg-sky-200/20 blur-3xl" />
+      </div>
 
-          
-          <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            
-            <div className="space-y-6 md:mt-12">
-              {testimonials
-                .filter((_, idx) => idx % 2 === 0)
-                .map((testimonial, idx) => (
-                  <TestimonialCard key={idx} testimonial={testimonial} />
-                ))}
+      <div className="mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+            {/* =================================================
+                Intro
+            ================================================= */}
+            <div className="flex flex-col justify-center lg:sticky lg:top-32 lg:self-start">
+              <div className="inline-flex w-fit items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-blue-500">
+                <House size={15} />
+
+                {t("why_choose_us.testimonial_badge")}
+              </div>
+
+              <h2 className="mt-4 max-w-xl text-4xl font-bold leading-[1.02] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-6xl">
+                {t("why_choose_us.testimonial_heading")}
+              </h2>
+
+              <p className="mt-5 max-w-md text-base leading-7 text-slate-500">
+                Des clients qui choisissent SANWATER pour la qualité, le design
+                et la fiabilité de leurs projets.
+              </p>
+
+              {/* Floating glass metric */}
+              <div className="mt-8 w-fit rounded-full border border-white/80 bg-white/65 px-4 py-2.5 shadow-xs backdrop-blur-2xl backdrop-saturate-150">
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    {testimonials.slice(0, 3).map((item) => (
+                      <img
+                        key={item.name}
+                        src={item.avatar}
+                        alt=""
+                        className="h-7 w-7 rounded-full border-2 border-white object-cover"
+                      />
+                    ))}
+                  </div>
+
+                  <span className="text-xs font-semibold text-slate-600">
+                    Clients SANWATER
+                  </span>
+                </div>
+              </div>
             </div>
 
-            
-            <div className="space-y-6">
-              {testimonials
-                .filter((_, idx) => idx % 2 !== 0)
-                .map((testimonial, idx) => (
-                  <TestimonialCard key={idx} testimonial={testimonial} />
-                ))}
-            </div>
+            {/* =================================================
+                Testimonials
+            ================================================= */}
+            <div className="grid gap-4">
+              {testimonials[0] && (
+                <TestimonialCard
+                  testimonial={testimonials[0]}
+                  featured
+                  index={0}
+                />
+              )}
 
+              <div className="grid gap-4 md:grid-cols-3">
+                {testimonials.slice(1).map((testimonial, index) => (
+                  <TestimonialCard
+                    key={testimonial.name}
+                    testimonial={testimonial}
+                    index={index + 1}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-/* Extracted Card Structure matching the new layout positioning */
-function TestimonialCard({ testimonial }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={SPRING_DEFAULT}
-      className="material-surface group relative bg-white/50 font-semibold backdrop-blur-md border border-blue-200 rounded-3xl p-8 transition-colors duration-500 hover:border-indigo-200 hover:shadow-[0_20px_60px_rgba(79,70,229,0.12)] flex flex-col justify-between min-h-[220px]"
-      style={{ "--material-solid-fallback": "rgba(255,255,255,0.95)" }}
-    >
-
-      
-      <div className="text-indigo-200 group-hover:text-indigo-400 transition-colors duration-500 mb-4 self-start">
-        <svg width="36" height="26" viewBox="0 0 40 30" fill="currentColor">
-          <path d="M12.3 0H0V12.3H7.4C7.4 16.4 4.1 19.7 0 19.7V29.6C8.1 29.6 14.8 22.9 14.8 14.8V2.5C14.8 1.1 13.7 0 12.3 0ZM37.5 0H25.2V12.3H32.6C32.6 16.4 29.3 19.7 25.2 19.7V29.6C33.3 29.6 40 22.9 40 14.8V2.5C40 1.1 38.9 0 37.5 0Z" />
-        </svg>
-      </div>
-
-      {/* Main Feedback Content */}
-      <p className="text-zinc-600 leading-relaxed text-base group-hover:text-zinc-900 transition-colors duration-500 mb-6 flex-grow">
-        "{testimonial.feedback}"
-      </p>
-
-      {/* Author Info Block & Star Ratings arranged cleanly at the base */}
-      <div className="flex items-center justify-between gap-4 pt-4 border-t border-zinc-100/80">
-        <div className="flex items-center gap-3">
-          <img
-            className="rounded-full h-11 w-11 object-cover border-2 border-white shadow-sm transition-transform duration-500 group-hover:scale-105"
-            src={testimonial.avatar}
-            alt={testimonial.name}
-          />
-          <div className="flex flex-col">
-            <h5 className="text-zinc-900 font-semibold text-sm tracking-tight">
-              {testimonial.name}
-            </h5>
-            <span className="text-xs font-medium text-indigo-600/90">
-              {testimonial.role}
-            </span>
-          </div>
-        </div>
-
-        {/* Rating Stars */}
-        <div className="flex items-center gap-0.5 shrink-0">
-          {[...Array(testimonial.rating)].map((_, i) => (
-            <StarIcon key={i} />
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-const StarIcon = () => (
-  <svg className="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M8.10326 1.31699C8.47008 0.57374 9.52992 0.57374 9.89674 1.31699L11.7063 4.98347C11.8519 5.27862 12.1335 5.48319 12.4592 5.53051L16.5054 6.11846C17.3256 6.23765 17.6531 7.24562 17.0596 7.82416L14.1318 10.6781C13.8961 10.9079 13.7885 11.2389 13.8442 11.5632L14.5353 15.5931C14.6754 16.41 13.818 17.033 13.0844 16.6473L9.46534 14.7446C9.17402 14.5915 8.82598 14.5915 8.53466 14.7446L4.91562 16.6473C4.18199 17.033 3.32456 16.41 3.46467 15.5931L4.15585 11.5632C4.21148 11.2389 4.10393 10.9079 3.86825 10.6781L0.940384 7.82416C0.346867 7.24562 0.674378 6.23765 1.4946 6.11846L5.54081 5.53051C5.86652 5.48319 6.14808 5.27862 6.29374 4.98347L8.10326 1.31699Z"
-      fill="currentColor"
-    />
-  </svg>
-);

@@ -16,6 +16,7 @@ const VISITOR_KEY = "visitor_id";
 const SOURCE_KEY = "source";
 const CAMPAIGN_KEY = "campaign";
 const MEDIUM_KEY = "medium";
+const LANDING_KEY = "landing_page";
 
 const BOT_REGEX =
   /bot|crawler|spider|crawling|facebookexternalhit|Slackbot|WhatsApp/i;
@@ -194,6 +195,7 @@ function shouldIgnorePath(path) {
 }
 
 function buildBaseEvent() {
+  if (!safeStorageGet(LANDING_KEY)) safeStorageSet(LANDING_KEY, `${window.location.pathname}${window.location.search}`);
   return {
     session_id: getSessionId(),
     visitor_id: getVisitorId(),
@@ -337,4 +339,18 @@ export async function fetchAnalytics({
     console.error("fetchAnalytics error:", error);
     throw error;
   }
+}
+
+export function getAttributionContext() {
+  if (!safeStorageGet(LANDING_KEY)) safeStorageSet(LANDING_KEY, `${window.location.pathname}${window.location.search}`);
+  return {
+    source: detectSource(),
+    medium: getMedium(),
+    campaign: getCampaign(),
+    referrer: document.referrer || null,
+    landingPage: safeStorageGet(LANDING_KEY),
+    pagePath: window.location.pathname,
+    sessionId: getSessionId(),
+    visitorId: getVisitorId(),
+  };
 }

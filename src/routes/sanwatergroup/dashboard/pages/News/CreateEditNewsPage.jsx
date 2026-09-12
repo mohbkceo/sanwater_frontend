@@ -1,422 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { createNewsArticle, updateNewsArticle, getNewsArticleBySlug } from '@/services/newsServices';
-import { useTranslation } from '@/lib/i18n';
-import { Loader, ChevronLeft } from 'lucide-react';
-import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { ChevronLeft, Eye, History, ImagePlus, Loader2, Monitor, Save, Smartphone, Tablet, Trash2, UploadCloud, X } from "lucide-react";
+import DOMPurify from "dompurify";
+import { toast } from "sonner";
+import RichTextEditor from "@/components/news/RichTextEditor";
+import ArticleContent from "@/components/news/ArticleContent";
+import { autosaveNewsArticle, createNewsArticle, getAdminNewsArticleById, getNewsRevision, getNewsRevisions, restoreNewsRevision, updateNewsArticle } from "@/services/newsServices";
+import { destroyImage, uploadImage } from "@/services/contents/imageHandler";
+import { getProducts } from "@/services/products/productServices";
+import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 
-const CreateEditNewsPage = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const { t } = useTranslation();
-    const [loading, setLoading] = useState(id ? true : false);
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState(null);
-    const [formData, setFormData] = useState({
-        title: '',
-        slug: '',
-        excerpt: '',
-        content: '',
-        coverImage: '',
-        category: '',
-        tags: [],
-        author: '',
-        status: 'draft',
-        publishedAt: '',
-        seoTitle: '',
-        seoDescription: '',
-        canonicalUrl: '',
-        isFeatured: false
-    });
-    const [tagInput, setTagInput] = useState('');
-
-    useEffect(() => {
-        if (id) {
-            fetchArticle();
-        }
-    }, [id]);
-
-    const fetchArticle = async () => {
-        try {
-            setLoading(true);
-            const response = await getNewsArticleBySlug(id);
-            const article = response.data;
-            setFormData({
-                ...article,
-                publishedAt: article.publishedAt ? new Date(article.publishedAt).toISOString().split('T')[0] : ''
-            });
-            setError(null);
-        } catch (err) {
-            setError('Failed to load article');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const generateSlug = (title) => {
-        return title
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, '-')
-            .replace(/[^\w-]+/g, '')
-            .replace(/--+/g, '-');
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        if (name === 'title') {
-            setFormData({
-                ...formData,
-                [name]: value,
-                slug: generateSlug(value)
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: type === 'checkbox' ? checked : value
-            });
-        }
-    };
-
-    const handleAddTag = () => {
-        if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-            setFormData({
-                ...formData,
-                tags: [...formData.tags, tagInput.trim()]
-            });
-            setTagInput('');
-        }
-    };
-
-    const handleRemoveTag = (tag) => {
-        setFormData({
-            ...formData,
-            tags: formData.tags.filter(t => t !== tag)
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            setSubmitting(true);
-            const submitData = {
-                ...formData,
-                publishedAt: formData.publishedAt ? new Date(formData.publishedAt) : null
-            };
-
-            if (id) {
-                await updateNewsArticle(id, submitData);
-            } else {
-                await createNewsArticle(submitData);
-            }
-
-            navigate(SANWATERGROUPROUTES.content.children.news.fullPath);
-        } catch (err) {
-            setError('Failed to save article');
-            console.error(err);
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center py-20">
-                <Loader className="animate-spin text-slate-900" size={40} />
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 md:p-8">
-            <div className="mx-auto max-w-4xl">
-                <div className="mb-8 flex items-center gap-4">
-                    <button
-                        onClick={() => navigate(SANWATERGROUPROUTES.content.children.news.fullPath)}
-                        className="p-2 text-slate-600 hover:bg-slate-200 rounded transition"
-                    >
-                        <ChevronLeft size={24} />
-                    </button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-slate-900">
-                            {id ? 'Edit News' : 'Create News'}
-                        </h1>
-                        <p className="mt-2 text-slate-600">
-                            {id ? 'Update your news article' : 'Create a new news article'}
-                        </p>
-                    </div>
-                </div>
-
-                {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-8">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8 space-y-6">
-                    {/* Title */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Title *
-                        </label>
-                        <input
-                            type="text"
-                            name="title"
-                            value={formData.title}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            placeholder="Enter article title"
-                        />
-                    </div>
-
-                    {/* Slug */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Slug
-                        </label>
-                        <input
-                            type="text"
-                            name="slug"
-                            value={formData.slug}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            placeholder="Auto-generated from title"
-                        />
-                    </div>
-
-                    {/* Excerpt */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Excerpt
-                        </label>
-                        <textarea
-                            name="excerpt"
-                            value={formData.excerpt}
-                            onChange={handleInputChange}
-                            rows="3"
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            placeholder="Brief summary of the article"
-                        />
-                    </div>
-
-                    {/* Content */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Content *
-                        </label>
-                        <textarea
-                            name="content"
-                            value={formData.content}
-                            onChange={handleInputChange}
-                            required
-                            rows="8"
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono text-sm"
-                            placeholder="Enter article content (HTML supported)"
-                        />
-                    </div>
-
-                    {/* Cover Image */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Cover Image URL
-                        </label>
-                        <input
-                            type="url"
-                            name="coverImage"
-                            value={formData.coverImage}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            placeholder="https://example.com/image.jpg"
-                        />
-                    </div>
-
-                    {/* Category */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Category
-                        </label>
-                        <input
-                            type="text"
-                            name="category"
-                            value={formData.category}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            placeholder="e.g., Updates, Events"
-                        />
-                    </div>
-
-                    {/* Tags */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Tags
-                        </label>
-                        <div className="flex gap-2 mb-2">
-                            <input
-                                type="text"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                                placeholder="Add a tag and press Enter"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleAddTag}
-                                className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
-                            >
-                                Add
-                            </button>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            {formData.tags.map((tag) => (
-                                <span
-                                    key={tag}
-                                    className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-900 rounded-full text-sm"
-                                >
-                                    {tag}
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveTag(tag)}
-                                        className="text-slate-600 hover:text-slate-900"
-                                    >
-                                        ×
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Author */}
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Author
-                        </label>
-                        <input
-                            type="text"
-                            name="author"
-                            value={formData.author}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            placeholder="Author name"
-                        />
-                    </div>
-
-                    {/* Status and Publish Date */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-900 mb-2">
-                                Status
-                            </label>
-                            <select
-                                name="status"
-                                value={formData.status}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            >
-                                <option value="draft">Draft</option>
-                                <option value="published">Published</option>
-                                <option value="scheduled">Scheduled</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-900 mb-2">
-                                Publish Date
-                            </label>
-                            <input
-                                type="date"
-                                name="publishedAt"
-                                value={formData.publishedAt}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                            />
-                        </div>
-                    </div>
-
-                    {/* SEO Fields */}
-                    <div className="border-t border-slate-200 pt-6">
-                        <h3 className="text-lg font-semibold text-slate-900 mb-4">SEO Settings</h3>
-                        
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                                    SEO Title
-                                </label>
-                                <input
-                                    type="text"
-                                    name="seoTitle"
-                                    value={formData.seoTitle}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                                    placeholder="SEO-friendly title"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                                    SEO Description
-                                </label>
-                                <textarea
-                                    name="seoDescription"
-                                    value={formData.seoDescription}
-                                    onChange={handleInputChange}
-                                    rows="2"
-                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                                    placeholder="Meta description for search engines"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                                    Canonical URL
-                                </label>
-                                <input
-                                    type="url"
-                                    name="canonicalUrl"
-                                    value={formData.canonicalUrl}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                                    placeholder="https://example.com/article"
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    name="isFeatured"
-                                    checked={formData.isFeatured}
-                                    onChange={handleInputChange}
-                                    className="w-4 h-4 rounded"
-                                />
-                                <label className="text-sm font-semibold text-slate-900">
-                                    Mark as Featured
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Submit Buttons */}
-                    <div className="flex gap-4 pt-6 border-t border-slate-200">
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="flex-1 px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
-                        >
-                            {submitting ? 'Saving...' : id ? 'Update Article' : 'Create Article'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navigate(SANWATERGROUPROUTES.content.children.news.fullPath)}
-                            className="flex-1 px-6 py-2 border border-slate-300 text-slate-900 rounded-lg hover:bg-slate-50 transition"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+const EMPTY = { title: "", excerpt: "", content: "", coverImage: "", category: "", tags: [], status: "draft", publishedAt: "", seoTitle: "", seoDescription: "", canonicalUrl: "", isFeatured: false, relatedProducts: [] };
+const localDateTime = (value) => {
+  if (!value) return "";
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Algiers", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(value)).map((part) => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
 };
+const algiersDateTimeToIso = (value) => value ? new Date(`${value}:00+01:00`).toISOString() : null;
 
-export default CreateEditNewsPage;
+export default function CreateEditNewsPage() {
+  const { id } = useParams(); const navigate = useNavigate(); const [searchParams] = useSearchParams();
+  const [recordId, setRecordId] = useState(id || null); const [form, setForm] = useState(() => ({ ...EMPTY, publishedAt: searchParams.get("schedule") ? `${searchParams.get("schedule")}T09:00` : "" }));
+  const [loading, setLoading] = useState(Boolean(id)); const [saving, setSaving] = useState(false); const [dirty, setDirty] = useState(false); const [publicationDirty, setPublicationDirty] = useState(false); const [saveState, setSaveState] = useState("Saved");
+  const [preview, setPreview] = useState(false); const [previewSize, setPreviewSize] = useState("desktop"); const [products, setProducts] = useState([]); const [productSearch, setProductSearch] = useState("");
+  const [tagInput, setTagInput] = useState(""); const [uploading, setUploading] = useState(false); const [uploadProgress, setUploadProgress] = useState(0);
+  const [revisions, setRevisions] = useState([]); const [revision, setRevision] = useState(null); const savingRef = useRef(false);
+  const listPath = SANWATERGROUPROUTES.content.children.news.fullPath;
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true; setLoading(true);
+    getAdminNewsArticleById(id).then((response) => { if (!active) return; const article = response?.data; setRecordId(article._id); setForm({ ...EMPTY, ...article, publishedAt: localDateTime(article.publishedAt), relatedProducts: (article.relatedProducts || []).map((item) => item._id || item) }); setDirty(false); setPublicationDirty(false); }).catch(() => toast.error("Failed to load article.")).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [id]);
+  useEffect(() => { getProducts({ max: 100, sortBy: "name", sortOrder: "asc" }).then((result) => setProducts(result?.data?.products || [])).catch(() => {}); }, []);
+  useEffect(() => { if (recordId) getNewsRevisions(recordId).then((result) => setRevisions(result?.data || [])).catch(() => {}); }, [recordId, saving]);
+  useEffect(() => { const leave = (event) => { if (dirty || publicationDirty) { event.preventDefault(); event.returnValue = ""; } }; window.addEventListener("beforeunload", leave); return () => window.removeEventListener("beforeunload", leave); }, [dirty, publicationDirty]);
+
+  const autosavePayload = useMemo(() => Object.fromEntries(Object.entries(form).filter(([key]) => !["status", "publishedAt", "author", "authorUser", "slug", "_id", "createdAt", "updatedAt"].includes(key))), [form]);
+  useEffect(() => {
+    if (!dirty || loading || form.title.trim().length < 2 || !form.content.trim()) return;
+    const timer = setTimeout(async () => {
+      if (savingRef.current) return;
+      try {
+        savingRef.current = true; setSaveState("Saving...");
+        if (recordId) await autosaveNewsArticle(recordId, autosavePayload);
+        else {
+          const created = await createNewsArticle({ ...autosavePayload, status: "draft", publishedAt: null });
+          const newId = created?.data?._id; if (newId) { setRecordId(newId); navigate(`${listPath}/edit/${newId}`, { replace: true }); }
+        }
+        setDirty(publicationDirty); setSaveState(`Saved at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`);
+      } catch { setSaveState("Autosave failed"); }
+      finally { savingRef.current = false; }
+    }, 1400);
+    return () => clearTimeout(timer);
+  }, [autosavePayload, dirty, form.content, form.title, loading, navigate, publicationDirty, recordId, listPath]);
+
+  function setField(name, value) { setForm((current) => ({ ...current, [name]: value })); setDirty(true); setSaveState("Unsaved"); if (["status", "publishedAt"].includes(name)) setPublicationDirty(true); }
+  function payload() { return { ...autosavePayload, status: form.status, publishedAt: form.status === "scheduled" ? algiersDateTimeToIso(form.publishedAt) : form.status === "published" ? null : algiersDateTimeToIso(form.publishedAt) }; }
+  async function save() {
+    if (!form.title.trim() || !form.content.trim()) return toast.error("Title and content are required.");
+    if (form.status === "scheduled" && (!form.publishedAt || new Date(algiersDateTimeToIso(form.publishedAt)) <= new Date())) return toast.error("Choose a future date and time.");
+    try { setSaving(true); const result = recordId ? await updateNewsArticle(recordId, payload()) : await createNewsArticle(payload()); const article = result?.data; if (article?._id) { setRecordId(article._id); navigate(`${listPath}/edit/${article._id}`, { replace: true }); } setDirty(false); setPublicationDirty(false); setSaveState(`Saved at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`); toast.success(form.status === "published" ? "Article published." : "Article saved."); }
+    catch (error) { toast.error(error?.response?.data?.message || "Save failed."); }
+    finally { setSaving(false); }
+  }
+  function addTag() { const tag = tagInput.trim(); if (tag && !form.tags.includes(tag)) setField("tags", [...form.tags, tag]); setTagInput(""); }
+  async function coverUpload(event) { const file = event.target.files?.[0]; if (!file) return; try { setUploading(true); setUploadProgress(0); const result = await uploadImage(file, { folder: "news", onProgress: setUploadProgress }); setField("coverImage", result?.data?.path || ""); toast.success("Cover uploaded."); } catch { toast.error("Cover upload failed."); } finally { setUploading(false); event.target.value = ""; } }
+  async function removeCover() { const current = form.coverImage; setField("coverImage", ""); if (current) await destroyImage(current).catch(() => {}); }
+  async function viewRevision(item) { try { setRevision((await getNewsRevision(recordId, item._id))?.data || null); } catch { toast.error("Could not load version."); } }
+  async function restore(item) { try { setSaving(true); await restoreNewsRevision(recordId, item._id); const refreshed = (await getAdminNewsArticleById(recordId))?.data; setForm({ ...EMPTY, ...refreshed, publishedAt: localDateTime(refreshed.publishedAt), relatedProducts: (refreshed.relatedProducts || []).map((p) => p._id || p) }); setRevision(null); toast.success(`Version ${item.version} restored as a new revision.`); } catch { toast.error("Restore failed."); } finally { setSaving(false); } }
+
+  const visibleProducts = products.filter((product) => `${product.name} ${product.productId} ${product.serialNumber}`.toLowerCase().includes(productSearch.toLowerCase())).slice(0, 20);
+  const selectedProducts = products.filter((product) => form.relatedProducts.includes(product._id));
+  const previewArticle = { ...form, _id: recordId || "preview", slug: form.title.toLowerCase().replace(/\s+/g, "-"), author: "SanWater Team", relatedProducts: selectedProducts };
+  if (loading) return <div className="grid min-h-[60vh] place-items-center"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>;
+
+  return <div className="min-h-screen bg-[#f6f9ff] px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-7xl">
+      <header className="sticky top-0 z-20 mb-5 flex flex-col gap-4 rounded-[26px] border border-blue-100 bg-white/85 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3"><button onClick={() => navigate(listPath)} className="rounded-full border p-2"><ChevronLeft className="h-4 w-4" /></button><div><h1 className="text-2xl font-bold">{recordId ? "Edit article" : "Create article"}</h1><p className={`text-xs ${saveState.includes("failed") ? "text-rose-600" : "text-slate-500"}`}>{saveState}</p></div></div>
+        <div className="flex flex-wrap gap-2"><button onClick={() => setPreview(true)} className="inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-semibold"><Eye className="h-4 w-4" />Preview</button><button onClick={save} disabled={saving} className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{form.status === "published" ? "Publish" : "Save"}</button></div>
+      </header>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <main className="space-y-5">
+          <Card title="Article"><Input label="Title *"><input value={form.title} onChange={(e) => setField("title", e.target.value)} maxLength={200} /></Input><Input label="Excerpt"><textarea value={form.excerpt || ""} onChange={(e) => setField("excerpt", e.target.value)} maxLength={600} rows="3" /></Input><div><label className="mb-2 block text-xs font-bold uppercase text-slate-500">Content *</label><RichTextEditor value={form.content} onChange={(value) => setField("content", value)} /></div></Card>
+          <Card title="Related Products"><input value={productSearch} onChange={(e) => setProductSearch(e.target.value)} placeholder="Search products" className="w-full rounded-2xl border p-3" /><div className="mt-3 grid gap-2 sm:grid-cols-2">{visibleProducts.map((product) => <label key={product._id} className="flex items-center gap-3 rounded-2xl border bg-slate-50 p-3 text-sm"><input type="checkbox" checked={form.relatedProducts.includes(product._id)} onChange={(e) => setField("relatedProducts", e.target.checked ? [...form.relatedProducts, product._id] : form.relatedProducts.filter((id) => id !== product._id))} /><span className="font-medium">{product.name || product.productId}</span></label>)}</div></Card>
+          <Card title="SEO & Social">
+            <Input label={`SEO Title ${(form.seoTitle || form.title).length} / ~60`}><input value={form.seoTitle || ""} onChange={(e) => setField("seoTitle", e.target.value)} placeholder={form.title || "Defaults to article title"} /></Input>
+            <Input label={`Meta Description ${(form.seoDescription || form.excerpt || "").length} / ~160`}><textarea value={form.seoDescription || ""} onChange={(e) => setField("seoDescription", e.target.value)} placeholder={form.excerpt || "Defaults to excerpt"} rows="3" /></Input>
+            <Input label="Canonical URL"><input type="url" value={form.canonicalUrl || ""} onChange={(e) => setField("canonicalUrl", e.target.value)} placeholder={`${window.location.origin}/news/generated-slug`} /></Input>
+            <div className="rounded-2xl border bg-white p-4"><p className="text-xs text-emerald-700">sanwater-dz.com › news</p><h3 className="mt-1 text-lg text-blue-700">{form.seoTitle || form.title || "Article title"}</h3><p className="mt-1 text-sm text-slate-600">{form.seoDescription || form.excerpt || "Article description preview"}</p></div>
+            <div className="overflow-hidden rounded-2xl border bg-slate-50">{form.coverImage && <img src={form.coverImage} className="h-40 w-full object-cover" alt="Social preview" />}<div className="p-4"><p className="text-xs uppercase text-slate-400">sanwater-dz.com</p><h3 className="mt-1 font-bold">{form.seoTitle || form.title || "Article title"}</h3><p className="mt-1 line-clamp-2 text-sm text-slate-500">{form.seoDescription || form.excerpt}</p></div></div>
+          </Card>
+        </main>
+        <aside className="space-y-5">
+          <Card title="Publishing"><label className="grid gap-2 text-sm"><span className="text-xs font-bold uppercase text-slate-500">Status</span><select value={form.status} onChange={(e) => setField("status", e.target.value)} className="rounded-2xl border p-3"><option value="draft">Draft</option><option value="review">Review</option><option value="scheduled">Scheduled</option><option value="published">Publish now</option><option value="archived">Archived</option></select></label>{form.status === "scheduled" && <Input label="Date & time"><input type="datetime-local" value={form.publishedAt} onChange={(e) => setField("publishedAt", e.target.value)} /><p className="mt-1 text-xs text-slate-400">Timezone: Africa/Algiers</p></Input>}<label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={form.isFeatured} onChange={(e) => setField("isFeatured", e.target.checked)} />Featured article</label></Card>
+          <Card title="Cover image"><div className="overflow-hidden rounded-2xl border bg-slate-50">{form.coverImage ? <img src={form.coverImage} alt="Cover" className="h-48 w-full object-cover" /> : <div className="grid h-48 place-items-center text-slate-400"><ImagePlus className="h-8 w-8" /></div>}</div><div className="mt-3 flex gap-2"><label className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"><UploadCloud className="h-4 w-4" />{uploading ? `${uploadProgress}%` : form.coverImage ? "Replace" : "Upload"}<input type="file" accept="image/*" className="hidden" onChange={coverUpload} /></label>{form.coverImage && <button onClick={removeCover} className="rounded-2xl border border-rose-200 p-3 text-rose-600"><Trash2 className="h-4 w-4" /></button>}</div></Card>
+          <Card title="Organization"><Input label="Category"><input value={form.category || ""} onChange={(e) => setField("category", e.target.value)} /></Input><Input label="Tags"><div className="flex gap-2"><input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} /><button onClick={addTag} type="button" className="rounded-xl bg-slate-900 px-3 text-white">Add</button></div></Input><div className="flex flex-wrap gap-2">{form.tags.map((tag) => <button type="button" key={tag} onClick={() => setField("tags", form.tags.filter((item) => item !== tag))} className="rounded-full bg-slate-100 px-3 py-1 text-xs">#{tag} ×</button>)}</div></Card>
+          {recordId && <Card title="Version History" icon={History}>{revisions.length ? <div className="space-y-2">{revisions.map((item) => <button key={item._id} onClick={() => viewRevision(item)} className="w-full rounded-2xl border p-3 text-left"><p className="text-sm font-bold">Version {item.version} · {item.reason.replaceAll("_", " ")}</p><p className="mt-1 text-xs text-slate-500">{item.editor?.fullName || item.editor?.email} · {new Date(item.createdAt).toLocaleString()}</p></button>)}</div> : <p className="text-sm text-slate-500">No versions yet.</p>}</Card>}
+        </aside>
+      </div>
+    </div>
+    {preview && <Modal onClose={() => setPreview(false)}><div className="mb-4 flex items-center justify-between"><div className="flex gap-2">{[["desktop", <Monitor key="desktop-icon" className="h-4 w-4" />], ["tablet", <Tablet key="tablet-icon" className="h-4 w-4" />], ["mobile", <Smartphone key="mobile-icon" className="h-4 w-4" />]].map(([size, icon]) => <button key={size} onClick={() => setPreviewSize(size)} className={`rounded-xl p-2 ${previewSize === size ? "bg-blue-600 text-white" : "border"}`}>{icon}</button>)}</div><button onClick={() => setPreview(false)} className="rounded-full border p-2"><X className="h-4 w-4" /></button></div><div className={`mx-auto transition-all ${previewSize === "mobile" ? "max-w-sm" : previewSize === "tablet" ? "max-w-3xl" : "max-w-5xl"}`}><ArticleContent article={previewArticle} preview /></div></Modal>}
+    {revision && <Modal onClose={() => setRevision(null)}><div className="flex items-start justify-between"><div><h2 className="text-xl font-bold">Version {revision.version}</h2><p className="text-sm text-slate-500">{new Date(revision.createdAt).toLocaleString()}</p></div><button onClick={() => setRevision(null)} className="rounded-full border p-2"><X className="h-4 w-4" /></button></div><div className="mt-5 grid gap-4 md:grid-cols-2"><VersionColumn title="Current" value={form} /><VersionColumn title={`Version ${revision.version}`} value={revision.snapshot} /></div><button disabled={saving} onClick={() => restore(revision)} className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white"><History className="h-4 w-4" />Restore this version</button></Modal>}
+  </div>;
+}
+
+function Card({ title, icon: Icon, children }) { return <section className="rounded-[26px] border border-blue-100 bg-white p-5 shadow-sm"><h2 className="mb-4 flex items-center gap-2 font-bold">{Icon && <Icon className="h-4 w-4 text-blue-600" />}{title}</h2><div className="space-y-4">{children}</div></section>; }
+function Input({ label, children }) { return <label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-500">{label}</span><div className="[&>input]:w-full [&>input]:rounded-2xl [&>input]:border [&>input]:p-3 [&>textarea]:w-full [&>textarea]:rounded-2xl [&>textarea]:border [&>textarea]:p-3">{children}</div></label>; }
+function Modal({ onClose, children }) { return <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm" onMouseDown={onClose}><div onMouseDown={(e) => e.stopPropagation()} className="mx-auto min-h-fit max-w-6xl rounded-[28px] bg-[#f6f9ff] p-5 shadow-2xl sm:p-7">{children}</div></div>; }
+function VersionColumn({ title, value }) { const safeContent = DOMPurify.sanitize(value?.content || "", { USE_PROFILES: { html: true } }); return <div className="rounded-2xl border bg-white p-4"><h3 className="font-bold">{title}</h3><p className="mt-3 text-sm"><strong>Title:</strong> {value?.title}</p><p className="mt-2 text-sm"><strong>Status:</strong> {value?.status}</p><p className="mt-2 text-sm"><strong>Excerpt:</strong> {value?.excerpt}</p><div className="mt-3 max-h-72 overflow-auto border-t pt-3 text-sm" dangerouslySetInnerHTML={{ __html: safeContent }} /></div>; }

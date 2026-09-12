@@ -1,17 +1,29 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+
+import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+
 import { useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import MainLayout from "@/layouts/MainLayout";
 import useProducts from "@/services/products/useProducts";
 import ProductCard from "./sections/ProductItem";
+
 import { Button, Header } from "@/components";
+
 import ProductNotFound from "@/components/products/ProductNotFound";
+
 import { useTranslation } from "@/lib/i18n";
+
 import { getCategories } from "@/services/products/categoryServices";
 import { getCollections } from "@/services/products/collectionServices";
-import { SPRING_DEFAULT, SPRING_DRAWER, SCRIM_VARIANTS, REDUCED_MOTION_TRANSITION } from "@/lib/springs";
+
+import {
+  REDUCED_MOTION_TRANSITION,
+  SCRIM_VARIANTS,
+  SPRING_DEFAULT,
+  SPRING_DRAWER,
+} from "@/lib/springs";
 
 const DEFAULT_FILTERS = {
   search: "",
@@ -24,21 +36,324 @@ const DEFAULT_FILTERS = {
   sortOrder: "desc",
 };
 
-// Flattens the nested category tree (see server categoryController.getCategories)
-// into a flat list of {slug, label} for a simple <select>, indenting
-// subcategories so the hierarchy is still visible.
 function flattenCategories(categories, depth = 0, acc = []) {
-  for (const cat of categories) {
-    acc.push({ slug: cat.slug, label: `${"— ".repeat(depth)}${cat.name}` });
-    if (cat.subcategories?.length) flattenCategories(cat.subcategories, depth + 1, acc);
+  for (const category of categories) {
+    acc.push({
+      slug: category.slug,
+      label: `${"— ".repeat(depth)}${category.name}`,
+    });
+
+    if (category.subcategories?.length) {
+      flattenCategories(category.subcategories, depth + 1, acc);
+    }
   }
+
   return acc;
+}
+
+function GlassIconButton({
+  children,
+  onClick,
+  active = false,
+  danger = false,
+  title,
+}) {
+  return (
+    <motion.button
+      type="button"
+      title={title}
+      aria-label={title}
+      onClick={onClick}
+      whileTap={{ scale: 0.94 }}
+      transition={SPRING_DEFAULT}
+      className={[
+        "flex h-10 w-10 items-center justify-center rounded-full",
+        "border border-white/70",
+        "backdrop-blur-2xl backdrop-saturate-150",
+        "transition-colors duration-200",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40",
+        active
+          ? "bg-blue-600 text-white"
+          : danger
+            ? "bg-white/60 text-red-500 hover:bg-red-50"
+            : "bg-white/60 text-slate-700 hover:bg-white hover:text-blue-600",
+      ].join(" ")}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+function FilterField({ label, children, description }) {
+  return (
+    <div className="space-y-2">
+      <div>
+        <label className="block text-[12px] font-semibold text-slate-700">
+          {label}
+        </label>
+
+        {description && (
+          <p className="mt-0.5 text-[11px] text-slate-400">{description}</p>
+        )}
+      </div>
+
+      {children}
+    </div>
+  );
+}
+
+function FilterSelect({ value, onChange, children }) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={onChange}
+        className={[
+          "h-11 w-full appearance-none rounded-xl",
+          "border border-slate-200 bg-white",
+          "px-3.5 pr-10 text-sm text-slate-800",
+          "outline-none transition-colors",
+          "focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10",
+        ].join(" ")}
+      >
+        {children}
+      </select>
+
+      <ChevronDown
+        size={16}
+        className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+      />
+    </div>
+  );
+}
+
+function FilterInput({ value, onChange, placeholder, type = "text" }) {
+  return (
+    <input
+      type={type}
+      min={type === "number" ? 0 : undefined}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className={[
+        "h-11 w-full rounded-xl",
+        "border border-slate-200 bg-white",
+        "px-3.5 text-sm text-slate-800",
+        "placeholder:text-slate-400",
+        "outline-none transition-colors",
+        "focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10",
+      ].join(" ")}
+    />
+  );
+}
+
+function FilterContent({ filters, categories, collections, updateFilter, t }) {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <FilterField label={t("products.category")}>
+        <FilterSelect
+          value={filters.category}
+          onChange={(event) => updateFilter("category", event.target.value)}
+        >
+          <option value="">{t("products.all_categories")}</option>
+
+          {categories.map((category) => (
+            <option key={category.slug} value={category.slug}>
+              {category.label}
+            </option>
+          ))}
+        </FilterSelect>
+      </FilterField>
+
+      <FilterField label={t("products.collection")}>
+        <FilterSelect
+          value={filters.collection}
+          onChange={(event) => updateFilter("collection", event.target.value)}
+        >
+          <option value="">{t("products.all_collections")}</option>
+
+          {collections.map((collection) => (
+            <option key={collection.slug} value={collection.slug}>
+              {collection.name}
+            </option>
+          ))}
+        </FilterSelect>
+      </FilterField>
+
+      <FilterField label={t("products.family")}>
+        <FilterInput
+          value={filters.family}
+          placeholder="Bottle, Filter..."
+          onChange={(event) => updateFilter("family", event.target.value)}
+        />
+      </FilterField>
+
+      <FilterField label={t("products.min_price")}>
+        <FilterInput
+          type="number"
+          value={filters.minPrice}
+          placeholder="0"
+          onChange={(event) => updateFilter("minPrice", event.target.value)}
+        />
+      </FilterField>
+
+      <FilterField label={t("products.max_price")}>
+        <FilterInput
+          type="number"
+          value={filters.maxPrice}
+          placeholder="10000"
+          onChange={(event) => updateFilter("maxPrice", event.target.value)}
+        />
+      </FilterField>
+
+      <FilterField label={t("products.sort_by")}>
+        <FilterSelect
+          value={filters.sortBy}
+          onChange={(event) => updateFilter("sortBy", event.target.value)}
+        >
+          <option value="createdAt">{t("products.date")}</option>
+
+          <option value="price">{t("products.price")}</option>
+
+          <option value="name">{t("products.name")}</option>
+        </FilterSelect>
+      </FilterField>
+
+      <FilterField label={t("products.order")}>
+        <FilterSelect
+          value={filters.sortOrder}
+          onChange={(event) => updateFilter("sortOrder", event.target.value)}
+        >
+          <option value="desc">{t("products.descending")}</option>
+
+          <option value="asc">{t("products.ascending")}</option>
+        </FilterSelect>
+      </FilterField>
+    </div>
+  );
+}
+
+function FilterSheet({
+  open,
+  onClose,
+  filters,
+  categories,
+  collections,
+  updateFilter,
+  clearFilters,
+  t,
+  prefersReducedMotion,
+}) {
+  const handleDragEnd = (_, info) => {
+    if (info.offset.y > 110 || info.velocity.y > 600) {
+      onClose();
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          variants={SCRIM_VARIANTS}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="fixed inset-0 z-[80] flex items-end lg:hidden"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={
+              prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DRAWER
+            }
+            drag={prefersReducedMotion ? false : "y"}
+            dragConstraints={{
+              top: 0,
+              bottom: 0,
+            }}
+            dragElastic={{
+              top: 0,
+              bottom: 0.45,
+            }}
+            onDragEnd={handleDragEnd}
+            onClick={(event) => event.stopPropagation()}
+            className={[
+              "w-full max-h-[88vh] overflow-y-auto",
+              "rounded-t-[30px]",
+              "border-t border-white/70",
+              "bg-white/90",
+              "backdrop-blur-3xl",
+              "pb-8 pt-3",
+            ].join(" ")}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("products.filters")}
+          >
+            <div
+              aria-hidden="true"
+              className="mx-auto mb-5 h-1.5 w-11 rounded-full bg-slate-300"
+            />
+
+            <div className="flex items-center justify-between px-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">
+                  Catalogue
+                </p>
+
+                <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-950">
+                  {t("products.filters")}
+                </h2>
+              </div>
+
+              <GlassIconButton title="Fermer" onClick={onClose}>
+                <X size={18} />
+              </GlassIconButton>
+            </div>
+
+            <div className="px-5 pt-6">
+              <FilterContent
+                filters={filters}
+                categories={categories}
+                collections={collections}
+                updateFilter={updateFilter}
+                t={t}
+              />
+            </div>
+
+            <div className="mt-7 flex gap-3 border-t border-slate-100 px-5 pt-5">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={clearFilters}
+                className="h-12 flex-1 rounded-full border border-slate-200 bg-white text-slate-700"
+              >
+                {t("products.clear_filters")}
+              </Button>
+
+              <Button
+                type="button"
+                onClick={onClose}
+                className="h-12 flex-1 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+              >
+                {t("products.apply_filters")}
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
 
 export default function ProductViewList() {
   const { t } = useTranslation();
+
   const [searchParams, setSearchParams] = useSearchParams();
+
   const { products, refetch, loading, hasMore, nextLastId } = useProducts();
+
   const prefersReducedMotion = useReducedMotion();
 
   const [filters, setFilters] = useState(() => ({
@@ -46,324 +361,482 @@ export default function ProductViewList() {
     ...Object.fromEntries(
       Object.keys(DEFAULT_FILTERS)
         .filter((key) => searchParams.has(key))
-        .map((key) => [key, searchParams.get(key)])
+        .map((key) => [key, searchParams.get(key)]),
     ),
   }));
+
   const [searchInput, setSearchInput] = useState(filters.search);
+
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
+
+  const [showDesktopFilters, setShowDesktopFilters] = useState(false);
+
   const [categories, setCategories] = useState([]);
+
   const [collections, setCollections] = useState([]);
 
-  // Load the real category/collection lists for the filter dropdowns. Both
-  // are dynamic/admin-managed — if none exist yet the dropdowns just show
-  // only the "all" option, which is correct (nothing fabricated).
   useEffect(() => {
-    getCategories().then((res) => setCategories(flattenCategories(res?.data?.categories || []))).catch(() => {});
-    getCollections().then((res) => setCollections(res?.data?.collections || [])).catch(() => {});
+    getCategories()
+      .then((response) => {
+        setCategories(flattenCategories(response?.data?.categories || []));
+      })
+      .catch(() => {});
+
+    getCollections()
+      .then((response) => {
+        setCollections(response?.data?.collections || []);
+      })
+      .catch(() => {});
   }, []);
 
-  // Debounce the free-text search box so we don't fire a request per
-  // keystroke — everything else updates the filters immediately.
   const searchDebounce = useRef(null);
+
   useEffect(() => {
-    if (searchDebounce.current) clearTimeout(searchDebounce.current);
+    if (searchDebounce.current) {
+      clearTimeout(searchDebounce.current);
+    }
+
     searchDebounce.current = setTimeout(() => {
-      setFilters((prev) => (prev.search === searchInput ? prev : { ...prev, search: searchInput }));
+      setFilters((previous) =>
+        previous.search === searchInput
+          ? previous
+          : {
+              ...previous,
+              search: searchInput,
+            },
+      );
     }, 400);
-    return () => clearTimeout(searchDebounce.current);
+
+    return () => {
+      if (searchDebounce.current) {
+        clearTimeout(searchDebounce.current);
+      }
+    };
   }, [searchInput]);
 
   const queryParams = useMemo(() => {
     const params = {};
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== "" && value !== null && value !== undefined) {
         params[key] = value;
       }
     });
+
     params.max = 15;
+
     return params;
   }, [filters]);
 
-  // Keep the URL in sync with the active filters (minus pagination), so the
-  // filtered view is shareable/bookmarkable and back/forward works.
   useEffect(() => {
     const next = new URLSearchParams();
+
     Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== DEFAULT_FILTERS[key]) next.set(key, value);
+      if (value && value !== DEFAULT_FILTERS[key]) {
+        next.set(key, value);
+      }
     });
-    setSearchParams(next, { replace: true });
+
+    setSearchParams(next, {
+      replace: true,
+    });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   useEffect(() => {
     refetch(queryParams, false);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryParams]);
 
-  const handleLoadMore = async () => {
-    if (!nextLastId || loading) return;
-    await refetch({ ...queryParams, lastId: nextLastId }, true);
+  const updateFilter = (key, value) => {
+    setFilters((previous) => ({
+      ...previous,
+      [key]: value,
+    }));
   };
 
-  const updateFilter = (key, value) => setFilters((prev) => ({ ...prev, [key]: value }));
-
   const clearFilters = () => {
-    setFilters(DEFAULT_FILTERS);
+    setFilters({
+      ...DEFAULT_FILTERS,
+    });
+
     setSearchInput("");
   };
 
-  const activeFilterCount = Object.entries(filters).filter(
-    ([key, value]) => value && value !== DEFAULT_FILTERS[key]
-  ).length;
+  const handleLoadMore = async () => {
+    if (!nextLastId || loading) return;
 
-  const filterPanel = (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <div>
-        <label className="mb-2 block text-sm font-medium opacity-80">{t("products.category")}</label>
-        <select
-          value={filters.category}
-          onChange={(e) => updateFilter("category", e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 outline-none focus:border-white/30"
-        >
-          <option value="">{t("products.all_categories")}</option>
-          {categories.map((c) => (
-            <option key={c.slug} value={c.slug}>{c.label}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium opacity-80">{t("products.collection")}</label>
-        <select
-          value={filters.collection}
-          onChange={(e) => updateFilter("collection", e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 outline-none focus:border-white/30"
-        >
-          <option value="">{t("products.all_collections")}</option>
-          {collections.map((c) => (
-            <option key={c.slug} value={c.slug}>{c.name}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium opacity-80">{t("products.family")}</label>
-        <input
-          type="text"
-          placeholder="Ex: Bottle, Filter..."
-          value={filters.family}
-          onChange={(e) => updateFilter("family", e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 outline-none focus:border-white/30"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium opacity-80">{t("products.min_price")}</label>
-          <input
-            type="number" min="0" placeholder="0"
-            value={filters.minPrice}
-            onChange={(e) => updateFilter("minPrice", e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 outline-none focus:border-white/30"
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium opacity-80">{t("products.max_price")}</label>
-          <input
-            type="number" min="0" placeholder="10000"
-            value={filters.maxPrice}
-            onChange={(e) => updateFilter("maxPrice", e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 outline-none focus:border-white/30"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium opacity-80">{t("products.sort_by")}</label>
-        <select
-          value={filters.sortBy}
-          onChange={(e) => updateFilter("sortBy", e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 outline-none focus:border-white/30"
-        >
-          <option value="createdAt">{t("products.date")}</option>
-          <option value="price">{t("products.price")}</option>
-          <option value="name">{t("products.name")}</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium opacity-80">{t("products.order")}</label>
-        <select
-          value={filters.sortOrder}
-          onChange={(e) => updateFilter("sortOrder", e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 outline-none focus:border-white/30"
-        >
-          <option value="desc">{t("products.descending")}</option>
-          <option value="asc">{t("products.ascending")}</option>
-        </select>
-      </div>
-    </div>
-  );
-
-  // Drag-to-dismiss for the mobile filter sheet — rubber-bands past its
-  // resting position, snaps back unless the drag/velocity clearly commits
-  // to closing (apple-design-skill.md §3, §9).
-  const handleSheetDragEnd = (_, info) => {
-    if (info.offset.y > 120 || info.velocity.y > 600) setShowFilterDrawer(false);
+    await refetch(
+      {
+        ...queryParams,
+        lastId: nextLastId,
+      },
+      true,
+    );
   };
 
+  const activeFilterCount = Object.entries(filters).filter(
+    ([key, value]) => value && value !== DEFAULT_FILTERS[key],
+  ).length;
+
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const resultText = !loading
+    ? `${products.length}${hasMore ? "+" : ""} ${t("products.results_label")}`
+    : "";
+
   return (
-    <MainLayout>
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <Header title={t("products.title")} discription={t("products.description")} />
+    <MainLayout bg="bg-[#F5F8FC]">
+      <div className="min-h-screen">
+        {/* Ambient blue background */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+        >
+          <div className="absolute -left-32 top-24 h-72 w-72 rounded-full bg-blue-200/20 blur-3xl" />
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/10 p-4 shadow-lg backdrop-blur-md">
-          <div className="grid gap-4 md:grid-cols-[1fr_auto]">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder={t("products.search_placeholder")}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/20 px-4 py-3 pl-11 outline-none transition-colors focus:border-white/30"
-              />
-              <Search className="absolute left-3 top-3.5 h-5 w-5 opacity-70" />
-            </div>
+          <div className="absolute -right-24 top-[30%] h-96 w-96 rounded-full bg-sky-200/20 blur-3xl" />
+        </div>
 
-            <div className="flex gap-2">
-              <motion.div whileTap={{ scale: 0.96 }} transition={SPRING_DEFAULT}>
-                <Button
-                  type="button" variant="secondary"
-                  className="border border-white/20 bg-white/20 hover:bg-white/30 relative"
-                  onClick={() => setShowFilterDrawer(true)}
-                >
-                  <SlidersHorizontal className="mr-2 h-4 w-4" />
-                  {t("products.filters")}
-                  <AnimatePresence>
+        <div className="mx-auto max-w-[1440px] px-4 pb-20 pt-5 sm:px-6 lg:px-8 lg:pt-8">
+          {/* =====================================================
+              Page header
+          ===================================================== */}
+          <div className="mx-auto max-w-7xl">
+            <Header
+              title={t("products.title")}
+              discription={t("products.description")}
+            />
+          </div>
+
+          {/* =====================================================
+              Floating catalog toolbar
+          ===================================================== */}
+          <div className="sticky top-4 z-50 mx-auto mt-7 max-w-7xl">
+            <div
+              className={[
+                "rounded-[24px]",
+                "border border-white/80",
+                "bg-white/65",
+                "backdrop-blur-2xl",
+                "backdrop-saturate-150",
+                "px-3 py-3",
+                "shadow-xs",
+              ].join(" ")}
+            >
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                {/* Search */}
+                <div className="relative min-w-0 flex-1">
+                  <Search
+                    size={18}
+                    className={[
+                      "pointer-events-none absolute left-4",
+                      "top-1/2 -translate-y-1/2",
+                      "text-slate-400",
+                    ].join(" ")}
+                  />
+
+                  <input
+                    type="search"
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
+                    placeholder={t("products.search_placeholder")}
+                    className={[
+                      "h-12 w-full rounded-2xl",
+                      "border border-slate-200/80",
+                      "bg-white/80",
+                      "pl-11 pr-11",
+                      "text-sm text-slate-900",
+                      "placeholder:text-slate-400",
+                      "outline-none",
+                      "transition-all",
+                      "focus:border-blue-400",
+                      "focus:ring-4",
+                      "focus:ring-blue-500/10",
+                    ].join(" ")}
+                  />
+
+                  {searchInput && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchInput("");
+                        updateFilter("search", "");
+                      }}
+                      className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                      aria-label="Effacer la recherche"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <motion.button
+                    type="button"
+                    whileTap={{ scale: 0.97 }}
+                    transition={SPRING_DEFAULT}
+                    onClick={() => setShowDesktopFilters((value) => !value)}
+                    className={[
+                      "hidden h-12 items-center gap-2",
+                      "rounded-full border",
+                      "px-4 text-sm font-semibold",
+                      "transition-colors lg:flex",
+                      showDesktopFilters || hasActiveFilters
+                        ? "border-blue-200 bg-blue-50 text-blue-600"
+                        : "border-slate-200 bg-white/80 text-slate-700 hover:border-blue-200 hover:text-blue-600",
+                    ].join(" ")}
+                  >
+                    <SlidersHorizontal size={17} />
+
+                    <span>{t("products.filters")}</span>
+
                     {activeFilterCount > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                        transition={SPRING_DEFAULT}
-                        className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0050A4] px-1 text-xs font-bold text-white"
-                      >
+                      <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-bold text-white">
                         {activeFilterCount}
-                      </motion.span>
+                      </span>
                     )}
-                  </AnimatePresence>
-                </Button>
-              </motion.div>
+                  </motion.button>
 
-              <motion.div whileTap={{ scale: 0.96 }} transition={SPRING_DEFAULT}>
-                <Button
-                  type="button" variant="secondary"
-                  className="border border-white/20 bg-white/20 hover:bg-white/30"
-                  onClick={clearFilters}
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  {t("products.reset")}
-                </Button>
-              </motion.div>
+                  <motion.button
+                    type="button"
+                    whileTap={{ scale: 0.97 }}
+                    transition={SPRING_DEFAULT}
+                    onClick={() => setShowFilterDrawer(true)}
+                    className={[
+                      "flex h-12 flex-1 items-center justify-center gap-2",
+                      "rounded-full border",
+                      "px-4 text-sm font-semibold",
+                      "lg:hidden",
+                      hasActiveFilters
+                        ? "border-blue-200 bg-blue-50 text-blue-600"
+                        : "border-slate-200 bg-white/80 text-slate-700",
+                    ].join(" ")}
+                  >
+                    <SlidersHorizontal size={17} />
+
+                    <span>{t("products.filters")}</span>
+
+                    {activeFilterCount > 0 && (
+                      <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-bold text-white">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </motion.button>
+
+                  <GlassIconButton
+                    title={t("products.reset")}
+                    onClick={clearFilters}
+                    danger={hasActiveFilters}
+                  >
+                    <X size={17} />
+                  </GlassIconButton>
+                </div>
+              </div>
+
+              {/* Desktop filter panel */}
+              <AnimatePresence initial={false}>
+                {showDesktopFilters && (
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      height: 0,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      height: "auto",
+                    }}
+                    exit={{
+                      opacity: 0,
+                      height: 0,
+                    }}
+                    transition={
+                      prefersReducedMotion
+                        ? REDUCED_MOTION_TRANSITION
+                        : SPRING_DEFAULT
+                    }
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3 border-t border-slate-100 pt-5">
+                      <FilterContent
+                        filters={filters}
+                        categories={categories}
+                        collections={collections}
+                        updateFilter={updateFilter}
+                        t={t}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
-          {/* Desktop: inline panel. Mobile: bottom sheet (below). */}
-          <div className="mt-4 hidden lg:block">{filterPanel}</div>
-        </div>
+          {/* =====================================================
+              Results toolbar
+          ===================================================== */}
+          <div className="mx-auto mt-8 flex max-w-7xl items-center justify-between gap-4">
+            <div>
+              <div className="text-sm font-semibold text-slate-900">
+                {resultText}
+              </div>
 
-        {/* Mobile filter sheet — anchored to the bottom edge, drag to dismiss */}
-        <AnimatePresence>
-          {showFilterDrawer && (
-            <motion.div
-              variants={SCRIM_VARIANTS}
-              initial="initial" animate="animate" exit="exit"
-              transition={prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DEFAULT}
-              className="fixed inset-0 z-50 flex items-end lg:hidden"
-              onClick={() => setShowFilterDrawer(false)}
-            >
-              <motion.div
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%" }}
-                transition={prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING_DRAWER}
-                drag={prefersReducedMotion ? false : "y"}
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={{ top: 0, bottom: 0.5 }}
-                onDragEnd={handleSheetDragEnd}
-                onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-h-[85vh] overflow-y-auto bg-[#eaf6fc] rounded-t-3xl p-6 pt-3 shadow-xl touch-none"
-                role="dialog" aria-modal="true"
-              >
-                <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-300" aria-hidden="true" />
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold flex items-center gap-2">
-                    <SlidersHorizontal size={18} /> {t("products.filters")}
-                  </h2>
-                  <motion.button whileTap={{ scale: 0.85 }} onClick={() => setShowFilterDrawer(false)} aria-label="Close" className="text-gray-500">
-                    <X size={22} />
-                  </motion.button>
+              {hasActiveFilters && (
+                <div className="mt-1 flex items-center gap-1.5 text-xs text-blue-600">
+                  <Check size={13} />
+                  Filtres actifs
                 </div>
-                {filterPanel}
-                <div className="mt-6 flex gap-3">
-                  <Button variant="secondary" className="flex-1" onClick={clearFilters}>
+              )}
+            </div>
+
+            <div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex">
+              <span>Trier par</span>
+
+              <span className="font-semibold text-slate-700">
+                {filters.sortBy === "createdAt"
+                  ? t("products.date")
+                  : filters.sortBy === "price"
+                    ? t("products.price")
+                    : t("products.name")}
+              </span>
+
+              <ChevronDown size={14} />
+            </div>
+          </div>
+
+          {/* =====================================================
+              Product grid
+          ===================================================== */}
+          <div
+            className={[
+              "mx-auto mt-4 grid max-w-7xl",
+              "grid-cols-1 gap-4",
+              "sm:grid-cols-2",
+              "lg:grid-cols-3",
+              "xl:grid-cols-4",
+              loading && products.length === 0 ? "opacity-70" : "",
+            ].join(" ")}
+          >
+            {loading && products.length === 0
+              ? Array.from({
+                  length: 8,
+                }).map((_, index) => <ProductSkeleton key={index} />)
+              : products.map((product, index) => (
+                  <motion.div
+                    key={product._id}
+                    initial={{
+                      opacity: 0,
+                      y: prefersReducedMotion ? 0 : 12,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      ...SPRING_DEFAULT,
+                      delay: prefersReducedMotion
+                        ? 0
+                        : Math.min(index, 10) * 0.035,
+                    }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+          </div>
+
+          {/* =====================================================
+              Empty state
+          ===================================================== */}
+          {!loading && products.length === 0 && (
+            <div className="mx-auto mt-10 max-w-7xl rounded-[28px] border border-slate-200 bg-white px-6 py-12">
+              <ProductNotFound
+                description={t("products.no_products_found_description")}
+                mainTitle={t("products.no_products_found_title")}
+              />
+
+              {hasActiveFilters && (
+                <div className="mt-6 flex justify-center">
+                  <Button
+                    type="button"
+                    onClick={clearFilters}
+                    className="rounded-full bg-blue-600 px-6 text-white hover:bg-blue-700"
+                  >
                     {t("products.clear_filters")}
                   </Button>
-                  <Button className="flex-1" onClick={() => setShowFilterDrawer(false)}>
-                    {t("products.apply_filters")}
-                  </Button>
                 </div>
-              </motion.div>
-            </motion.div>
+              )}
+            </div>
           )}
-        </AnimatePresence>
 
-        <div className="mt-6 text-sm opacity-70">
-          {!loading && `${products.length}${hasMore ? "+" : ""} ${t("products.results_label")}`}
-        </div>
-
-        <div
-          className={`mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 ${
-            loading && products.length === 0 ? "opacity-40" : ""
-          }`}
-        >
-          {loading && products.length === 0
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-96 animate-pulse rounded-3xl bg-white/20" />
-              ))
-            : products.map((product, i) => (
-                <motion.div
-                  key={product._id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ ...SPRING_DEFAULT, delay: prefersReducedMotion ? 0 : Math.min(i, 8) * 0.04 }}
-                >
-                  <ProductCard product={product} />
-                </motion.div>
-              ))}
-        </div>
-
-        {!loading && products.length === 0 && (
-          <ProductNotFound
-            className="bg-white/20"
-            description={t("products.no_products_found_description")}
-            mainTitle={t("products.no_products_found_title")}
-          />
-        )}
-
-        {products.length > 0 && (
-          <div className="mt-12 w-full">
-            <motion.div whileTap={{ scale: 0.98 }} transition={SPRING_DEFAULT}>
-              <Button
-                variant="secondary"
-                disabled={!hasMore || loading}
-                onClick={handleLoadMore}
-                className="w-full border border-white/20 bg-white/20 text-black hover:bg-white/30 disabled:opacity-40 disabled:cursor-not-allowed"
+          {/* =====================================================
+              Load more
+          ===================================================== */}
+          {products.length > 0 && (
+            <div className="mx-auto mt-12 max-w-7xl">
+              <motion.div
+                whileTap={{ scale: 0.985 }}
+                transition={SPRING_DEFAULT}
               >
-                {loading ? t("products.loading_products") : hasMore ? t("products.load_more") : t("products.no_more_products")}
-              </Button>
-            </motion.div>
-          </div>
-        )}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={!hasMore || loading}
+                  onClick={handleLoadMore}
+                  className={[
+                    "h-12 w-full rounded-full",
+                    "border border-slate-200",
+                    "bg-white",
+                    "text-sm font-semibold",
+                    "text-slate-700",
+                    "shadow-xs",
+                    "hover:border-blue-200",
+                    "hover:bg-blue-50",
+                    "hover:text-blue-600",
+                    "disabled:cursor-not-allowed",
+                    "disabled:opacity-40",
+                  ].join(" ")}
+                >
+                  {loading
+                    ? t("products.loading_products")
+                    : hasMore
+                      ? t("products.load_more")
+                      : t("products.no_more_products")}
+                </Button>
+              </motion.div>
+            </div>
+          )}
+        </div>
+
+        <FilterSheet
+          open={showFilterDrawer}
+          onClose={() => setShowFilterDrawer(false)}
+          filters={filters}
+          categories={categories}
+          collections={collections}
+          updateFilter={updateFilter}
+          clearFilters={clearFilters}
+          t={t}
+          prefersReducedMotion={prefersReducedMotion}
+        />
       </div>
     </MainLayout>
+  );
+}
+
+function ProductSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-[26px] border border-slate-200 bg-white">
+      <div className="aspect-square animate-pulse bg-slate-100" />
+
+      <div className="space-y-3 p-4">
+        <div className="h-5 w-3/4 animate-pulse rounded-md bg-slate-100" />
+        <div className="h-4 w-1/2 animate-pulse rounded-md bg-slate-100" />
+        <div className="h-5 w-1/3 animate-pulse rounded-md bg-blue-50" />
+        <div className="h-10 w-full animate-pulse rounded-xl bg-slate-100" />
+      </div>
+    </div>
   );
 }

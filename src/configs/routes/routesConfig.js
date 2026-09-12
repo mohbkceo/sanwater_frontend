@@ -3,7 +3,8 @@ export const mainSanWaterRoute = `/sanwater/admins/secure`
 export const ABOUT = `/about`
 export const PRODUCTS = `/products`
 export const NEWS = `/news`
-export const CONTACTSALES = `/contact_sales`
+export const CONTACTSALES = `/contact-sales`
+export const LEGACY_CONTACTSALES = `/contact_sales`
 export const PRODUCTVIEWDETAIL = `/products/view/:serialNumber`;
 export const LANDINGPRODUCT = `/products/landing_product/:serialNumber`;
 export const COMPARE = `/products/compare`;
@@ -89,6 +90,10 @@ export const SANWATERGROUPROUTES = {
     quotations: {
        subPath: `quotations`,
        fullPath: `${mainSanWaterRoute}/quotations`
+    },
+    leads: {
+       subPath: `leads`,
+       fullPath: `${mainSanWaterRoute}/leads`
     },
     settings: {
        subPath: `settings`,

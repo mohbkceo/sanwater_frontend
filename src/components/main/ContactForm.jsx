@@ -1,278 +1,477 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { contentAPI } from '@/services/baseAPIs';
-import { useTranslation } from '@/lib/i18n.jsx';
-import { Send, Mail, User, MessageSquare, Sparkles, ArrowRight, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import React, { useState } from "react";
+import { contentAPI } from "@/services/baseAPIs";
+import { useTranslation } from "@/lib/i18n.jsx";
 
-function ContactForm() {
-  const { t } = useTranslation();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [status, setStatus] = useState({ loading: false, success: false, error: null });
-  const [activeField, setActiveField] = useState(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const cardRef = useRef(null);
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle,
+  Mail,
+  MessageSquare,
+  Send,
+  User,
+} from "lucide-react";
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (cardRef.current) {
-        const rect = cardRef.current.getBoundingClientRect();
-        setMousePosition({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        });
-      }
-    };
-    
-    const card = cardRef.current;
-    if (card) {
-      card.addEventListener('mousemove', handleMouseMove);
-    }
-    return () => {
-      if (card) {
-        card.removeEventListener('mousemove', handleMouseMove);
-      }
-    };
-  }, []);
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+import { REDUCED_MOTION_TRANSITION, SPRING_DEFAULT } from "@/lib/springs";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus({ loading: true, success: false, error: null });
-    try {
-      await contentAPI.post('/contact', formData);
-      setStatus({ loading: false, success: true, error: null });
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setStatus({ loading: false, success: false, error: null }), 3000);
-    } catch (err) {
-      setStatus({ loading: false, success: false, error: 'Failed to send message. Please try again later.' });
-    }
-  };
-
-  const inputClasses = (fieldName) => `
-    w-full px-5 py-4 bg-white/40 backdrop-blur-sm 
-    border rounded-2xl outline-none transition-all duration-300
-    placeholder:text-stone-400 text-stone-800
-    ${activeField === fieldName 
-      ? 'border-blue-400/60 lg blue-400/10 bg-white/60' 
-      : 'border-stone-200/60 hover:border-stone-300/80'
-    }
-  `;
-
+function Field({
+  label,
+  icon: Icon,
+  name,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  active,
+  required = false,
+  type = "text",
+  placeholder,
+}) {
   return (
-    <section id="contact" className="relative py-32 overflow-hidden bg-gradient-to-b from-transparent via-blue-50/80 to-stone-50/30">
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div className="absolute top-20 left-10 w-64 h-64 border border-stone-400 rounded-full" />
-        <div className="absolute top-40 left-32 w-48 h-48 border border-stone-400 rounded-full" />
-        <div className="absolute bottom-20 right-10 w-80 h-80 border border-stone-400 rounded-full" />
-        <div className="absolute bottom-40 right-32 w-56 h-56 border border-stone-400 rounded-full" />
-      </div>
+    <div className="space-y-2">
+      <label
+        htmlFor={name}
+        className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-500"
+      >
+        <Icon
+          size={14}
+          className={active ? "text-blue-600" : "text-slate-400"}
+        />
 
-      <div className="absolute top-20 left-[15%] w-2 h-2 bg-blue-400/30 rounded-full animate-float" />
-      <div className="absolute top-1/3 right-[20%] w-3 h-3 bg-rose-300/30 rounded-full animate-float-delayed" />
-      <div className="absolute bottom-1/4 left-[25%] w-2 h-2 bg-emerald-400/30 rounded-full animate-float" />
-      
-      <div className="absolute left-10 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-stone-300/40 to-transparent" />
-      <div className="absolute right-10 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-stone-300/40 to-transparent" />
+        {label}
+      </label>
 
-      <div className="max-w-4xl mx-auto px-6 relative">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <div className="h-px w-12 bg-gradient-to-r from-transparent to-blue-400/60" />
-            <Sparkles className="w-5 h-5 text-blue-500" />
-            <span className="text-xs font-medium tracking-[0.2em] text-stone-500 uppercase">Get in Touch</span>
-            <Sparkles className="w-5 h-5 text-blue-500" />
-            <div className="h-px w-12 bg-gradient-to-l from-transparent to-blue-400/60" />
-          </div>
-          
-          <h2 className="text-5xl lg:text-7xl font-mono font-bold text-stone-800 mb-4 tracking-tight">
-            {t('contact.title')}
-          </h2>
-          
-          <p className="text-stone-500 text-lg font-light tracking-wide max-w-xl mx-auto leading-relaxed">
-            Let's create something beautiful together
-          </p>
-          
-          {/* Decorative separator */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <div className="w-8 h-[1px] bg-stone-300" />
-            <div className="w-1.5 h-1.5 rotate-45 bg-blue-400/60" />
-            <div className="w-16 h-[1px] bg-stone-300" />
-            <div className="w-1.5 h-1.5 rotate-45 bg-blue-400/60" />
-            <div className="w-8 h-[1px] bg-stone-300" />
-          </div>
-        </div>
-
-        {/* Main card with Pinterest-style elevation and hover effect */}
-        <div 
-          ref={cardRef}
-          className="relative group"
-        >
-          {/* Card shadow layers for Pinterest depth */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 to-rose-400/5 rounded-[2.5rem] blur-xl transform translate-y-2" />
-          
-          <div 
-            className="relative bg-white/70 backdrop-blur-xl rounded-[2.5rem] p-10 md:p-14 
-                       border border-white/80 2xl stone-200/50
-                       transition-all duration-500 hover:2xl hover:stone-300/50
-                       hover:border-blue-200/60"
-            style={{
-              background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(251, 191, 36, 0.05) 0%, transparent 50%)`
-            }}
-          >
-            
-            <div className="absolute inset-3 rounded-[2rem] border border-stone-200/30 pointer-events-none" />
-            
-            <form onSubmit={handleSubmit} className="relative space-y-8">
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <div className="space-y-2 group/field">
-                  <label className="flex items-center gap-2 text-sm font-medium text-stone-600 mb-2">
-                    <User className="w-4 h-4 text-blue-500" />
-                    {t('contact.name')}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleChange}
-                      onFocus={() => setActiveField('name')}
-                      onBlur={() => setActiveField(null)}
-                      className={inputClasses('name')}
-                      placeholder="Your name"
-                    />
-                    <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-blue-400/0 to-transparent transition-all duration-300 group-focus-within/field:via-blue-400/60" />
-                  </div>
-                </div>
-
-                
-                <div className="space-y-2 group/field">
-                  <label className="flex items-center gap-2 text-sm font-medium text-stone-600 mb-2">
-                    <Mail className="w-4 h-4 text-blue-500" />
-                    {t('contact.email')}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                      onFocus={() => setActiveField('email')}
-                      onBlur={() => setActiveField(null)}
-                      className={inputClasses('email')}
-                      placeholder="your@email.com"
-                    />
-                    <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-blue-400/0 to-transparent transition-all duration-300 group-focus-within/field:via-blue-400/60" />
-                  </div>
-                </div>
-              </div>
-
-              
-              <div className="space-y-2 group/field">
-                <label className="flex items-center gap-2 text-sm font-medium text-stone-600 mb-2">
-                  <MessageSquare className="w-4 h-4 text-blue-500" />
-                  {t('contact.subject')}
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    onFocus={() => setActiveField('subject')}
-                    onBlur={() => setActiveField(null)}
-                    className={inputClasses('subject')}
-                    placeholder="What's this about?"
-                  />
-                  <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-blue-400/0 to-transparent transition-all duration-300 group-focus-within/field:via-blue-400/60" />
-                </div>
-              </div>
-
-              
-              <div className="space-y-2 group/field">
-                <label className="flex items-center gap-2 text-sm font-medium text-stone-600 mb-2">
-                  <Sparkles className="w-4 h-4 text-blue-500" />
-                  {t('contact.message')}
-                </label>
-                <div className="relative">
-                  <textarea
-                    name="message"
-                    required
-                    rows="5"
-                    value={formData.message}
-                    onChange={handleChange}
-                    onFocus={() => setActiveField('message')}
-                    onBlur={() => setActiveField(null)}
-                    className={`${inputClasses('message')} resize-none`}
-                    placeholder="Tell me about your project..."
-                  ></textarea>
-                </div>
-              </div>
-
-              
-              <div className="flex flex-col items-center gap-4 pt-4">
-                <button
-                  type="submit"
-                  disabled={status.loading}
-                  className="group/btn relative inline-flex items-center gap-3 px-10 py-4 
-                           bg-stone-800 text-white rounded-2xl font-medium
-                           hover:bg-stone-700 transition-all duration-300
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                            stone-800/10  hover:stone-800/20
-                           hover:scale-[0.99] active:scale-[0.98]"
-                >
-                  {status.loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <span>{t('contact.send')}</span>
-                      <Send className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                    </>
-                  )}
-                </button>
-
-                
-                {status.success && (
-                  <div className="flex items-center gap-2 px-6 py-3 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-200/60 animate-slideUp">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">Message sent successfully!</span>
-                  </div>
-                )}
-                
-                {status.error && (
-                  <div className="flex items-center gap-2 px-6 py-3 bg-rose-50 text-rose-700 rounded-2xl border border-rose-200/60 animate-slideUp">
-                    <AlertCircle className="w-5 h-5" />
-                    <span className="font-medium">{status.error}</span>
-                  </div>
-                )}
-              </div>
-            </form>
-
-
-            
-          </div>
-        </div>
-
-        
-       
-      </div>
-
-   
-    </section>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        required={required}
+        value={value}
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        className={[
+          "h-14 w-full rounded-2xl",
+          "border bg-white",
+          "px-4 text-[15px] text-slate-900",
+          "placeholder:text-slate-400",
+          "outline-none",
+          "transition-all duration-200",
+          active
+            ? "border-blue-400 ring-4 ring-blue-500/10"
+            : "border-slate-200 hover:border-slate-300",
+        ].join(" ")}
+      />
+    </div>
   );
 }
 
-export default ContactForm;
+function TextAreaField({
+  label,
+  icon: Icon,
+  name,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  active,
+  required = false,
+  placeholder,
+}) {
+  return (
+    <div className="space-y-2">
+      <label
+        htmlFor={name}
+        className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-500"
+      >
+        <Icon
+          size={14}
+          className={active ? "text-blue-600" : "text-slate-400"}
+        />
+
+        {label}
+      </label>
+
+      <textarea
+        id={name}
+        name={name}
+        required={required}
+        rows={6}
+        value={value}
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        className={[
+          "min-h-[170px] w-full resize-none rounded-2xl",
+          "border bg-white",
+          "px-4 py-4 text-[15px] leading-6 text-slate-900",
+          "placeholder:text-slate-400",
+          "outline-none",
+          "transition-all duration-200",
+          active
+            ? "border-blue-400 ring-4 ring-blue-500/10"
+            : "border-slate-200 hover:border-slate-300",
+        ].join(" ")}
+      />
+    </div>
+  );
+}
+
+export default function ContactForm() {
+  const { t } = useTranslation();
+  const prefersReducedMotion = useReducedMotion();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const [status, setStatus] = useState({
+    loading: false,
+    success: false,
+    error: null,
+  });
+
+  const [activeField, setActiveField] = useState(null);
+
+  const spring = prefersReducedMotion
+    ? REDUCED_MOTION_TRANSITION
+    : SPRING_DEFAULT;
+
+  const updateField = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    setStatus({
+      loading: true,
+      success: false,
+      error: null,
+    });
+
+    try {
+      await contentAPI.post("/contact", formData);
+
+      setStatus({
+        loading: false,
+        success: true,
+        error: null,
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+
+      window.setTimeout(() => {
+        setStatus({
+          loading: false,
+          success: false,
+          error: null,
+        });
+      }, 4000);
+    } catch (error) {
+      console.error("Failed to send contact message:", error);
+
+      setStatus({
+        loading: false,
+        success: false,
+        error:
+          t("contact.error") ||
+          "Unable to send your message. Please try again later.",
+      });
+    }
+  };
+
+  return (
+    <section
+      id="contact"
+      className="relative overflow-hidden bg-[#F5F8FC] py-24 sm:py-28 lg:py-32"
+    >
+      {/* =====================================================
+          Background atmosphere
+      ===================================================== */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-40 top-[15%] h-80 w-80 rounded-full bg-blue-200/20 blur-3xl" />
+
+        <div className="absolute -right-40 bottom-[10%] h-96 w-96 rounded-full bg-sky-200/20 blur-3xl" />
+
+        <div className="absolute left-[50%] top-[-160px] h-80 w-80 -translate-x-1/2 rounded-full bg-blue-100/30 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-4xl">
+          {/* =================================================
+              Header
+          ================================================= */}
+          <motion.header
+            initial={{
+              opacity: 0,
+              y: prefersReducedMotion ? 0 : 14,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+              margin: "-80px",
+            }}
+            transition={spring}
+            className="mb-10 text-center"
+          >
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/60 px-4 py-2 shadow-xs backdrop-blur-2xl backdrop-saturate-150">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">
+                Get in touch
+              </span>
+            </div>
+
+            <h2 className="mt-6 text-4xl font-bold tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-6xl">
+              {t("contact.title")}
+            </h2>
+
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-500 sm:text-lg">
+              {t("contact.description") ||
+                "Tell us what you are looking for and our team will get back to you."}
+            </p>
+          </motion.header>
+
+          {/* =================================================
+              Form surface
+          ================================================= */}
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: prefersReducedMotion ? 0 : 18,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+              margin: "-70px",
+            }}
+            transition={{
+              ...spring,
+              delay: prefersReducedMotion ? 0 : 0.05,
+            }}
+            className="rounded-[30px] border border-slate-200 bg-white"
+          >
+            <form onSubmit={handleSubmit} className="p-5 sm:p-8 lg:p-10">
+              {/* =================================================
+                  Fields
+              ================================================= */}
+              <div className="space-y-7">
+                <div className="grid gap-7 md:grid-cols-2">
+                  <Field
+                    label={t("contact.name")}
+                    icon={User}
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={updateField}
+                    onFocus={() => setActiveField("name")}
+                    onBlur={() => setActiveField(null)}
+                    active={activeField === "name"}
+                    placeholder={t("contact.name") || "Your name"}
+                  />
+
+                  <Field
+                    label={t("contact.email")}
+                    icon={Mail}
+                    name="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={updateField}
+                    onFocus={() => setActiveField("email")}
+                    onBlur={() => setActiveField(null)}
+                    active={activeField === "email"}
+                    placeholder={t("contact.email") || "you@example.com"}
+                  />
+                </div>
+
+                <Field
+                  label={t("contact.subject")}
+                  icon={MessageSquare}
+                  name="subject"
+                  value={formData.subject}
+                  onChange={updateField}
+                  onFocus={() => setActiveField("subject")}
+                  onBlur={() => setActiveField(null)}
+                  active={activeField === "subject"}
+                  placeholder={
+                    t("contact.subject") || "What can we help you with?"
+                  }
+                />
+
+                <TextAreaField
+                  label={t("contact.message")}
+                  icon={MessageSquare}
+                  name="message"
+                  required
+                  value={formData.message}
+                  onChange={updateField}
+                  onFocus={() => setActiveField("message")}
+                  onBlur={() => setActiveField(null)}
+                  active={activeField === "message"}
+                  placeholder={
+                    t("contact.message") ||
+                    "Tell us about your project, requirements, or question..."
+                  }
+                />
+              </div>
+
+              {/* =================================================
+                  Footer / Submit
+              ================================================= */}
+              <div className="mt-8 flex flex-col gap-5 border-t border-slate-100 pt-7 sm:flex-row sm:items-center sm:justify-between">
+                <p className="max-w-sm text-xs leading-5 text-slate-400">
+                  {t("contact.help_text") ||
+                    "Your information is only used to respond to your request."}
+                </p>
+
+                <motion.button
+                  type="submit"
+                  disabled={status.loading}
+                  whileTap={
+                    status.loading
+                      ? undefined
+                      : {
+                          scale: 0.97,
+                        }
+                  }
+                  transition={spring}
+                  className={[
+                    "group inline-flex h-14 shrink-0",
+                    "items-center justify-center gap-2",
+                    "rounded-full",
+                    "bg-blue-600 px-7",
+                    "text-sm font-bold text-white",
+                    "shadow-xs",
+                    "transition-colors",
+                    "hover:bg-blue-700",
+                    "focus:outline-none",
+                    "focus-visible:ring-4",
+                    "focus-visible:ring-blue-500/20",
+                    "disabled:cursor-not-allowed",
+                    "disabled:opacity-50",
+                  ].join(" ")}
+                >
+                  {status.loading ? (
+                    <>
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+
+                      {t("contact.sending") || "Sending..."}
+                    </>
+                  ) : (
+                    <>
+                      {t("contact.send")}
+
+                      <ArrowRight
+                        size={17}
+                        className="transition-transform duration-200 group-hover:translate-x-1"
+                      />
+                    </>
+                  )}
+                </motion.button>
+              </div>
+
+              {/* =================================================
+                  Async feedback
+              ================================================= */}
+              <AnimatePresence mode="wait">
+                {status.success && (
+                  <motion.div
+                    key="success"
+                    initial={{
+                      opacity: 0,
+                      y: 8,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: -8,
+                    }}
+                    transition={spring}
+                    className="mt-5 flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3.5 text-sm font-medium text-blue-700"
+                    role="status"
+                  >
+                    <CheckCircle size={18} className="shrink-0" />
+
+                    <span>
+                      {t("contact.success") ||
+                        "Your message has been sent successfully."}
+                    </span>
+                  </motion.div>
+                )}
+
+                {status.error && (
+                  <motion.div
+                    key="error"
+                    initial={{
+                      opacity: 0,
+                      y: 8,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: -8,
+                    }}
+                    transition={spring}
+                    className="mt-5 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm font-medium text-red-700"
+                    role="alert"
+                  >
+                    <AlertCircle size={18} className="shrink-0" />
+
+                    <span>{status.error}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </form>
+          </motion.div>
+
+          {/* =====================================================
+              Bottom trust indicators
+          ===================================================== */}
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 text-center sm:flex-row sm:gap-6">
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Réponse rapide
+            </div>
+
+            <div className="hidden h-3 w-px bg-slate-200 sm:block" />
+
+            <div className="text-xs font-medium text-slate-400">
+              SanWater · Algérie
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

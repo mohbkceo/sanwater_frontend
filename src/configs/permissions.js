@@ -11,6 +11,10 @@ export const PERMISSIONS = {
     VIEW: 'quotations.view',
     MANAGE: 'quotations.manage',
   },
+  LEADS: {
+    VIEW: 'leads.view',
+    MANAGE: 'leads.manage',
+  },
   HIRING: {
     VIEW: 'hiring.view',
     MANAGE: 'hiring.manage',

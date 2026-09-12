@@ -1,7 +1,127 @@
-export default function Topbar() {
+import { Bell, Search, ChevronDown, Menu } from "lucide-react";
+
+export default function Topbar({ onMenu }) {
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center px-6">
-      <div className="flex w-16 font-medium"><img src="/logo.svg" /></div>
+    <header className="sticky top-0 z-50 px-4 pt-4 lg:px-6">
+      <div
+        className="
+          flex h-14 items-center
+          rounded-2xl
+          border border-white/70
+          bg-white/70
+          px-3
+          backdrop-blur-2xl
+          backdrop-saturate-150
+          shadow-xs
+        "
+      >
+        {/* Brand */}
+        <button type="button" onClick={onMenu} aria-label="Open navigation" className="mr-2 grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-600 hover:bg-blue-50 lg:hidden"><Menu className="h-5 w-5" /></button>
+        <div className="hidden w-64 shrink-0 items-center px-2 sm:flex lg:px-3">
+          <img
+            src="/logo.svg"
+            alt="San Water Group"
+            className="h-7 w-auto object-contain"
+          />
+        </div>
+
+        {/* Search */}
+        <div className="flex min-w-0 flex-1">
+          <button
+            className="
+              flex h-10 w-full max-w-xl items-center
+              gap-2.5
+              rounded-xl
+              border border-transparent
+              bg-blue-50/70
+              px-3.5
+              text-sm
+              text-slate-400
+              transition
+              hover:border-blue-100
+              hover:bg-blue-50
+            "
+          >
+            <Search className="h-4 w-4 shrink-0 text-blue-500" />
+
+            <span className="truncate">
+              Search products, quotations, users...
+            </span>
+
+            <span
+              className="
+                ml-auto hidden
+                rounded-md
+                border border-blue-100
+                bg-white/80
+                px-1.5 py-0.5
+                text-[10px]
+                font-medium
+                text-slate-400
+                sm:inline-flex
+              "
+            >
+              ⌘ K
+            </span>
+          </button>
+        </div>
+
+        {/* Right actions */}
+        <div className="ml-3 flex items-center gap-2">
+          <button
+            className="
+              relative
+              grid h-10 w-10 place-items-center
+              rounded-xl
+              text-slate-500
+              transition
+              hover:bg-blue-50
+              hover:text-blue-600
+            "
+          >
+            <Bell className="h-4.5 w-4.5" />
+
+            <span
+              className="
+                absolute right-2 top-2
+                h-1.5 w-1.5
+                rounded-full
+                bg-blue-600
+              "
+            />
+          </button>
+
+          <button
+            className="
+              flex h-10 items-center gap-2
+              rounded-xl
+              px-2
+              transition
+              hover:bg-blue-50
+            "
+          >
+            <div
+              className="
+                grid h-8 w-8 place-items-center
+                rounded-lg
+                bg-blue-600
+                text-xs font-semibold
+                text-white
+              "
+            >
+              SW
+            </div>
+
+            <div className="hidden text-left md:block">
+              <p className="text-xs font-semibold text-slate-800">Admin</p>
+
+              <p className="text-[11px] text-slate-400">San Water Group</p>
+            </div>
+
+            <ChevronDown className="hidden h-4 w-4 text-slate-400 md:block" />
+          </button>
+        </div>
+      </div>
     </header>
   );
 }

@@ -1,244 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getAdminNewsArticles, deleteNewsArticle, updateNewsArticle } from '@/services/newsServices';
-import { useTranslation } from '@/lib/i18n';
-import { Trash2, Edit, Eye, Plus, Loader, Search } from 'lucide-react';
-import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
-import { usePermissions } from '@/hooks/usePermissions';
-import { PERMISSIONS } from '@/configs/permissions';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Archive, CalendarDays, ChevronLeft, ChevronRight, Edit3, Eye, FileText, Filter, LayoutList, Plus, Search, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
+import { bulkUpdateNews, deleteNewsArticle, getAdminNewsArticles, updateNewsArticle } from "@/services/newsServices";
+import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+import { usePermissions } from "@/hooks/usePermissions";
+import { PERMISSIONS } from "@/configs/permissions";
 
-const NewsManagementPage = () => {
-    const { t } = useTranslation();
-    const { can } = usePermissions();
-    const canManage = can(PERMISSIONS.CONTENT.MANAGE);
-    const [news, setNews] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
+const STATUS = ["draft", "review", "scheduled", "published", "archived"];
+const initialFilters = { status: "", category: "", author: "", featured: "", from: "", to: "" };
+const formatDate = (date) => date ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(date)) : "—";
 
-    const limit = 10;
+export default function NewsManagementPage() {
+  const navigate = useNavigate(); const { can } = usePermissions(); const canManage = can(PERMISSIONS.CONTENT.MANAGE); const base = SANWATERGROUPROUTES.content.children.news.fullPath;
+  const [articles, setArticles] = useState([]); const [counts, setCounts] = useState({}); const [loading, setLoading] = useState(true); const [page, setPage] = useState(1); const [totalPages, setTotalPages] = useState(1); const [totalItems, setTotalItems] = useState(0);
+  const [searchInput, setSearchInput] = useState(""); const [search, setSearch] = useState(""); const [filters, setFilters] = useState(initialFilters); const [users, setUsers] = useState([]); const [categoryOptions, setCategoryOptions] = useState([]); const [selected, setSelected] = useState([]); const [view, setView] = useState("list"); const [pendingArchive, setPendingArchive] = useState(null); const [month, setMonth] = useState(() => new Date());
+  useEffect(() => { const timer = setTimeout(() => setSearch(searchInput.trim()), 350); return () => clearTimeout(timer); }, [searchInput]);
+  useEffect(() => { setPage(1); }, [search, filters]);
+  // load is intentionally keyed to the server-side query state below.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [page, search, filters, view]);
 
-    useEffect(() => {
-        fetchNews();
-    }, [currentPage, statusFilter]);
+  async function load() {
+    try { setLoading(true); const result = await getAdminNewsArticles({ page, limit: view === "calendar" ? 100 : 15, search: search || undefined, ...Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== "")) }); const payload = result?.data || {}; setArticles(payload.news || []); setCounts(payload.counts || {}); setTotalPages(payload.totalPages || 1); setTotalItems(payload.totalItems || 0); setUsers(payload.filters?.authors || []); setCategoryOptions(payload.filters?.categories || []); }
+    catch (error) { toast.error(error?.response?.data?.message || "Failed to load articles."); }
+    finally { setLoading(false); }
+  }
+  async function statusChange(article, status) { try { await updateNewsArticle(article._id, { status, ...(status === "scheduled" && article.publishedAt ? { publishedAt: article.publishedAt } : {}) }); toast.success("Status updated."); load(); } catch (error) { toast.error(error?.response?.data?.message || "Status update failed."); } }
+  async function archive() { try { await deleteNewsArticle(pendingArchive._id); setPendingArchive(null); toast.success("Article archived."); load(); } catch { toast.error("Archive failed."); } }
+  async function bulk(action) { if (!selected.length) return; try { await bulkUpdateNews(selected, action); setSelected([]); toast.success(`${selected.length} article(s) updated.`); load(); } catch { toast.error("Bulk update failed."); } }
 
-    const fetchNews = async () => {
-        try {
-            setLoading(true);
-            const params = {
-                page: currentPage,
-                limit,
-                ...(statusFilter && { status: statusFilter })
-            };
-            const response = await getAdminNewsArticles(params);
-            setNews(response.data.news || []);
-            setTotalPages(response.data.totalPages || 1);
-            setError(null);
-        } catch (err) {
-            setError('Failed to load news articles');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const allSelected = articles.length > 0 && articles.every((article) => selected.includes(article._id));
+  return <div className="min-h-screen bg-[#f6f9ff] p-4 sm:p-6">
+    <div className="mx-auto max-w-7xl">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.2em] text-blue-600">Publishing CMS</p><h1 className="mt-1 text-3xl font-bold">News Management</h1><p className="mt-1 text-sm text-slate-500">Plan, write, review and publish SanWater stories.</p></div>{canManage && <Link to={`${base}/create`} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white"><Plus className="h-4 w-4" />New article</Link>}</header>
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">{[["All", "", Object.values(counts).reduce((a, b) => a + b, 0)], ...STATUS.map((status) => [status, status, counts[status] || 0])].map(([label, value, count]) => <button key={String(label)} onClick={() => setFilters((current) => ({ ...current, status: value }))} className={`rounded-2xl border p-4 text-left ${filters.status === value ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"}`}><p className="text-xs font-bold uppercase text-slate-400">{label}</p><p className="mt-1 text-xl font-bold">{count}</p></button>)}</div>
+      <section className="mt-5 rounded-[26px] border border-blue-100 bg-white p-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4"><Box icon={Search}><input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search title, excerpt, content, tags" /></Box><Box icon={Filter}><select value={filters.category} onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value }))}><option value="">All categories</option>{categoryOptions.map((category) => <option key={category}>{category}</option>)}</select></Box><Box><select value={filters.author} onChange={(e) => setFilters((f) => ({ ...f, author: e.target.value }))}><option value="">All authors</option>{users.map((user) => <option key={user._id} value={user._id}>{user.fullName}</option>)}</select></Box><Box icon={Sparkles}><select value={filters.featured} onChange={(e) => setFilters((f) => ({ ...f, featured: e.target.value }))}><option value="">Featured or standard</option><option value="true">Featured</option><option value="false">Not featured</option></select></Box><Box><input type="date" value={filters.from} onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))} /></Box><Box><input type="date" value={filters.to} onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))} /></Box><button onClick={() => { setSearchInput(""); setFilters(initialFilters); }} className="rounded-2xl border p-3 text-sm font-semibold">Clear filters</button><div className="flex rounded-2xl border p-1"><button onClick={() => setView("list")} className={`flex flex-1 items-center justify-center gap-2 rounded-xl text-sm ${view === "list" ? "bg-blue-600 text-white" : ""}`}><LayoutList className="h-4 w-4" />List</button><button onClick={() => setView("calendar")} className={`flex flex-1 items-center justify-center gap-2 rounded-xl text-sm ${view === "calendar" ? "bg-blue-600 text-white" : ""}`}><CalendarDays className="h-4 w-4" />Calendar</button></div></div>
+      </section>
+      {selected.length > 0 && canManage && <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl bg-slate-900 p-3 text-white"><span className="mr-auto text-sm font-semibold">{selected.length} selected</span><button onClick={() => bulk("publish")} className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold">Publish</button><button onClick={() => bulk("archive")} className="rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold">Archive</button><button onClick={() => bulk("unfeature")} className="rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold">Unfeature</button></div>}
+      {view === "list" ? <div className="mt-5 overflow-hidden rounded-[26px] border border-blue-100 bg-white">
+        <div className="overflow-x-auto"><table className="min-w-[1100px] w-full text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="px-5 py-3"><input type="checkbox" checked={allSelected} onChange={(e) => setSelected(e.target.checked ? articles.map((a) => a._id) : [])} /></th><th className="px-5 py-3">Title</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Category</th><th className="px-5 py-3">Author</th><th className="px-5 py-3">Published / Scheduled</th><th className="px-5 py-3">Updated</th><th className="px-5 py-3">Views</th><th className="px-5 py-3">Actions</th></tr></thead><tbody className="divide-y">
+          {loading ? Array.from({ length: 6 }).map((_, i) => <tr key={i}><td colSpan="9" className="p-3"><div className="h-14 animate-pulse rounded-xl bg-slate-100" /></td></tr>) : articles.length ? articles.map((article) => <tr key={article._id} className="hover:bg-blue-50/30"><td className="px-5 py-4"><input type="checkbox" checked={selected.includes(article._id)} onChange={(e) => setSelected((current) => e.target.checked ? [...current, article._id] : current.filter((id) => id !== article._id))} /></td><td className="max-w-xs px-5 py-4"><p className="truncate font-bold">{article.title}</p>{article.isFeatured && <span className="text-[10px] font-bold text-blue-600">FEATURED</span>}</td><td className="px-5 py-4">{canManage ? <select value={article.status} onChange={(e) => statusChange(article, e.target.value)} className="rounded-full border bg-white px-3 py-1 text-xs font-bold">{STATUS.map((status) => <option key={status}>{status}</option>)}</select> : <Badge status={article.status} />}</td><td className="px-5 py-4">{article.category || "—"}</td><td className="px-5 py-4">{article.authorUser?.fullName || article.author}</td><td className="px-5 py-4">{formatDate(article.publishedAt)}</td><td className="px-5 py-4">{formatDate(article.updatedAt)}</td><td className="px-5 py-4 font-semibold">{article.views || 0}</td><td className="px-5 py-4"><div className="flex gap-1">{canManage && <Link to={`${base}/edit/${article._id}`} className="rounded-xl border p-2"><Edit3 className="h-4 w-4" /></Link>}{article.status === "published" && <a href={`/news/${article.slug}`} target="_blank" rel="noreferrer" className="rounded-xl border p-2"><Eye className="h-4 w-4" /></a>}{canManage && <button onClick={() => setPendingArchive(article)} className="rounded-xl border border-rose-200 p-2 text-rose-600"><Archive className="h-4 w-4" /></button>}</div></td></tr>) : <tr><td colSpan="9" className="py-16 text-center"><FileText className="mx-auto h-8 w-8 text-slate-300" /><h3 className="mt-3 font-bold">No articles found</h3><p className="mt-1 text-sm text-slate-500">Create an article or adjust the filters.</p></td></tr>}
+        </tbody></table></div><div className="flex items-center justify-between border-t px-5 py-4 text-sm text-slate-500"><span>{totalItems} articles</span><div className="flex items-center gap-2"><button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="rounded-xl border p-2 disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button><span>{page} / {totalPages}</span><button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-xl border p-2 disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button></div></div>
+      </div> : <CalendarView month={month} setMonth={setMonth} articles={articles} onArticle={(article) => navigate(`${base}/edit/${article._id}`)} onEmpty={(date) => canManage && navigate(`${base}/create?schedule=${date}`)} />}
+    </div>
+    {pendingArchive && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4 backdrop-blur-sm" onMouseDown={() => setPendingArchive(null)}><div className="w-full max-w-md rounded-[26px] bg-white p-6" onMouseDown={(e) => e.stopPropagation()}><div className="flex justify-between"><div><h2 className="text-xl font-bold">Archive article?</h2><p className="mt-2 text-sm text-slate-500">{pendingArchive.title} will leave public listings but remain recoverable.</p></div><button onClick={() => setPendingArchive(null)}><X className="h-5 w-5" /></button></div><div className="mt-6 flex gap-2"><button onClick={() => setPendingArchive(null)} className="flex-1 rounded-2xl border p-3 text-sm font-bold">Cancel</button><button onClick={archive} className="flex-1 rounded-2xl bg-rose-600 p-3 text-sm font-bold text-white">Archive</button></div></div></div>}
+  </div>;
+}
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this article?')) {
-            try {
-                await deleteNewsArticle(id);
-                fetchNews();
-            } catch (err) {
-                alert('Failed to delete article');
-            }
-        }
-    };
-
-    const handleStatusChange = async (id, newStatus) => {
-        try {
-            await updateNewsArticle(id, { status: newStatus });
-            fetchNews();
-        } catch (err) {
-            alert('Failed to update status');
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 md:p-8">
-            <div className="mx-auto max-w-7xl">
-                <div className="mb-8 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-slate-900">News Management</h1>
-                        <p className="mt-2 text-slate-600">Manage all your news articles</p>
-                    </div>
-                    {canManage ? (
-                        <Link
-                            to={SANWATERGROUPROUTES.content.children.news.fullPath + '/create'}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition"
-                        >
-                            <Plus size={20} />
-                            Create News
-                        </Link>
-                    ) : (
-                        <button
-                            disabled
-                            title="You do not have permission"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg opacity-40 cursor-not-allowed"
-                        >
-                            <Plus size={20} />
-                            Create News
-                        </button>
-                    )}
-                </div>
-
-                {/* Filters */}
-                <div className="mb-6 flex gap-4">
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => {
-                            setStatusFilter(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                        className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
-                    >
-                        <option value="">All Status</option>
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
-                        <option value="scheduled">Scheduled</option>
-                    </select>
-                </div>
-
-                {/* Loading State */}
-                {loading && (
-                    <div className="flex justify-center items-center py-12">
-                        <Loader className="animate-spin text-slate-900" size={40} />
-                    </div>
-                )}
-
-                {/* Error State */}
-                {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-8">
-                        {error}
-                    </div>
-                )}
-
-                {/* News Table */}
-                {!loading && news.length > 0 && (
-                    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                        <table className="w-full">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Title</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Status</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Category</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Published</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {news.map((article) => (
-                                    <tr key={article._id} className="border-b border-slate-200 hover:bg-slate-50">
-                                        <td className="px-6 py-4 text-sm text-slate-900 font-medium">{article.title}</td>
-                                        <td className="px-6 py-4 text-sm">
-                                            <select
-                                                value={article.status}
-                                                onChange={(e) => handleStatusChange(article._id, e.target.value)}
-                                                disabled={!canManage}
-                                                title={!canManage ? 'You do not have permission' : undefined}
-                                                className={`px-3 py-1 rounded-full text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed ${
-                                                    article.status === 'published'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : article.status === 'scheduled'
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
-                                                }`}
-                                            >
-                                                <option value="draft">Draft</option>
-                                                <option value="published">Published</option>
-                                                <option value="scheduled">Scheduled</option>
-                                            </select>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">{article.category || '-'}</td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">
-                                            {article.publishedAt
-                                                ? new Date(article.publishedAt).toLocaleDateString()
-                                                : '-'}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm flex gap-2">
-                                            {canManage ? (
-                                                <Link
-                                                    to={`${SANWATERGROUPROUTES.content.children.news.fullPath}/edit/${article._id}`}
-                                                    className="p-2 text-slate-600 hover:bg-slate-200 rounded transition"
-                                                >
-                                                    <Edit size={18} />
-                                                </Link>
-                                            ) : (
-                                                <button
-                                                    disabled
-                                                    title="You do not have permission"
-                                                    className="p-2 text-slate-400 rounded opacity-40 cursor-not-allowed"
-                                                >
-                                                    <Edit size={18} />
-                                                </button>
-                                            )}
-                                            <a
-                                                href={`/news/${article.slug}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="p-2 text-slate-600 hover:bg-slate-200 rounded transition"
-                                            >
-                                                <Eye size={18} />
-                                            </a>
-                                            <button
-                                                onClick={() => handleDelete(article._id)}
-                                                disabled={!canManage}
-                                                title={!canManage ? 'You do not have permission' : 'Delete'}
-                                                className="p-2 text-red-600 hover:bg-red-100 rounded transition disabled:opacity-40 disabled:cursor-not-allowed"
-                                            >
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* Empty State */}
-                {!loading && news.length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-lg">
-                        <p className="text-lg text-slate-600">No news articles found</p>
-                    </div>
-                )}
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="mt-6 flex justify-center items-center gap-2">
-                        <button
-                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                            disabled={currentPage === 1}
-                            className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100 disabled:opacity-50"
-                        >
-                            Previous
-                        </button>
-                        <span className="text-slate-600">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                            disabled={currentPage === totalPages}
-                            className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100 disabled:opacity-50"
-                        >
-                            Next
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
-
-export default NewsManagementPage;
+function Box({ icon: Icon, children }) { return <div className="relative">{Icon && <Icon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />}<div className={`${Icon ? "[&>*]:pl-11" : "[&>*]:pl-4"} [&>*]:w-full [&>*]:rounded-2xl [&>*]:border [&>*]:bg-slate-50 [&>*]:py-3 [&>*]:pr-3 [&>*]:text-sm [&>*]:outline-none`}>{children}</div></div>; }
+function Badge({ status }) { return <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{status}</span>; }
+function CalendarView({ month, setMonth, articles, onArticle, onEmpty }) {
+  const year = month.getFullYear(), index = month.getMonth(), first = new Date(year, index, 1), days = new Date(year, index + 1, 0).getDate();
+  const cells = [...Array(first.getDay()).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
+  return <section className="mt-5 rounded-[26px] border border-blue-100 bg-white p-4 sm:p-6"><div className="mb-4 flex items-center justify-between"><button onClick={() => setMonth(new Date(year, index - 1, 1))} className="rounded-xl border p-2"><ChevronLeft className="h-4 w-4" /></button><h2 className="text-lg font-bold">{month.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</h2><button onClick={() => setMonth(new Date(year, index + 1, 1))} className="rounded-xl border p-2"><ChevronRight className="h-4 w-4" /></button></div><div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400">{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <div key={day} className="p-2">{day}</div>)}</div><div className="grid grid-cols-7 gap-1">{cells.map((day, cell) => { const date = day ? new Date(year, index, day) : null; const items = date ? articles.filter((article) => { const when = article.publishedAt ? new Date(article.publishedAt) : null; return when && when.getFullYear() === year && when.getMonth() === index && when.getDate() === day; }) : []; const iso = date ? `${year}-${String(index + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}` : ""; return <div key={cell} onClick={() => day && !items.length && onEmpty(iso)} className={`min-h-28 rounded-xl border p-2 ${day ? "cursor-pointer bg-slate-50" : "border-transparent"}`}>{day && <span className="text-xs font-bold">{day}</span>}{items.map((article) => <button key={article._id} onClick={(e) => { e.stopPropagation(); onArticle(article); }} className={`mt-1 block w-full truncate rounded-lg px-2 py-1 text-left text-[10px] font-bold ${article.status === "published" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>{article.publishedAt ? new Date(article.publishedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""} {article.title}</button>)}</div>; })}</div></section>;
+}

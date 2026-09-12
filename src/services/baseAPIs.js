@@ -41,9 +41,14 @@ const quotationAPI = axios.create({
     withCredentials: true
 })
 
-export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI} ;
+const leadAPI = axios.create({
+    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/leads`,
+    withCredentials: true
+})
 
-const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI];
+export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI, leadAPI } ;
+
+const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI, leadAPI];
 
 // Read the CSRF double-submit cookie (server: middlewares/authentication/csrf.js)
 // and echo it back as a header on state-changing requests — the server

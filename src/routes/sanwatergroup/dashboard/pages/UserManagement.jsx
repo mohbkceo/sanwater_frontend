@@ -50,6 +50,13 @@ const PERMISSION_GROUPS = [
     ],
   },
   {
+    label: 'Sales Leads',
+    permissions: [
+      { value: PERMISSIONS.LEADS.VIEW, label: 'View leads' },
+      { value: PERMISSIONS.LEADS.MANAGE, label: 'Manage leads' },
+    ],
+  },
+  {
     label: 'Activity Logs',
     permissions: [
       { value: PERMISSIONS.LOGS.VIEW, label: 'View activity logs' },

@@ -4,7 +4,7 @@ import { Routes, Route} from 'react-router-dom'
 import Main from './routes/main'
 import HiringPage from './routes/HiringPage'
 import { About, ContactSales, ProductsViewList, SanWaterGroupMain } from './routes'
-import { ABOUT, CONTACTSALES, LANDINGPRODUCT, mainSanWaterRoute, PRODUCTS, PRODUCTVIEWDETAIL, NEWS, COMPARE, FAVORITES } from './configs/routes/routesConfig'
+import { ABOUT, CONTACTSALES, LEGACY_CONTACTSALES, LANDINGPRODUCT, mainSanWaterRoute, PRODUCTS, PRODUCTVIEWDETAIL, NEWS, COMPARE, FAVORITES } from './configs/routes/routesConfig'
 import ProductDetailedPage from './routes/products/ProductDetailedPage'
 import ComparePage from './routes/products/ComparePage'
 import FavoritesPage from './routes/products/FavoritesPage'
@@ -28,6 +28,7 @@ function App() {
          <Route path={PRODUCTVIEWDETAIL} element={<ProductDetailedPage />}/>
          <Route path={LANDINGPRODUCT} element={<LandingProduct />}/>
          <Route path={CONTACTSALES} element={<ContactSales />}/>
+         <Route path={LEGACY_CONTACTSALES} element={<ContactSales />}/>
          <Route path={NEWS} element={<NewsListingPage />}/>
          <Route path="/news/:slug" element={<NewsArticlePage />}/>
          <Route path={mainSanWaterRoute + '/*'} element={<SanWaterGroupMain />} />

@@ -1,126 +1,328 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  User, Lock, Mail, Phone, Image as ImageIcon,
-  Eye, EyeOff, BadgeCheck, Shield, CalendarDays,
-  Sparkles, Settings2, Camera, Copy, Check,
+  Check,
+  ChevronRight,
+  Copy,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
-import { getUserProfile, updateBasicInfo, changePassword } from "@/services/user/userServices";
 
-// Utility function for class names
+import {
+  getUserProfile,
+  updateBasicInfo,
+  changePassword,
+} from "@/services/user/userServices";
+
+/* -------------------------------------------------------------------------- */
+/*                                   UTILS                                    */
+/* -------------------------------------------------------------------------- */
+
 const cn = (...classes) => classes.filter(Boolean).join(" ");
 
-// Reusable Card Component
-function Card({ title, description, icon: Icon, accent = "blue", children }) {
-  const accents = {
-    blue: "bg-blue-50 text-blue-600",
-    amber: "bg-amber-50 text-amber-600",
-    red: "bg-red-50 text-red-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-  };
+const formatDate = (value) => {
+  if (!value) return "—";
 
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+/* -------------------------------------------------------------------------- */
+/*                              GLASS SECTION                                 */
+/* -------------------------------------------------------------------------- */
+
+function Section({ title, description, action, children, className = "" }) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-100 p-5">
-        <div className="flex items-center gap-4">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accents[accent]}`}>
-            <Icon size={20} />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-            <p className="text-sm text-gray-500">{description}</p>
-          </div>
+    <section
+      className={cn(
+        `
+          overflow-hidden
+          rounded-[26px]
+          border
+          border-blue-100/80
+          bg-white/70
+          backdrop-blur-xl
+        `,
+        className,
+      )}
+    >
+      <div
+        className="
+          flex
+          flex-col
+          gap-3
+          border-b
+          border-blue-100/70
+          px-5
+          py-5
+          sm:flex-row
+          sm:items-center
+          sm:justify-between
+          sm:px-6
+        "
+      >
+        <div>
+          <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-slate-900">
+            {title}
+          </h2>
+
+          {description && (
+            <p className="mt-1 text-[11px] leading-5 text-slate-400">
+              {description}
+            </p>
+          )}
         </div>
+
+        {action}
       </div>
-      <div className="p-5">{children}</div>
+
+      <div className="p-5 sm:p-6">{children}</div>
     </section>
   );
 }
 
-// Stat Card Component
-function StatCard({ label, value, sublabel, icon: Icon }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase text-gray-500">{label}</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">{value}</p>
-          {sublabel && <p className="mt-1 text-sm text-gray-500">{sublabel}</p>}
-        </div>
-        <div className="rounded-lg bg-white p-2 text-gray-500 shadow-sm">
-          <Icon size={18} />
-        </div>
-      </div>
-    </div>
-  );
-}
+/* -------------------------------------------------------------------------- */
+/*                              INPUT WRAPPER                                 */
+/* -------------------------------------------------------------------------- */
 
-// Input Field Component
-function InputField({ label, hint, error, children }) {
+function Field({ label, hint, error, children }) {
   return (
-    <div>
-      <div className="mb-2 flex items-center justify-between">
-        <label className="text-sm font-medium text-gray-700">{label}</label>
-        {hint && <span className="text-xs text-gray-400">{hint}</span>}
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <label className="text-[12px] font-semibold text-slate-800">
+          {label}
+        </label>
+
+        {hint && (
+          <span className="text-[10px] font-medium text-slate-400">{hint}</span>
+        )}
       </div>
+
       {children}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+
+      {error && <p className="text-[11px] font-medium text-red-500">{error}</p>}
     </div>
   );
 }
 
-// Password Input Component
-function PasswordInput({ value, onChange, placeholder, error }) {
+/* -------------------------------------------------------------------------- */
+/*                                TEXT INPUT                                  */
+/* -------------------------------------------------------------------------- */
+
+function TextInput({ error, className = "", ...props }) {
+  return (
+    <input
+      {...props}
+      className={cn(
+        `
+          h-11
+          w-full
+          rounded-2xl
+          border
+          px-3.5
+          text-sm
+          font-medium
+          text-slate-800
+          outline-none
+          transition
+          duration-200
+          placeholder:text-slate-300
+          ${
+            error
+              ? "border-red-200 bg-red-50/30"
+              : "border-blue-100/80 bg-white/65"
+          }
+          focus:border-blue-300
+          focus:bg-white/85
+          focus:ring-4
+          focus:ring-blue-500/10
+          disabled:cursor-not-allowed
+          disabled:bg-slate-100/60
+          disabled:text-slate-400
+        `,
+        className,
+      )}
+    />
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              PASSWORD INPUT                                */
+/* -------------------------------------------------------------------------- */
+
+function PasswordInput({ name, value, onChange, placeholder, error }) {
   const [visible, setVisible] = useState(false);
 
   return (
-    <div>
-      <div className="relative">
-        <input
-          type={visible ? "text" : "password"}
-          value={value}
-          onChange={onChange}
-          className="w-full rounded-xl border border-gray-200 px-4 py-2.5 pr-12 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          placeholder={placeholder}
-        />
-        <button
-          type="button"
-          onClick={() => setVisible(!visible)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-        >
-          {visible ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      </div>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+    <div className="relative">
+      <input
+        name={name}
+        type={visible ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={cn(
+          `
+            h-11
+            w-full
+            rounded-2xl
+            border
+            bg-white/65
+            px-3.5
+            pr-11
+            text-sm
+            font-medium
+            text-slate-800
+            outline-none
+            transition
+            duration-200
+            placeholder:text-slate-300
+            ${error ? "border-red-200 bg-red-50/30" : "border-blue-100/80"}
+            focus:border-blue-300
+            focus:bg-white/85
+            focus:ring-4
+            focus:ring-blue-500/10
+          `,
+        )}
+      />
+
+      <button
+        type="button"
+        onClick={() => setVisible((prev) => !prev)}
+        className="
+          absolute
+          right-2
+          top-1/2
+          flex
+          h-8
+          w-8
+          -translate-y-1/2
+          items-center
+          justify-center
+          rounded-xl
+          text-slate-400
+          transition
+          hover:bg-blue-50
+          hover:text-blue-600
+        "
+        aria-label={visible ? "Hide password" : "Show password"}
+      >
+        {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+      </button>
     </div>
   );
 }
 
-// Password Strength Indicator
+/* -------------------------------------------------------------------------- */
+/*                            PASSWORD STRENGTH                               */
+/* -------------------------------------------------------------------------- */
+
 function PasswordStrength({ password }) {
   const checks = [
-    { test: () => password.length >= 8, label: "At least 8 characters" },
-    { test: () => /[A-Z]/.test(password), label: "One uppercase letter" },
-    { test: () => /[a-z]/.test(password), label: "One lowercase letter" },
-    { test: () => /\d/.test(password), label: "One number" },
-    { test: () => /[^A-Za-z0-9]/.test(password), label: "One special character" },
+    {
+      label: "8+ characters",
+      valid: password.length >= 8,
+    },
+    {
+      label: "Uppercase",
+      valid: /[A-Z]/.test(password),
+    },
+    {
+      label: "Lowercase",
+      valid: /[a-z]/.test(password),
+    },
+    {
+      label: "Number",
+      valid: /\d/.test(password),
+    },
+    {
+      label: "Special character",
+      valid: /[^A-Za-z0-9]/.test(password),
+    },
   ];
 
-  const strength = checks.filter(c => c.test()).length;
+  const strength = checks.filter((item) => item.valid).length;
+
+  const percentage = (strength / checks.length) * 100;
+
+  let label = "Weak";
+
+  if (strength >= 4) label = "Strong";
+  else if (strength >= 3) label = "Good";
+  else if (strength >= 2) label = "Fair";
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-gray-700">
-        <Shield size={16} />
-        Password strength: {strength}/5
+    <div
+      className="
+        rounded-2xl
+        border
+        border-blue-100/80
+        bg-blue-50/35
+        p-4
+      "
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-semibold text-slate-700">
+          Password strength
+        </span>
+
+        <span
+          className={cn(
+            "text-[11px] font-semibold",
+            strength >= 3 ? "text-blue-600" : "text-slate-400",
+          )}
+        >
+          {password ? `${label} · ${strength}/5` : "Not started"}
+        </span>
       </div>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {checks.map((check, index) => (
+
+      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-blue-100">
+        <div
+          className="
+            h-full
+            rounded-full
+            bg-blue-500
+            transition-all
+            duration-300
+          "
+          style={{
+            width: `${percentage}%`,
+          }}
+        />
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {checks.map((check) => (
           <div
-            key={index}
-            className={`flex items-center gap-2 text-sm ${check.test() ? "text-emerald-600" : "text-gray-500"}`}
+            key={check.label}
+            className={cn(
+              `
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                px-2.5
+                py-1
+                text-[10px]
+                font-medium
+              `,
+              check.valid
+                ? "border-blue-100 bg-white/70 text-blue-600"
+                : "border-slate-100 bg-white/40 text-slate-400",
+            )}
           >
-            <Check size={14} />
+            {check.valid && <Check size={11} />}
             {check.label}
           </div>
         ))}
@@ -129,401 +331,832 @@ function PasswordStrength({ password }) {
   );
 }
 
-// Main Profile Component
+/* -------------------------------------------------------------------------- */
+/*                              INFO ROW                                      */
+/* -------------------------------------------------------------------------- */
+
+function InfoRow({ label, value }) {
+  return (
+    <div
+      className="
+        flex
+        items-center
+        justify-between
+        gap-4
+        border-b
+        border-blue-100/70
+        py-3.5
+        last:border-b-0
+      "
+    >
+      <span className="text-xs text-slate-400">{label}</span>
+
+      <span className="max-w-[60%] truncate text-right text-sm font-medium text-slate-700">
+        {value || "—"}
+      </span>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               MAIN                                         */
+/* -------------------------------------------------------------------------- */
+
 export default function UserProfile() {
   const [loading, setLoading] = useState(true);
+
   const [savingProfile, setSavingProfile] = useState(false);
+
   const [savingPassword, setSavingPassword] = useState(false);
+
   const [copiedEmail, setCopiedEmail] = useState(false);
+
   const [imageError, setImageError] = useState(false);
 
   const [profile, setProfile] = useState({
-    fullName: "", email: "", phone: "", profileImage: ""
+    fullName: "",
+    email: "",
+    phone: "",
+    profileImage: "",
   });
 
   const [security, setSecurity] = useState({
-    role: "", createdAt: "", updatedAt: "", hasPassword: false
+    role: "",
+    createdAt: "",
+    updatedAt: "",
+    hasPassword: false,
   });
 
   const [profileForm, setProfileForm] = useState({
-    fullName: "", phone: "", profileImage: ""
+    fullName: "",
+    phone: "",
+    profileImage: "",
   });
 
   const [passwordForm, setPasswordForm] = useState({
-    oldPassword: "", newPassword: "", confirmPassword: ""
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({});
 
-  // Load user profile
+  /* ---------------------------------------------------------------------- */
+  /*                               LOAD PROFILE                             */
+  /* ---------------------------------------------------------------------- */
+
   useEffect(() => {
     const loadProfile = async () => {
       try {
         setLoading(true);
+
         const response = await getUserProfile();
+
         const data = response.data;
+
         setProfile(data.basicInfo);
         setSecurity(data.securityInfo);
         setProfileForm(data.basicInfo);
       } catch (error) {
+        console.error(error);
+
         toast.error("Failed to load user profile");
       } finally {
         setLoading(false);
       }
     };
+
     loadProfile();
   }, []);
 
-  // Profile completion percentage
+  /* ---------------------------------------------------------------------- */
+  /*                           DERIVED VALUES                               */
+  /* ---------------------------------------------------------------------- */
+
   const profileCompletion = useMemo(() => {
-    const values = [profile.fullName, profile.email, profile.phone, profile.profileImage];
+    const values = [
+      profile.fullName,
+      profile.email,
+      profile.phone,
+      profile.profileImage,
+    ];
+
     const filled = values.filter(Boolean).length;
+
     return Math.round((filled / values.length) * 100);
   }, [profile]);
 
-  // Format dates
-  const memberSince = security.createdAt ? new Date(security.createdAt).toLocaleDateString() : "—";
-  const lastUpdated = security.updatedAt ? new Date(security.updatedAt).toLocaleDateString() : "—";
+  const memberSince = formatDate(security.createdAt);
 
-  // Avatar
-  const avatarSrc = !imageError && (profileForm.profileImage || profile.profileImage);
+  const lastUpdated = formatDate(security.updatedAt);
+
+  const avatarSrc =
+    !imageError && (profileForm.profileImage || profile.profileImage);
+
   const avatarInitial = (profile.fullName || "U")[0].toUpperCase();
 
-  // Input handlers
+  /* ---------------------------------------------------------------------- */
+  /*                              PROFILE CHANGE                            */
+  /* ---------------------------------------------------------------------- */
+
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
-    setProfileForm(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: "" }));
+
+    setProfileForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+
+    if (name === "profileImage") {
+      setImageError(false);
+    }
   };
+
+  /* ---------------------------------------------------------------------- */
+  /*                             PASSWORD CHANGE                             */
+  /* ---------------------------------------------------------------------- */
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
-    setPasswordForm(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: "" }));
+
+    setPasswordForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
-  // Save profile
+  /* ---------------------------------------------------------------------- */
+  /*                             SAVE PROFILE                                */
+  /* ---------------------------------------------------------------------- */
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
-    
+
     const newErrors = {
       fullName: profileForm.fullName.trim() ? "" : "Full name is required",
-      phone: profileForm.phone && profileForm.phone.trim().length < 6 ? "Enter a valid phone number" : "",
-      profileImage: profileForm.profileImage && !/^https?:\/\//i.test(profileForm.profileImage) ? "Use a valid image URL" : "",
+
+      phone:
+        profileForm.phone && profileForm.phone.trim().length < 6
+          ? "Enter a valid phone number"
+          : "",
+
+      profileImage:
+        profileForm.profileImage &&
+        !/^https?:\/\//i.test(profileForm.profileImage)
+          ? "Use a valid image URL"
+          : "",
     };
 
     setErrors(newErrors);
-    if (Object.values(newErrors).some(Boolean)) return;
+
+    if (Object.values(newErrors).some(Boolean)) {
+      return;
+    }
 
     try {
       setSavingProfile(true);
+
       await updateBasicInfo({
         fullName: profileForm.fullName.trim(),
+
         phone: profileForm.phone.trim(),
+
         profileImage: profileForm.profileImage.trim(),
       });
-      setProfile(prev => ({ ...prev, ...profileForm }));
+
+      setProfile((prev) => ({
+        ...prev,
+        ...profileForm,
+      }));
+
       toast.success("Profile updated successfully");
     } catch (error) {
+      console.error(error);
+
       toast.error(error.response?.data?.message || "Failed to update profile");
     } finally {
       setSavingProfile(false);
     }
   };
 
-  // Save password
+  /* ---------------------------------------------------------------------- */
+  /*                            SAVE PASSWORD                               */
+  /* ---------------------------------------------------------------------- */
+
   const handleSavePassword = async (e) => {
     e.preventDefault();
-    
+
     const newErrors = {
-      oldPassword: passwordForm.oldPassword ? "" : "Current password is required",
-      newPassword: passwordForm.newPassword.length >= 8 ? "" : "Password must be at least 8 characters",
-      confirmPassword: passwordForm.newPassword === passwordForm.confirmPassword ? "" : "Passwords do not match",
+      oldPassword: passwordForm.oldPassword
+        ? ""
+        : "Current password is required",
+
+      newPassword:
+        passwordForm.newPassword.length >= 8
+          ? ""
+          : "Password must be at least 8 characters",
+
+      confirmPassword:
+        passwordForm.newPassword === passwordForm.confirmPassword
+          ? ""
+          : "Passwords do not match",
     };
 
     setErrors(newErrors);
-    if (Object.values(newErrors).some(Boolean)) return;
+
+    if (Object.values(newErrors).some(Boolean)) {
+      return;
+    }
 
     try {
       setSavingPassword(true);
+
       await changePassword(passwordForm);
-      setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+
+      setPasswordForm({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
       toast.success("Password changed successfully");
     } catch (error) {
+      console.error(error);
+
       toast.error(error.response?.data?.message || "Failed to change password");
     } finally {
       setSavingPassword(false);
     }
   };
 
-  // Copy email
+  /* ---------------------------------------------------------------------- */
+  /*                              COPY EMAIL                                */
+  /* ---------------------------------------------------------------------- */
+
   const copyEmail = async () => {
+    if (!profile.email) return;
+
     try {
       await navigator.clipboard.writeText(profile.email);
+
       setCopiedEmail(true);
+
       toast.success("Email copied");
-      setTimeout(() => setCopiedEmail(false), 2000);
-    } catch {
+
+      window.setTimeout(() => {
+        setCopiedEmail(false);
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+
       toast.error("Failed to copy email");
     }
   };
 
-  // Loading state
+  /* ---------------------------------------------------------------------- */
+  /*                               LOADING                                  */
+  /* ---------------------------------------------------------------------- */
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-        <div className="mx-auto max-w-6xl space-y-6">
-          <div className="h-40 animate-pulse rounded-2xl bg-white" />
-          <div className="grid gap-6 lg:grid-cols-3">
-            <div className="h-96 animate-pulse rounded-2xl bg-white lg:col-span-2" />
-            <div className="h-96 animate-pulse rounded-2xl bg-white" />
+      <div className="min-h-screen bg-[#f7faff] p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-6xl animate-pulse space-y-5">
+          <div className="h-32 rounded-[26px] bg-white/70" />
+
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="h-[520px] rounded-[26px] bg-white/70" />
+            <div className="space-y-5">
+              <div className="h-64 rounded-[26px] bg-white/70" />
+              <div className="h-40 rounded-[26px] bg-white/70" />
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  /* ---------------------------------------------------------------------- */
+  /*                               RENDER                                   */
+  /* ---------------------------------------------------------------------- */
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        {/* Header Banner */}
-        <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-lg">
-          <div className="p-6 md:p-8">
+    <div className="min-h-screen bg-[#f7faff]">
+      {/* subtle content color, not decorative UI chrome */}
+      <div
+        className="
+          pointer-events-none
+          fixed
+          left-0
+          top-0
+          h-80
+          w-80
+          rounded-full
+          bg-blue-200/15
+          blur-3xl
+        "
+      />
+
+      <div
+        className="
+          pointer-events-none
+          fixed
+          bottom-0
+          right-0
+          h-96
+          w-96
+          rounded-full
+          bg-sky-200/10
+          blur-3xl
+        "
+      />
+
+      <main className="relative mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">
+        {/* ---------------------------------------------------------------- */}
+        {/* PROFILE HEADER                                                   */}
+        {/* ---------------------------------------------------------------- */}
+
+        <header
+          className="
+            mb-5
+            overflow-hidden
+            rounded-[28px]
+            border
+            border-blue-100/80
+            bg-white/65
+            backdrop-blur-2xl
+            shadow-xs
+          "
+        >
+          <div className="p-5 sm:p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              {/* User Info */}
               <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-white/10">
-                    {avatarSrc ? (
-                      <img
-                        src={avatarSrc}
-                        alt="Profile"
-                        className="h-full w-full object-cover"
-                        onError={() => setImageError(true)}
-                      />
-                    ) : (
-                      <span className="text-2xl font-bold">{avatarInitial}</span>
-                    )}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 rounded-full bg-emerald-500 p-1">
-                    <BadgeCheck size={14} className="text-white" />
-                  </div>
+                <div
+                  className="
+                    relative
+                    flex
+                    h-16
+                    w-16
+                    shrink-0
+                    items-center
+                    justify-center
+                    overflow-hidden
+                    rounded-[20px]
+                    border
+                    border-blue-100
+                    bg-blue-50
+                  "
+                >
+                  {avatarSrc ? (
+                    <img
+                      src={avatarSrc}
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    <span className="text-xl font-semibold text-blue-600">
+                      {avatarInitial}
+                    </span>
+                  )}
                 </div>
-                <div>
-                  <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs">
-                    <Sparkles size={12} /> Account Center
-                  </div>
-                  <h1 className="text-2xl font-bold md:text-3xl">
+
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-500">
+                    Account
+                  </p>
+
+                  <h1 className="mt-1 truncate text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-3xl">
                     {profile.fullName || "My Profile"}
                   </h1>
-                  <p className="mt-1 text-sm text-gray-300">
-                    Manage your identity, security, and profile details
+
+                  <p className="mt-1 truncate text-sm text-slate-400">
+                    {profile.email || "Manage your account"}
                   </p>
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3">
-                <StatCard
-                  label="Completion"
-                  value={`${profileCompletion}%`}
-                  icon={Settings2}
-                />
-                <StatCard
-                  label="Member since"
-                  value={memberSince}
-                  icon={CalendarDays}
-                />
-                <StatCard
-                  label="Security"
-                  value={security.hasPassword ? "Protected" : "Missing"}
-                  icon={Shield}
-                />
+              {/* compact summary */}
+              <div
+                className="
+                  flex
+                  divide-x
+                  divide-blue-100/80
+                  overflow-hidden
+                  rounded-2xl
+                  border
+                  border-blue-100/80
+                  bg-white/55
+                "
+              >
+                <div className="min-w-[88px] px-4 py-3">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                    Complete
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-slate-800">
+                    {profileCompletion}%
+                  </p>
+                </div>
+
+                <div className="min-w-[88px] px-4 py-3">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                    Role
+                  </p>
+
+                  <p className="mt-1 truncate text-sm font-semibold text-slate-800">
+                    {security.role || "—"}
+                  </p>
+                </div>
+
+                <div className="min-w-[88px] px-4 py-3">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                    Security
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-blue-600">
+                    {security.hasPassword ? "Protected" : "Setup needed"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Main Content */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left Column - Forms */}
-          <div className="space-y-6 lg:col-span-2">
-            {/* Profile Form */}
-            <Card title="Basic Information" description="Edit your account details" icon={User} accent="blue">
-              <form onSubmit={handleSaveProfile} className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <InputField label="Full Name" hint="Required" error={errors.fullName}>
-                    <input
+        {/* ---------------------------------------------------------------- */}
+        {/* CONTENT                                                          */}
+        {/* ---------------------------------------------------------------- */}
+
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          {/* ============================================================= */}
+          {/* LEFT                                                           */}
+          {/* ============================================================= */}
+
+          <div className="space-y-5">
+            {/* ----------------------------------------------------------- */}
+            {/* BASIC INFORMATION                                           */}
+            {/* ----------------------------------------------------------- */}
+
+            <Section
+              title="Basic information"
+              description="Update the information associated with your account."
+            >
+              <form onSubmit={handleSaveProfile} className="space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field
+                    label="Full name"
+                    hint="Required"
+                    error={errors.fullName}
+                  >
+                    <TextInput
                       type="text"
                       name="fullName"
                       value={profileForm.fullName}
                       onChange={handleProfileChange}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       placeholder="Enter your full name"
+                      error={errors.fullName}
                     />
-                  </InputField>
+                  </Field>
 
-                  <InputField label="Phone Number" hint="Optional" error={errors.phone}>
-                    <div className="flex items-center rounded-xl border border-gray-200 px-4 py-2.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                      <Phone size={18} className="mr-2 text-gray-400" />
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={profileForm.phone}
-                        onChange={handleProfileChange}
-                        className="w-full outline-none"
-                        placeholder="Enter phone number"
-                      />
-                    </div>
-                  </InputField>
+                  <Field
+                    label="Phone number"
+                    hint="Optional"
+                    error={errors.phone}
+                  >
+                    <TextInput
+                      type="tel"
+                      name="phone"
+                      value={profileForm.phone}
+                      onChange={handleProfileChange}
+                      placeholder="Enter phone number"
+                      error={errors.phone}
+                    />
+                  </Field>
                 </div>
 
-                <InputField label="Email Address" hint="Read only">
-                  <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 p-3">
-                    <div className="flex items-center gap-3">
-                      <Mail size={18} className="text-gray-400" />
-                      <span className="text-gray-900">{profile.email || "—"}</span>
+                <Field label="Email address" hint="Read only">
+                  <div
+                    className="
+                      flex
+                      min-h-11
+                      items-center
+                      justify-between
+                      gap-3
+                      rounded-2xl
+                      border
+                      border-blue-100/80
+                      bg-blue-50/35
+                      px-3.5
+                    "
+                  >
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <Mail size={15} className="shrink-0 text-blue-400" />
+
+                      <span className="truncate text-sm font-medium text-slate-700">
+                        {profile.email || "—"}
+                      </span>
                     </div>
+
                     <button
                       type="button"
                       onClick={copyEmail}
                       disabled={!profile.email}
-                      className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                      className="
+                        flex
+                        h-8
+                        shrink-0
+                        items-center
+                        gap-1.5
+                        rounded-xl
+                        border
+                        border-blue-100
+                        bg-white/70
+                        px-2.5
+                        text-[11px]
+                        font-semibold
+                        text-blue-600
+                        transition
+                        hover:bg-blue-50
+                        disabled:cursor-not-allowed
+                        disabled:opacity-40
+                      "
                     >
-                      {copiedEmail ? <Check size={14} /> : <Copy size={14} />}
+                      {copiedEmail ? <Check size={13} /> : <Copy size={13} />}
+
                       {copiedEmail ? "Copied" : "Copy"}
                     </button>
                   </div>
-                </InputField>
+                </Field>
 
-                <InputField label="Profile Image URL" hint="Optional" error={errors.profileImage}>
-                  <div className="grid gap-4 md:grid-cols-[1fr_auto]">
-                    <div className="flex items-center rounded-xl border border-gray-200 px-4 py-2.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                      <ImageIcon size={18} className="mr-2 text-gray-400" />
-                      <input
-                        type="url"
-                        name="profileImage"
-                        value={profileForm.profileImage}
-                        onChange={handleProfileChange}
-                        className="w-full outline-none"
-                        placeholder="https://example.com/photo.jpg"
-                      />
-                    </div>
-                    <div className="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50">
+                <Field
+                  label="Profile image URL"
+                  hint="Optional"
+                  error={errors.profileImage}
+                >
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_64px]">
+                    <TextInput
+                      type="url"
+                      name="profileImage"
+                      value={profileForm.profileImage}
+                      onChange={handleProfileChange}
+                      placeholder="https://example.com/photo.jpg"
+                      error={errors.profileImage}
+                    />
+
+                    <div
+                      className="
+                        h-16
+                        w-16
+                        overflow-hidden
+                        rounded-2xl
+                        border
+                        border-blue-100
+                        bg-blue-50
+                      "
+                    >
                       {profileForm.profileImage && !imageError ? (
                         <img
                           src={profileForm.profileImage}
                           alt="Preview"
-                          className="h-full w-full rounded-xl object-cover"
+                          className="h-full w-full object-cover"
                           onError={() => setImageError(true)}
                         />
                       ) : (
-                        <Camera size={24} className="text-gray-400" />
+                        <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-blue-400">
+                          {avatarInitial}
+                        </div>
                       )}
                     </div>
                   </div>
-                </InputField>
+                </Field>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end pt-1">
                   <button
                     type="submit"
                     disabled={savingProfile}
-                    className="rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+                    className="
+                      inline-flex
+                      h-11
+                      items-center
+                      justify-center
+                      gap-2
+                      rounded-2xl
+                      bg-blue-600
+                      px-5
+                      text-sm
+                      font-semibold
+                      text-white
+                      shadow-xs
+                      transition
+                      hover:bg-blue-700
+                      active:scale-[0.99]
+                      disabled:cursor-not-allowed
+                      disabled:opacity-50
+                    "
                   >
-                    {savingProfile ? "Saving..." : "Save Changes"}
+                    {savingProfile ? "Saving..." : "Save changes"}
+
+                    {!savingProfile && <ChevronRight size={15} />}
                   </button>
                 </div>
               </form>
-            </Card>
+            </Section>
 
-            {/* Password Form */}
-            <Card title="Change Password" description="Update your password to stay secure" icon={Lock} accent="red">
-              <form onSubmit={handleSavePassword} className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <InputField label="Current Password" hint="Required" error={errors.oldPassword}>
+            {/* ----------------------------------------------------------- */}
+            {/* PASSWORD                                                     */}
+            {/* ----------------------------------------------------------- */}
+
+            <Section
+              title="Password & security"
+              description="Keep your account protected with a strong password."
+            >
+              <form onSubmit={handleSavePassword} className="space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field
+                    label="Current password"
+                    hint="Required"
+                    error={errors.oldPassword}
+                  >
                     <PasswordInput
                       name="oldPassword"
                       value={passwordForm.oldPassword}
                       onChange={handlePasswordChange}
-                      placeholder="Enter current password"
+                      placeholder="Current password"
+                      error={errors.oldPassword}
                     />
-                  </InputField>
+                  </Field>
 
-                  <InputField label="New Password" hint="Required" error={errors.newPassword}>
+                  <Field
+                    label="New password"
+                    hint="Required"
+                    error={errors.newPassword}
+                  >
                     <PasswordInput
                       name="newPassword"
                       value={passwordForm.newPassword}
                       onChange={handlePasswordChange}
-                      placeholder="Enter new password"
+                      placeholder="New password"
+                      error={errors.newPassword}
                     />
-                  </InputField>
+                  </Field>
                 </div>
 
-                <InputField label="Confirm New Password" hint="Required" error={errors.confirmPassword}>
+                <Field
+                  label="Confirm new password"
+                  hint="Required"
+                  error={errors.confirmPassword}
+                >
                   <PasswordInput
                     name="confirmPassword"
                     value={passwordForm.confirmPassword}
                     onChange={handlePasswordChange}
-                    placeholder="Confirm new password"
+                    placeholder="Repeat new password"
+                    error={errors.confirmPassword}
                   />
-                </InputField>
+                </Field>
 
                 <PasswordStrength password={passwordForm.newPassword} />
 
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end pt-1">
                   <button
                     type="submit"
                     disabled={savingPassword}
-                    className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                    className="
+                      inline-flex
+                      h-11
+                      items-center
+                      justify-center
+                      gap-2
+                      rounded-2xl
+                      bg-blue-600
+                      px-5
+                      text-sm
+                      font-semibold
+                      text-white
+                      shadow-xs
+                      transition
+                      hover:bg-blue-700
+                      active:scale-[0.99]
+                      disabled:cursor-not-allowed
+                      disabled:opacity-50
+                    "
                   >
-                    {savingPassword ? "Updating..." : "Change Password"}
+                    <Lock size={15} />
+
+                    {savingPassword ? "Updating..." : "Change password"}
                   </button>
                 </div>
               </form>
-            </Card>
+            </Section>
           </div>
 
-          {/* Right Column - Info */}
-          <div className="space-y-6">
-            <Card title="Security Overview" description="Account metadata and status" icon={Shield} accent="emerald">
-              <div className="space-y-4">
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  <p className="text-xs font-medium uppercase text-gray-500">Role</p>
-                  <p className="mt-1 font-medium text-gray-900">{security.role || "—"}</p>
-                </div>
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  <p className="text-xs font-medium uppercase text-gray-500">Account Created</p>
-                  <p className="mt-1 font-medium text-gray-900">{memberSince}</p>
-                </div>
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  <p className="text-xs font-medium uppercase text-gray-500">Last Updated</p>
-                  <p className="mt-1 font-medium text-gray-900">{lastUpdated}</p>
-                </div>
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  <p className="text-xs font-medium uppercase text-gray-500">Password Status</p>
-                  <p className={`mt-1 font-medium ${security.hasPassword ? "text-emerald-600" : "text-amber-600"}`}>
-                    {security.hasPassword ? "Configured" : "Not set"}
-                  </p>
-                </div>
-              </div>
-            </Card>
+          {/* ============================================================= */}
+          {/* RIGHT                                                          */}
+          {/* ============================================================= */}
 
-            <Card title="Quick Tips" description="Best practices for your account" icon={Sparkles} accent="amber">
-              <div className="space-y-3 text-sm text-gray-600">
-                <p className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                  Use a strong, unique password with mixed characters
-                </p>
-                <p className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                  Keep your phone number current for account recovery
-                </p>
-                <p className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                  Use a valid, publicly accessible image URL
-                </p>
+          <aside className="space-y-5">
+            {/* ----------------------------------------------------------- */}
+            {/* SECURITY                                                     */}
+            {/* ----------------------------------------------------------- */}
+
+            <Section
+              title="Account details"
+              description="Current account information."
+            >
+              <div>
+                <InfoRow label="Role" value={security.role} />
+
+                <InfoRow label="Member since" value={memberSince} />
+
+                <InfoRow label="Last updated" value={lastUpdated} />
+
+                <InfoRow
+                  label="Password"
+                  value={security.hasPassword ? "Protected" : "Not configured"}
+                />
               </div>
-            </Card>
-          </div>
+            </Section>
+
+            {/* ----------------------------------------------------------- */}
+            {/* QUICK GUIDANCE                                               */}
+            {/* ----------------------------------------------------------- */}
+
+            <div
+              className="
+                overflow-hidden
+                rounded-[26px]
+                border
+                border-blue-100/80
+                bg-blue-600
+                text-white
+              "
+            >
+              <div className="p-5 sm:p-6">
+                <div className="flex items-start gap-3">
+                  <div
+                    className="
+                      flex
+                      h-9
+                      w-9
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-xl
+                      bg-white/15
+                    "
+                  >
+                    <Shield size={17} className="text-white" />
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-semibold">Account security</h3>
+
+                    <p className="mt-1 text-[11px] leading-5 text-blue-100">
+                      Use a unique password and keep your recovery information
+                      up to date.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-2">
+                  {[
+                    "Use a unique password",
+                    "Keep your phone number current",
+                    "Use a valid profile image URL",
+                  ].map((item) => (
+                    <div
+                      key={item}
+                      className="
+                        flex
+                        items-center
+                        gap-2
+                        rounded-xl
+                        bg-white/10
+                        px-3
+                        py-2.5
+                        text-[11px]
+                        text-blue-50
+                      "
+                    >
+                      <Check size={13} />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

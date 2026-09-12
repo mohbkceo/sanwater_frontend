@@ -28,6 +28,7 @@ import NewsManagementPage from './dashboard/pages/News/NewsManagementPage'
 import CreateEditNewsPage from './dashboard/pages/News/CreateEditNewsPage'
 import UserProfile from './dashboard/pages/UserProfile'
 import QuotationsManagementPage from './dashboard/pages/QuotationsManagementPage'
+import LeadsManagementPage from './dashboard/pages/LeadsManagementPage'
 import PermissionGuard from '@/components/shared_uis/PermissionGuard'
 
 function SanWaterGroupMain() {
@@ -62,6 +63,7 @@ function SanWaterGroupMain() {
         <Route path={SANWATERGROUPROUTES.auth.register.subPath} element={<PermissionGuard permission={PERMISSIONS.USERS.CREATE}><CreateAdminPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.quotations.subPath} element={<PermissionGuard permission={PERMISSIONS.QUOTATIONS.VIEW}><QuotationsManagementPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.leads.subPath} element={<PermissionGuard permission={PERMISSIONS.LEADS.VIEW}><LeadsManagementPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.profile.subPath} element={<UserProfile />} />
 

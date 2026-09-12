@@ -33,7 +33,7 @@ export default function ComparePage() {
             removeFromCompare(serialNumber);
             return null;
           }
-        })
+        }),
       );
       if (!cancelled) {
         setProducts(results.filter(Boolean));
@@ -47,29 +47,69 @@ export default function ComparePage() {
       return;
     }
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compareList.length]);
 
   // Union of every distinct spec label across the compared products, so
   // each row is real data from at least one product — never fabricated.
   const specLabels = Array.from(
-    new Set(products.flatMap((p) => (p.specifications || []).map((s) => s.label)))
+    new Set(
+      products.flatMap((p) => (p.specifications || []).map((s) => s.label)),
+    ),
   );
 
   const rows = [
-    { key: "price", label: t("products.price"), render: (p) => (p.prices?.productPrice > 0 ? `${formatPrice(p.prices.productPrice)} DA` : "—") },
-    { key: "family", label: t("products.family"), render: (p) => p.family || "—" },
-    { key: "category", label: t("products.category"), render: (p) => p.category?.name || "—" },
-    { key: "collection", label: t("products.collection"), render: (p) => p.collectionRef?.name || "—" },
-    { key: "material", label: t("products.material"), render: (p) => p.material || "—" },
-    { key: "dimensions", label: t("products.dimensions"), render: (p) => p.dimensions || "—" },
-    { key: "installation", label: t("products.installation"), render: (p) => p.installation || "—" },
-    { key: "finishes", label: t("products.finishes"), render: (p) => (p.finishes?.length ? p.finishes.join(", ") : "—") },
+    {
+      key: "price",
+      label: t("products.price"),
+      render: (p) =>
+        p.prices?.productPrice > 0
+          ? `${formatPrice(p.prices.productPrice)} DA`
+          : "—",
+    },
+    {
+      key: "family",
+      label: t("products.family"),
+      render: (p) => p.family || "—",
+    },
+    {
+      key: "category",
+      label: t("products.category"),
+      render: (p) => p.category?.name || "—",
+    },
+    {
+      key: "collection",
+      label: t("products.collection"),
+      render: (p) => p.collectionRef?.name || "—",
+    },
+    {
+      key: "material",
+      label: t("products.material"),
+      render: (p) => p.material || "—",
+    },
+    {
+      key: "dimensions",
+      label: t("products.dimensions"),
+      render: (p) => p.dimensions || "—",
+    },
+    {
+      key: "installation",
+      label: t("products.installation"),
+      render: (p) => p.installation || "—",
+    },
+    {
+      key: "finishes",
+      label: t("products.finishes"),
+      render: (p) => (p.finishes?.length ? p.finishes.join(", ") : "—"),
+    },
     ...specLabels.map((label) => ({
       key: `spec_${label}`,
       label,
-      render: (p) => p.specifications?.find((s) => s.label === label)?.value || "—",
+      render: (p) =>
+        p.specifications?.find((s) => s.label === label)?.value || "—",
     })),
   ];
 
@@ -79,7 +119,11 @@ export default function ComparePage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <Header title={t("compare_page.title")} discription="" />
           {products.length > 0 && (
-            <Button variant="secondary" onClick={clearCompare} className="border border-white/20 bg-white/20 hover:bg-white/30">
+            <Button
+              variant="secondary"
+              onClick={clearCompare}
+              className="border border-white/20 bg-white/20 hover:bg-white/30"
+            >
               {t("compare_page.clear_all")}
             </Button>
           )}
@@ -96,7 +140,8 @@ export default function ComparePage() {
             />
             <div className="mt-6 flex justify-center">
               <Button onClick={() => navigate(PRODUCTS)}>
-                <GitCompareArrows size={16} className="mr-2" /> {t("compare_page.browse_products")}
+                <GitCompareArrows size={16} className="mr-2" />{" "}
+                {t("compare_page.browse_products")}
               </Button>
             </div>
           </>
@@ -133,11 +178,22 @@ export default function ComparePage() {
                           <X size={14} />
                         </motion.button>
                         {p.gallery?.[0] && (
-                          <img src={p.gallery[0]} alt={p.name} className="w-full h-32 object-cover rounded-xl mb-2" />
+                          <img
+                            src={p.gallery[0]}
+                            alt={p.name}
+                            className="w-full h-32 object-cover rounded-xl mb-2"
+                          />
                         )}
                         <div
                           className="font-bold text-gray-900 cursor-pointer hover:text-[#0050A4]"
-                          onClick={() => navigate(PRODUCTVIEWDETAIL.replace(":serialNumber", p.serialNumber))}
+                          onClick={() =>
+                            navigate(
+                              PRODUCTVIEWDETAIL.replace(
+                                ":serialNumber",
+                                p.serialNumber,
+                              ),
+                            )
+                          }
                         >
                           {p.name}
                         </div>
@@ -148,12 +204,17 @@ export default function ComparePage() {
               </thead>
               <tbody>
                 {rows.map((row, idx) => (
-                  <tr key={row.key} className={idx % 2 === 0 ? "bg-white/10" : ""}>
+                  <tr
+                    key={row.key}
+                    className={idx % 2 === 0 ? "bg-white/10" : ""}
+                  >
                     <td className="sticky left-0 z-10 bg-white/60 backdrop-blur-md p-4 font-medium text-gray-700">
                       {row.label}
                     </td>
                     {products.map((p) => (
-                      <td key={p._id} className="p-4 text-gray-800">{row.render(p)}</td>
+                      <td key={p._id} className="p-4 text-gray-800">
+                        {row.render(p)}
+                      </td>
                     ))}
                   </tr>
                 ))}
