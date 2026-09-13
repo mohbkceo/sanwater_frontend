@@ -341,6 +341,28 @@ export async function fetchAnalytics({
   }
 }
 
+function analyticsParams({ from, to } = {}) {
+  const params = new URLSearchParams();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  return params;
+}
+
+export async function fetchBusinessAnalytics(filters = {}) {
+  const params = analyticsParams(filters);
+  const query = params.toString();
+  const res = await analyticsAPI.get(query ? `/business?${query}` : "/business");
+  return res.data?.data || null;
+}
+
+export async function fetchFunnelBreakdown({ from, to, stage, dimension }) {
+  const params = analyticsParams({ from, to });
+  params.set("stage", stage);
+  params.set("dimension", dimension);
+  const res = await analyticsAPI.get(`/business/funnel-breakdown?${params.toString()}`);
+  return res.data?.data || null;
+}
+
 export function getAttributionContext() {
   if (!safeStorageGet(LANDING_KEY)) safeStorageSet(LANDING_KEY, `${window.location.pathname}${window.location.search}`);
   return {

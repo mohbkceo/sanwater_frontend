@@ -14,8 +14,9 @@ import {
   User,
   X,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 import { submitQuotation } from "@/services/quotations/quotationServices";
+import { trackCustomEvent } from "@/services/analytics/analytics";
 import {
   MATERIALIZE_VARIANTS,
   SCRIM_VARIANTS,
@@ -36,6 +37,14 @@ function RequestQuoteModal({ product, onClose }) {
 
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    trackCustomEvent("product_inquiry_started", {
+      product_id: product?._id,
+      product_serial: product?.serialNumber,
+      page: window.location.pathname,
+    });
+  }, [product?._id, product?.serialNumber]);
 
   const prefersReducedMotion = useReducedMotion();
 
@@ -151,7 +160,7 @@ function RequestQuoteModal({ product, onClose }) {
   `;
 
   return (
-    <motion.div
+    <Motion.div
       variants={SCRIM_VARIANTS}
       initial="initial"
       animate="animate"
@@ -173,7 +182,7 @@ function RequestQuoteModal({ product, onClose }) {
       "
       onClick={() => !submitting && onClose()}
     >
-      <motion.div
+      <Motion.div
         variants={MATERIALIZE_VARIANTS}
         initial="initial"
         animate="animate"
@@ -258,7 +267,7 @@ function RequestQuoteModal({ product, onClose }) {
               </p>
             </div>
 
-            <motion.button
+            <Motion.button
               whileTap={{ scale: 0.9 }}
               transition={spring}
               type="button"
@@ -286,7 +295,7 @@ function RequestQuoteModal({ product, onClose }) {
               "
             >
               <X className="h-4.5 w-4.5" />
-            </motion.button>
+            </Motion.button>
           </div>
         </div>
 
@@ -299,14 +308,14 @@ function RequestQuoteModal({ product, onClose }) {
             /* ===================================================
                SUCCESS
             ==================================================== */
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={spring}
               className="px-5 py-10 sm:px-7 sm:py-12"
             >
               <div className="mx-auto max-w-md text-center">
-                <motion.div
+                <Motion.div
                   initial={{ scale: 0.75, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={
@@ -328,7 +337,7 @@ function RequestQuoteModal({ product, onClose }) {
                   "
                 >
                   <CheckCircle2 className="h-9 w-9" />
-                </motion.div>
+                </Motion.div>
 
                 <p className="mt-7 text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-600">
                   Demande envoyée
@@ -413,7 +422,7 @@ function RequestQuoteModal({ product, onClose }) {
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
-            </motion.div>
+            </Motion.div>
           ) : (
             <form
               id="quotation-form"
@@ -792,7 +801,7 @@ function RequestQuoteModal({ product, onClose }) {
                   sm:px-7
                 "
               >
-                <motion.button
+                <Motion.button
                   whileTap={{ scale: 0.98 }}
                   transition={spring}
                   type="submit"
@@ -839,7 +848,7 @@ function RequestQuoteModal({ product, onClose }) {
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
-                </motion.button>
+                </Motion.button>
 
                 <p className="mt-2 text-center text-[10px] text-slate-400">
                   Les champs marqués * sont obligatoires.
@@ -848,8 +857,8 @@ function RequestQuoteModal({ product, onClose }) {
             </form>
           )}
         </div>
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   );
 }
 
