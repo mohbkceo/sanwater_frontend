@@ -90,13 +90,6 @@ function ProductCard({ product, index, t }) {
             />
           </div>
 
-          {product.prices?.productPrice > 0 && (
-            <p className="mt-4 text-lg font-bold text-blue-600">
-              {formatPrice(product.prices.productPrice)}{" "}
-              <span className="text-sm font-semibold">DA</span>
-            </p>
-          )}
-
           <p className="mt-3 font-mono text-[10px] font-medium uppercase tracking-wide text-slate-400">
             {t("products.serial")} {product.serialNumber}
           </p>
