@@ -14,7 +14,7 @@ import { Button } from "@/components";
 
 import { PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
 
-import { formatPrice, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/hooks/useCompare";
@@ -67,8 +67,7 @@ export default function ProductCard({ product }) {
     ? REDUCED_MOTION_TRANSITION
     : SPRING_DEFAULT;
 
-  const { name, gallery, tags, family, productId, serialNumber, prices } =
-    product;
+  const { name, gallery, tags, family, productId, serialNumber } = product;
 
   const image = gallery?.[0];
 
@@ -206,14 +205,6 @@ export default function ProductCard({ product }) {
             {name}
           </h2>
         </button>
-
-        {/* Price */}
-        {prices?.productPrice > 0 && (
-          <div className="mt-3 text-lg font-bold tracking-tight text-blue-600">
-            {formatPrice(prices.productPrice)}{" "}
-            <span className="text-sm font-semibold">DA</span>
-          </div>
-        )}
 
         {/* Tags */}
         {tags?.filter(Boolean).length > 0 && (
