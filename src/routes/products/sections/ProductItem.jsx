@@ -208,12 +208,6 @@ export default function ProductCard({ product }) {
         </button>
 
         {/* Price */}
-        {prices?.productPrice > 0 && (
-          <div className="mt-3 text-lg font-bold tracking-tight text-blue-600">
-            {formatPrice(prices.productPrice)}{" "}
-            <span className="text-sm font-semibold">DA</span>
-          </div>
-        )}
 
         {/* Tags */}
         {tags?.filter(Boolean).length > 0 && (
