@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import MainLayout from "@/layouts/MainLayout";
@@ -50,6 +50,19 @@ function ProductDetailedPage() {
     };
   }, [serialNumber]);
 
+  const publicProduct = useMemo(() => {
+    if (!product) return null;
+
+    const { prices: _prices, ...productWithoutPrices } = product;
+
+    return {
+      ...productWithoutPrices,
+      relatedProducts: Array.isArray(product.relatedProducts)
+        ? product.relatedProducts.map(({ prices: _relatedPrices, ...relatedProduct }) => relatedProduct)
+        : product.relatedProducts,
+    };
+  }, [product]);
+
   if (loading) {
     return (
       <MainLayout bg="bg-[#F5F7FA]">
@@ -80,7 +93,7 @@ function ProductDetailedPage() {
 
   return (
     <MainLayout bg="bg-[#F5F7FA]">
-      <ProductUIRender product={product} />
+      <ProductUIRender product={publicProduct} />
     </MainLayout>
   );
 }
