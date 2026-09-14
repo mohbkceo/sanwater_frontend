@@ -81,7 +81,7 @@ const Footer = () => {
                   whileTap={{ scale: 0.94 }}
                   transition={SPRING_DEFAULT}
                   src="./logo-white.svg"
-                  alt="SanWater"
+                  alt="San Water"
                   className="w-36 sm:w-40"
                 />
               </Link>
@@ -202,7 +202,7 @@ const Footer = () => {
                 to="/"
                 className="text-slate-400 transition-colors hover:text-white"
               >
-                SanWater
+                San Water
               </Link>
               . Tous droits réservés.
             </p>

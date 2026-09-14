@@ -467,7 +467,7 @@ export default function ContactForm() {
             <div className="hidden h-3 w-px bg-slate-200 sm:block" />
 
             <div className="text-xs font-medium text-slate-400">
-              SanWater · Algérie
+              San Water · Algérie
             </div>
           </div>
         </div>

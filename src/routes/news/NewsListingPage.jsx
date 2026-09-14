@@ -349,7 +349,7 @@ export default function NewsListingPage() {
         title={t("news.seo_title") || "Latest News"}
         description={
           t("news.seo_description") ||
-          "Stay updated with the latest news from SanWater"
+          "Stay updated with the latest news from San Water"
         }
         url={window.location.href}
       />
@@ -371,7 +371,7 @@ export default function NewsListingPage() {
             ===================================================== */}
             <header className="max-w-3xl">
               <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-blue-500">
-                SanWater Journal
+                San Water Journal
               </div>
 
               <h1 className="text-4xl font-bold tracking-[-0.035em] text-slate-950 sm:text-5xl lg:text-6xl">

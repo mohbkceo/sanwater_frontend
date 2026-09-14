@@ -128,7 +128,7 @@ export default function WhyChooseUs() {
           <div className="mb-12 flex flex-col items-start gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-blue-500">
-                Why SanWater
+                Why San Water
               </div>
 
               <BlurIn className="text-4xl font-bold tracking-[-0.04em] text-slate-950 md:text-5xl lg:text-6xl">
@@ -209,7 +209,7 @@ export default function WhyChooseUs() {
                 {/* Image glass label */}
                 <div className="absolute bottom-5 left-5 rounded-full border border-white/30 bg-black/20 px-4 py-2 backdrop-blur-2xl">
                   <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/90">
-                    SanWater
+                    San Water
                   </span>
                 </div>
               </div>

@@ -387,7 +387,7 @@ function NavBar({ className, ...props }) {
           >
             <motion.img
               src="./logo.svg"
-              alt="SanWater"
+              alt="San Water"
               whileTap={{ scale: 0.94 }}
               transition={spring}
               className="w-full"

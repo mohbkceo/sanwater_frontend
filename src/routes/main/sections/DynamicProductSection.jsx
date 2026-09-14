@@ -177,7 +177,7 @@ function DynamicProductSection() {
           <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl">
               <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-blue-500">
-                SanWater Collection
+                San Water Collection
               </div>
 
               <h2 className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">

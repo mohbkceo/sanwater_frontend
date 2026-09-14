@@ -27,15 +27,15 @@ const AboutSection = () => {
     images: [
       {
         url: "./system/des1.webp",
-        alt: "SanWater",
+        alt: "San Water",
       },
       {
         url: "./system/des2.webp",
-        alt: "SanWater",
+        alt: "San Water",
       },
       {
         url: "./system/des3.webp",
-        alt: "SanWater",
+        alt: "San Water",
       },
     ],
 
@@ -105,7 +105,7 @@ const AboutSection = () => {
                   {/* Glass label */}
                   <div className="absolute bottom-5 left-5 rounded-full border border-white/70 bg-white/65 px-4 py-2.5 shadow-xs backdrop-blur-2xl backdrop-saturate-150">
                     <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">
-                      SanWater
+                      San Water
                     </span>
                   </div>
                 </div>
