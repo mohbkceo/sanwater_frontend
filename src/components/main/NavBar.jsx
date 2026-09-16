@@ -144,7 +144,7 @@ function IconButton({
   );
 }
 
-function LanguageSelector({ lang, setLang, compact = false }) {
+function LanguageSelector({ lang, setLang }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -345,6 +345,8 @@ function NavBar({ className, ...props }) {
   };
 
   useEffect(() => {
+    // Closing the mobile drawer is an intentional response to navigation.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false);
   }, [location.pathname]);
 

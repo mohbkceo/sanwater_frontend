@@ -21,16 +21,6 @@ import { REDUCED_MOTION_TRANSITION, SPRING_DEFAULT } from "@/lib/springs";
 
 const LIMIT = 10;
 
-function formatDate(date) {
-  if (!date) return "";
-
-  return new Date(date).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
 function formatShortDate(date) {
   if (!date) return "";
 
@@ -231,7 +221,6 @@ function ArticleCard({ article, featured = false, t }) {
 
 export default function NewsListingPage() {
   const { t } = useTranslation();
-  const prefersReducedMotion = useReducedMotion();
 
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);

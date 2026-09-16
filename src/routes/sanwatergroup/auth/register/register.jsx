@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { register_API } from '@/services/auth/sanwater_group.auth';
-import { Header } from '@/components';
+import React, { useState } from "react";
+import { register_API } from "@/services/auth/sanwater_group.auth";
+import { Header } from "@/components";
 
 const PAGE_CONTENT = {
   registerSection: {
     title: "Create Admin Account",
-    subtitle: "Add a new team member to the SANWATER dashboard.",
+    subtitle: "Add a new team member to the SAN WATER dashboard.",
     buttonText: "Create account",
-    permissionsNote: "New accounts are created as admins with no permissions. Grant access afterwards from User Management.",
+    permissionsNote:
+      "New accounts are created as admins with no permissions. Grant access afterwards from User Management.",
   },
 };
 
@@ -29,7 +30,7 @@ const CreateAdminPage = () => {
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -73,11 +74,14 @@ const CreateAdminPage = () => {
       <Header title={PAGE_CONTENT.registerSection.title} />
 
       <div className="max-w-md bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <p className="text-sm text-gray-500 mb-6">{PAGE_CONTENT.registerSection.subtitle}</p>
+        <p className="text-sm text-gray-500 mb-6">
+          {PAGE_CONTENT.registerSection.subtitle}
+        </p>
 
         {created && (
           <div className="mb-5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 text-sm">
-            Account created for <strong>{created.email}</strong>. Grant permissions from User Management.
+            Account created for <strong>{created.email}</strong>. Grant
+            permissions from User Management.
           </div>
         )}
 

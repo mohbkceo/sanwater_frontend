@@ -7,7 +7,6 @@ import {
 } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Thumbs } from "swiper/modules";
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -38,6 +37,7 @@ import { useCompare } from "@/hooks/useCompare";
 import { useTranslation } from "@/lib/i18n";
 
 import { formatPrice } from "@/lib/utils";
+import { deriveSubFamily } from "@/utils/catalogFamilies";
 import {
   REDUCED_MOTION_TRANSITION,
   SCRIM_VARIANTS,
@@ -259,10 +259,10 @@ function ProductUIRender({ product }) {
               <ChevronRight size={13} />
               <span>{t("products.title")}</span>
 
-              {product?.category?.name && (
+              {product?.family && (
                 <>
                   <ChevronRight size={13} />
-                  <span className="truncate">{product.category.name}</span>
+                  <span className="truncate">{product.family}</span>
                 </>
               )}
 
@@ -283,7 +283,7 @@ function ProductUIRender({ product }) {
                 active={favorited}
                 onClick={() => toggleFavorite(product?.serialNumber)}
               >
-                <motion.span
+                <Motion.span
                   animate={favorited ? { scale: [1, 1.25, 1] } : { scale: 1 }}
                   transition={spring}
                 >
@@ -291,7 +291,7 @@ function ProductUIRender({ product }) {
                     size={18}
                     className={favorited ? "fill-current" : ""}
                   />
-                </motion.span>
+                </Motion.span>
               </GlassButton>
 
               <GlassButton
@@ -417,26 +417,24 @@ function ProductUIRender({ product }) {
           {/* =====================================================
               Product information
           ===================================================== */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={spring}
             className="flex min-w-0 flex-col"
           >
             <div className="pt-2 lg:pt-5">
-              {/* Family / category */}
-              {(product?.family || product?.category?.name) && (
+              {/* Derived catalog placement */}
+              {product?.family && (
                 <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-blue-600">
-                  {product?.family && <span>{product.family}</span>}
-
-                  {product?.family && product?.category?.name && (
-                    <span className="text-slate-300">•</span>
-                  )}
-
-                  {product?.category?.name && (
-                    <span className="text-slate-400">
-                      {product.category.name}
-                    </span>
+                  <span>{product.family}</span>
+                  {deriveSubFamily(product.productId).length === 2 && (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-slate-400">
+                        {deriveSubFamily(product.productId)}
+                      </span>
+                    </>
                   )}
                 </div>
               )}
@@ -491,7 +489,7 @@ function ProductUIRender({ product }) {
                   }
                 />
 
-                <motion.button
+                <Motion.button
                   type="button"
                   whileTap={{ scale: 0.985 }}
                   onClick={() => setQuoteModalOpen(true)}
@@ -499,7 +497,7 @@ function ProductUIRender({ product }) {
                 >
                   <FileText size={18} />
                   Demander un devis
-                </motion.button>
+                </Motion.button>
               </div>
             </div>
 
@@ -577,7 +575,7 @@ function ProductUIRender({ product }) {
 
                 <div className="space-y-2">
                   {product.documents.map((document, index) => (
-                    <motion.a
+                    <Motion.a
                       key={`${document.url}-${index}`}
                       whileTap={{ scale: 0.985 }}
                       href={document.url}
@@ -603,7 +601,7 @@ function ProductUIRender({ product }) {
                         size={16}
                         className="shrink-0 text-slate-300 transition-colors group-hover:text-blue-500"
                       />
-                    </motion.a>
+                    </Motion.a>
                   ))}
                 </div>
               </div>
@@ -628,24 +626,22 @@ function ProductUIRender({ product }) {
                   </p>
                 )}
 
-                {product?.collectionRef?.name && (
+                {deriveSubFamily(product?.productId).length === 2 && (
                   <p>
-                    <span className="text-slate-500">
-                      {t("products.collection")}:
-                    </span>{" "}
-                    {product.collectionRef.name}
+                    <span className="text-slate-500">Sub Family:</span>{" "}
+                    {deriveSubFamily(product.productId)}
                   </p>
                 )}
               </div>
             </div>
-          </motion.div>
+          </Motion.div>
         </div>
 
         {/* =========================================================
             Related Products
         ========================================================= */}
         {product?.relatedProducts?.length > 0 && (
-          <motion.section
+          <Motion.section
             initial={{
               opacity: 0,
               y: prefersReducedMotion ? 0 : 20,
@@ -676,7 +672,7 @@ function ProductUIRender({ product }) {
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {product.relatedProducts.map((relatedProduct, index) => (
-                <motion.div
+                <Motion.div
                   key={relatedProduct._id || relatedProduct.productId || index}
                   initial={{
                     opacity: 0,
@@ -723,10 +719,10 @@ function ProductUIRender({ product }) {
                       )}
                     </div>
                   </Link>
-                </motion.div>
+                </Motion.div>
               ))}
             </div>
-          </motion.section>
+          </Motion.section>
         )}
 
         {/* =========================================================
@@ -754,7 +750,7 @@ function ProductUIRender({ product }) {
       =========================================================== */}
       <AnimatePresence>
         {lightboxIndex !== null && images.length > 0 && (
-          <motion.div
+          <Motion.div
             variants={SCRIM_VARIANTS}
             initial="initial"
             animate="animate"
@@ -798,7 +794,7 @@ function ProductUIRender({ product }) {
             )}
 
             {/* Image */}
-            <motion.img
+            <Motion.img
               key={lightboxIndex}
               initial={{
                 opacity: 0,
@@ -839,7 +835,7 @@ function ProductUIRender({ product }) {
                 <ChevronRight size={23} />
               </button>
             )}
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </section>

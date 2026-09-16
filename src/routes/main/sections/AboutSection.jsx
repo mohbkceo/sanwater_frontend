@@ -211,7 +211,7 @@ const AboutSection = () => {
                   href="/about"
                   className="group inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-blue-600"
                 >
-                  En savoir plus sur SANWATER
+                  En savoir plus sur SAN WATER
                   <ArrowRight
                     size={15}
                     className="transition-transform group-hover:translate-x-1"

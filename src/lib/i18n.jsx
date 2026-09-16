@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, createContext, useContext } from "react";
 import { fr } from "./i18n_fr";
 import { ar } from "./i18n_ar";
@@ -56,7 +57,7 @@ const translations = {
       badge: "WHO ARE WE?",
       title: "Quality sanitary solutions since 2011",
       description:
-        "SANWATER, founded in 2011 in Dar El Beida (Algiers), specializes in sanitary accessories and bathroom solutions. The brand offers quality products at competitive prices, with a wide range of models, following international trends.",
+        "SAN WATER, founded in 2011 in Dar El Beida (Algiers), specializes in sanitary accessories and bathroom solutions. The brand offers quality products at competitive prices, with a wide range of models, following international trends.",
       years_experience: "YEARS OF EXPERIENCE",
       quality_freshness: "QUALITY & FRESHNESS",
       experience_desc: "A decade and a half of expertise",
@@ -70,6 +71,9 @@ const translations = {
       advanced_filters: "Advanced Filters",
       reset: "Reset",
       family: "Family",
+      all_families: "All Families",
+      sub_family: "Sub Family",
+      all_sub_families: "All Sub Families",
       min_price: "Minimum Price",
       max_price: "Maximum Price",
       availability: "Availability",
@@ -94,10 +98,6 @@ const translations = {
       no_image: "No Image",
       serial: "Serial Number:",
       read_more: "Read More",
-      category: "Category",
-      all_categories: "All categories",
-      collection: "Collection",
-      all_collections: "All collections",
       filters: "Filters",
       clear_filters: "Clear filters",
       apply_filters: "Apply filters",
@@ -183,7 +183,7 @@ const translations = {
     hiring: {
       join_our_team: "Join Our Team",
       careers_at_sanwater: "Careers at San Water",
-      hero_title: "Join a team building the future of water management.",
+      hero_title: "Join a team building the future of San Water",
       hero_description:
         "Explore open roles, learn about our culture, and find a position where your skills can make a real impact.",
       view_open_roles: "Send us your CV",

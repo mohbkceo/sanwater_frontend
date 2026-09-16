@@ -6,7 +6,8 @@ export const createProduct = async (data) => {
 };
 
 export const getProducts = async (params = {}) => {
-  const res = await productAPI.get("/", { params });
+  const { isAdmin, ...query } = params;
+  const res = await productAPI.get(isAdmin ? "/admin" : "/", { params: query });
   return res.data;
 };
 

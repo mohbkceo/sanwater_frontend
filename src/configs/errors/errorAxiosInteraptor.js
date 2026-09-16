@@ -46,7 +46,7 @@ export async function unauthorizeErrorHandle(axiosInstance, err, loginRoute) {
           return new Promise(function (resolve, reject) {
                 failedQueue.push({ resolve, reject });
           })
-                .then(_ => {
+                .then(() => {
                 return axiosInstance(originalRequest);
                 })
                 .catch(err => {

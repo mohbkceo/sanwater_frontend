@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   createProduct,
   updateProduct,
 } from "@/services/products/productServices";
-import { getCategories } from "@/services/products/categoryServices";
-import { getCollections } from "@/services/products/collectionServices";
 import ProductGalleryUpload from "./ProductGalleryUpload";
 import { Button } from "..";
 import { destroyImage } from "@/services/contents/imageHandler";
 import { toast } from "sonner";
+import { deriveSubFamily, normalizeFamilyKey } from "@/utils/catalogFamilies";
 
 /* ---------------------------------------------------------
    Constants
@@ -38,32 +37,6 @@ const DOCUMENT_TYPES = [
   { value: "presentation", label: "Presentation" },
   { value: "other", label: "Other" },
 ];
-
-/* ---------------------------------------------------------
-   Helpers
---------------------------------------------------------- */
-
-function flattenCategoryOptions(categories) {
-  const options = [];
-
-  (categories || []).forEach((category) => {
-    options.push({
-      value: category._id,
-      label: category.name,
-      depth: 0,
-    });
-
-    (category.subcategories || []).forEach((subcategory) => {
-      options.push({
-        value: subcategory._id,
-        label: subcategory.name,
-        depth: 1,
-      });
-    });
-  });
-
-  return options;
-}
 
 /* ---------------------------------------------------------
    Reusable UI
@@ -286,7 +259,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       name: product?.name || "",
       serialNumber: product?.serialNumber || "",
       productId: product?.productId || "",
-      family: product?.family || "NO-FAMILLY",
+      family: product?.family || "",
 
       isEcommerce: product?.isEcommerce || false,
       isActive: product?.isActive ?? true,
@@ -316,12 +289,6 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
       slug: product?.slug || "",
       status: product?.status || "draft",
-
-      category: product?.category?._id || product?.category || "",
-
-      subcategory: product?.subcategory?._id || product?.subcategory || "",
-
-      collection: product?.collectionRef?._id || product?.collectionRef || "",
 
       shortDescription: product?.shortDescription || "",
 
@@ -365,28 +332,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
   const [loading, setLoading] = useState(false);
 
-  const [categoryOptions, setCategoryOptions] = useState([]);
-
-  const [collectionOptions, setCollectionOptions] = useState([]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [categoriesRes, collectionsRes] = await Promise.all([
-          getCategories({ isAdmin: true }),
-          getCollections({ isAdmin: true }),
-        ]);
-
-        setCategoryOptions(
-          flattenCategoryOptions(categoriesRes?.data?.categories),
-        );
-
-        setCollectionOptions(collectionsRes?.data?.collections || []);
-      } catch (error) {
-        console.error("Failed to load categories/collections", error);
-      }
-    })();
-  }, []);
+  const derivedFamily = normalizeFamilyKey(formData.family);
+  const derivedSubFamily = deriveSubFamily(formData.productId);
 
   /* -------------------------------------------------------
      Form handlers
@@ -670,12 +617,6 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
           (document) => document.title?.trim() && document.url?.trim(),
         ),
 
-        category: formData.category || null,
-
-        subcategory: formData.subcategory || null,
-
-        collection: formData.collection || null,
-
         productVariants: formData.productVariants
           .map((group) => ({
             variantType: group.variantType?.trim() || "color",
@@ -899,10 +840,12 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
                 <Field
                   label="Serie / Family"
-                  description="Optional grouping used to associate related products."
+                  required
+                  description="Raw Family key used for automatic catalog placement."
                 >
                   <Input
                     name="family"
+                    required
                     placeholder="e.g. SM"
                     value={formData.family}
                     onChange={handleChange}
@@ -1026,40 +969,36 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             <Section
               eyebrow="03"
               title="Catalog placement"
-              description="Control where this product appears in your catalog structure."
+              description="Placement is derived automatically from Family and the first two Product ID characters."
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Field label="Category">
-                  <Select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                  >
-                    <option value="">Uncategorized</option>
+                <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-600">
+                    Derived catalog placement
+                  </p>
 
-                    {categoryOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.depth > 0 ? `— ${option.label}` : option.label}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl border border-white bg-white/80 px-4 py-3">
+                      <p className="text-xs font-medium text-slate-400">Family</p>
+                      <p className="mt-1 font-mono text-sm font-semibold text-slate-900">
+                        {derivedFamily || "Enter a Family key"}
+                      </p>
+                    </div>
 
-                <Field label="Collection">
-                  <Select
-                    name="collection"
-                    value={formData.collection}
-                    onChange={handleChange}
-                  >
-                    <option value="">No collection</option>
+                    <div className="rounded-xl border border-white bg-white/80 px-4 py-3">
+                      <p className="text-xs font-medium text-slate-400">Sub Family</p>
+                      <p className="mt-1 font-mono text-sm font-semibold text-slate-900">
+                        {derivedSubFamily.length === 2
+                          ? derivedSubFamily
+                          : "Enter at least 2 Product ID characters"}
+                      </p>
+                    </div>
+                  </div>
 
-                    {collectionOptions.map((collection) => (
-                      <option key={collection._id} value={collection._id}>
-                        {collection.name}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
+                  <p className="mt-3 text-xs leading-5 text-slate-500">
+                    Sub Family is read-only and recalculates immediately. Changing either source field moves the product automatically.
+                  </p>
+                </div>
 
                 <Field
                   label="Publication status"

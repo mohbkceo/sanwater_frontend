@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Plus, Package, RefreshCw, ShoppingBag } from "lucide-react";
@@ -11,18 +11,45 @@ import { Button, ProductCard } from "@/components";
 import ProductNotFound from "@/components/products/ProductNotFound";
 import { usePermissions } from "@/hooks/usePermissions";
 import { PERMISSIONS } from "@/configs/permissions";
+import { getFamilies } from "@/services/products/familyServices";
 export default function ProductsPage() {
   const { products, loading, refetch } = useProducts();
   const [isEcommerce, setIsEcommerce] = useState(false);
+  const [families, setFamilies] = useState([]);
+  const [family, setFamily] = useState("");
+  const [subFamily, setSubFamily] = useState("");
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.PRODUCTS.MANAGE);
   const loadProducts = () => {
-    refetch({ isAdmin: true, isEcommerce });
+    refetch({ isAdmin: true, isEcommerce, family, subFamily });
   };
   useEffect(() => {
     loadProducts();
-  }, [isEcommerce]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEcommerce, family, subFamily]);
+
+  useEffect(() => {
+    getFamilies({ isAdmin: true })
+      .then((response) => setFamilies(response?.data?.families || []))
+      .catch((error) => console.error(error));
+  }, []);
+
+  const subFamilies = useMemo(
+    () => families.find((entry) => entry.key === family)?.subFamilies || [],
+    [families, family],
+  );
+
+  function handleFamilyChange(value) {
+    setFamily(value);
+    setSubFamily((current) =>
+      (families.find((entry) => entry.key === value)?.subFamilies || []).some(
+        (entry) => entry.key === current,
+      )
+        ? current
+        : "",
+    );
+  }
   async function handleDelete(serialNumber) {
     try {
       const confirmed = window.confirm(
@@ -108,6 +135,29 @@ export default function ProductsPage() {
             {/* Actions */}{" "}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               {" "}
+              <select
+                value={family}
+                onChange={(event) => handleFamilyChange(event.target.value)}
+                aria-label="Filter by Family"
+                className="h-10 rounded-xl border border-slate-200/70 bg-white/75 px-3 text-sm text-slate-700 outline-none focus:border-blue-300"
+              >
+                <option value="">All Families</option>
+                {families.map((entry) => (
+                  <option key={entry.key} value={entry.key}>{entry.displayName}</option>
+                ))}
+              </select>
+              <select
+                value={subFamily}
+                onChange={(event) => setSubFamily(event.target.value)}
+                aria-label="Filter by Sub Family"
+                disabled={!family}
+                className="h-10 rounded-xl border border-slate-200/70 bg-white/75 px-3 text-sm text-slate-700 outline-none focus:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">All Sub Families</option>
+                {subFamilies.map((entry) => (
+                  <option key={entry.key} value={entry.key}>{entry.displayName}</option>
+                ))}
+              </select>
               {/* Ecommerce filter */}{" "}
               <button
                 type="button"

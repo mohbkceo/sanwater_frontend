@@ -23,7 +23,7 @@ const testimonials = [
     avatar: "https://pagedone.io/asset/uploads/1696229969.png",
     rating: 5,
     feedback:
-      "SANWATER propose une gamme moderne qui suit les tendances actuelles. Je recommande régulièrement leurs produits à mes clients.",
+      "SAN WATER propose une gamme moderne qui suit les tendances actuelles. Je recommande régulièrement leurs produits à mes clients.",
   },
   {
     name: "Yacine M.",
@@ -31,7 +31,7 @@ const testimonials = [
     avatar: "https://pagedone.io/asset/uploads/1696230027.png",
     rating: 5,
     feedback:
-      "Nous équipons plusieurs projets avec SANWATER. Les produits sont fiables, bien finis et les délais sont toujours respectés.",
+      "Nous équipons plusieurs projets avec SAN WATER. Les produits sont fiables, bien finis et les délais sont toujours respectés.",
   },
   {
     name: "Ossama H.",
@@ -189,7 +189,7 @@ export default function Testimonials() {
               </h2>
 
               <p className="mt-5 max-w-md text-base leading-7 text-slate-500">
-                Des clients qui choisissent SANWATER pour la qualité, le design
+                Des clients qui choisissent SAN WATER pour la qualité, le design
                 et la fiabilité de leurs projets.
               </p>
 
@@ -208,7 +208,7 @@ export default function Testimonials() {
                   </div>
 
                   <span className="text-xs font-semibold text-slate-600">
-                    Clients SANWATER
+                    Clients SAN WATER
                   </span>
                 </div>
               </div>

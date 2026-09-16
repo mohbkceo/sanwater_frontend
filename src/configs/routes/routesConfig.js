@@ -50,32 +50,10 @@ export const SANWATERGROUPROUTES = {
             fullPath: `${mainSanWaterRoute}/products/edit`,
             subPath: `products/edit`
         },
-        categories: {
-            list: {
-                subPath: `products/categories`,
-                fullPath: `${mainSanWaterRoute}/products/categories`,
-            },
-            create: {
-                subPath: `products/categories/create`,
-                fullPath: `${mainSanWaterRoute}/products/categories/create`,
-            },
-            edit: {
-                subPath: `products/categories/edit`,
-                fullPath: `${mainSanWaterRoute}/products/categories/edit`,
-            },
-        },
-        collections: {
-            list: {
-                subPath: `products/collections`,
-                fullPath: `${mainSanWaterRoute}/products/collections`,
-            },
-            create: {
-                subPath: `products/collections/create`,
-                fullPath: `${mainSanWaterRoute}/products/collections/create`,
-            },
-            edit: {
-                subPath: `products/collections/edit`,
-                fullPath: `${mainSanWaterRoute}/products/collections/edit`,
+        families: {
+            control: {
+                subPath: `products/families`,
+                fullPath: `${mainSanWaterRoute}/products/families`,
             },
         },
     },

@@ -7,10 +7,7 @@ import {
   CreateProductPage,
   EditProductPage,
   ProductsListPage,
-  CategoriesManagementPage,
-  CreateEditCategoryPage,
-  CollectionsManagementPage,
-  CreateEditCollectionPage,
+  FamiliesControlPage,
 } from '..'
 import { Navigate } from 'react-router-dom'
 import LoginPage from './auth/login/login'
@@ -39,13 +36,7 @@ function SanWaterGroupMain() {
         <Route path={SANWATERGROUPROUTES.products.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateProductPage /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.products.edit.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><EditProductPage /></PermissionGuard>} />
 
-        <Route path={SANWATERGROUPROUTES.products.categories.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><CategoriesManagementPage /></PermissionGuard>} />
-        <Route path={SANWATERGROUPROUTES.products.categories.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCategoryPage /></PermissionGuard>} />
-        <Route path={SANWATERGROUPROUTES.products.categories.edit.subPath + '/:slug'} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCategoryPage /></PermissionGuard>} />
-
-        <Route path={SANWATERGROUPROUTES.products.collections.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><CollectionsManagementPage /></PermissionGuard>} />
-        <Route path={SANWATERGROUPROUTES.products.collections.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCollectionPage /></PermissionGuard>} />
-        <Route path={SANWATERGROUPROUTES.products.collections.edit.subPath + '/:slug'} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateEditCollectionPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.families.control.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><FamiliesControlPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<PermissionGuard permission={PERMISSIONS.ANALYTICS.VIEW}><Analytics /></PermissionGuard>} />
 

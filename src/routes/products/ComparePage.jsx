@@ -9,8 +9,9 @@ import { useTranslation } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
 import { PRODUCTS, PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { SPRING_DEFAULT } from "@/lib/springs";
+import { deriveSubFamily } from "@/utils/catalogFamilies";
 
 export default function ComparePage() {
   const { t } = useTranslation();
@@ -76,14 +77,9 @@ export default function ComparePage() {
       render: (p) => p.family || "—",
     },
     {
-      key: "category",
-      label: t("products.category"),
-      render: (p) => p.category?.name || "—",
-    },
-    {
-      key: "collection",
-      label: t("products.collection"),
-      render: (p) => p.collectionRef?.name || "—",
+      key: "subFamily",
+      label: t("products.sub_family"),
+      render: (p) => deriveSubFamily(p.productId) || "—",
     },
     {
       key: "material",
@@ -146,7 +142,7 @@ export default function ComparePage() {
             </div>
           </>
         ) : (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={SPRING_DEFAULT}
@@ -160,7 +156,7 @@ export default function ComparePage() {
                   </th>
                   <AnimatePresence mode="popLayout">
                     {products.map((p) => (
-                      <motion.th
+                      <Motion.th
                         key={p._id}
                         layout
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -169,14 +165,14 @@ export default function ComparePage() {
                         transition={SPRING_DEFAULT}
                         className="p-4 min-w-[220px] align-top"
                       >
-                        <motion.button
+                        <Motion.button
                           whileTap={{ scale: 0.85 }}
                           onClick={() => removeFromCompare(p.serialNumber)}
                           className="mb-2 ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-gray-500 hover:text-rose-600"
                           title={t("products.remove_from_compare")}
                         >
                           <X size={14} />
-                        </motion.button>
+                        </Motion.button>
                         {p.gallery?.[0] && (
                           <img
                             src={p.gallery[0]}
@@ -197,7 +193,7 @@ export default function ComparePage() {
                         >
                           {p.name}
                         </div>
-                      </motion.th>
+                      </Motion.th>
                     ))}
                   </AnimatePresence>
                 </tr>
@@ -220,7 +216,7 @@ export default function ComparePage() {
                 ))}
               </tbody>
             </table>
-          </motion.div>
+          </Motion.div>
         )}
       </div>
     </MainLayout>

@@ -1,11 +1,8 @@
 import React from "react";
-import { useTranslation } from "../lib/i18n.jsx";
 import { Footer, NavBar } from "../components";
 import { cn } from "@/lib/utils";
 
 function MainLayout({ className, bg = "bg-[#F5F8FC]", children, ...props }) {
-  const { t } = useTranslation();
-
   return (
     <div
       dir="auto"

@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 
 import { useSearchParams } from "react-router-dom";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion as Motion, useReducedMotion } from "framer-motion";
 
 import MainLayout from "@/layouts/MainLayout";
 import useProducts from "@/services/products/useProducts";
@@ -15,8 +15,7 @@ import ProductNotFound from "@/components/products/ProductNotFound";
 
 import { useTranslation } from "@/lib/i18n";
 
-import { getCategories } from "@/services/products/categoryServices";
-import { getCollections } from "@/services/products/collectionServices";
+import { getFamilies } from "@/services/products/familyServices";
 
 import {
   REDUCED_MOTION_TRANSITION,
@@ -28,28 +27,12 @@ import {
 const DEFAULT_FILTERS = {
   search: "",
   family: "",
-  category: "",
-  collection: "",
+  subFamily: "",
   minPrice: "",
   maxPrice: "",
   sortBy: "createdAt",
   sortOrder: "desc",
 };
-
-function flattenCategories(categories, depth = 0, acc = []) {
-  for (const category of categories) {
-    acc.push({
-      slug: category.slug,
-      label: `${"— ".repeat(depth)}${category.name}`,
-    });
-
-    if (category.subcategories?.length) {
-      flattenCategories(category.subcategories, depth + 1, acc);
-    }
-  }
-
-  return acc;
-}
 
 function GlassIconButton({
   children,
@@ -59,7 +42,7 @@ function GlassIconButton({
   title,
 }) {
   return (
-    <motion.button
+    <Motion.button
       type="button"
       title={title}
       aria-label={title}
@@ -80,7 +63,7 @@ function GlassIconButton({
       ].join(" ")}
     >
       {children}
-    </motion.button>
+    </Motion.button>
   );
 }
 
@@ -102,18 +85,20 @@ function FilterField({ label, children, description }) {
   );
 }
 
-function FilterSelect({ value, onChange, children }) {
+function FilterSelect({ value, onChange, children, disabled = false }) {
   return (
     <div className="relative">
       <select
         value={value}
         onChange={onChange}
+        disabled={disabled}
         className={[
           "h-11 w-full appearance-none rounded-xl",
           "border border-slate-200 bg-white",
           "px-3.5 pr-10 text-sm text-slate-800",
           "outline-none transition-colors",
           "focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10",
+          "disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400",
         ].join(" ")}
       >
         {children}
@@ -147,45 +132,38 @@ function FilterInput({ value, onChange, placeholder, type = "text" }) {
   );
 }
 
-function FilterContent({ filters, categories, collections, updateFilter, t }) {
+function FilterContent({ filters, families, subFamilies, updateFilter, t }) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      <FilterField label={t("products.category")}>
-        <FilterSelect
-          value={filters.category}
-          onChange={(event) => updateFilter("category", event.target.value)}
-        >
-          <option value="">{t("products.all_categories")}</option>
-
-          {categories.map((category) => (
-            <option key={category.slug} value={category.slug}>
-              {category.label}
-            </option>
-          ))}
-        </FilterSelect>
-      </FilterField>
-
-      <FilterField label={t("products.collection")}>
-        <FilterSelect
-          value={filters.collection}
-          onChange={(event) => updateFilter("collection", event.target.value)}
-        >
-          <option value="">{t("products.all_collections")}</option>
-
-          {collections.map((collection) => (
-            <option key={collection.slug} value={collection.slug}>
-              {collection.name}
-            </option>
-          ))}
-        </FilterSelect>
-      </FilterField>
-
       <FilterField label={t("products.family")}>
-        <FilterInput
+        <FilterSelect
           value={filters.family}
-          placeholder="Bottle, Filter..."
           onChange={(event) => updateFilter("family", event.target.value)}
-        />
+        >
+          <option value="">{t("products.all_families")}</option>
+
+          {families.map((family) => (
+            <option key={family.key} value={family.key}>
+              {family.displayName}
+            </option>
+          ))}
+        </FilterSelect>
+      </FilterField>
+
+      <FilterField label={t("products.sub_family")}>
+        <FilterSelect
+          value={filters.subFamily}
+          onChange={(event) => updateFilter("subFamily", event.target.value)}
+          disabled={!filters.family}
+        >
+          <option value="">{t("products.all_sub_families")}</option>
+
+          {subFamilies.map((subFamily) => (
+            <option key={subFamily.key} value={subFamily.key}>
+              {subFamily.displayName}
+            </option>
+          ))}
+        </FilterSelect>
       </FilterField>
 
       <FilterField label={t("products.min_price")}>
@@ -237,8 +215,8 @@ function FilterSheet({
   open,
   onClose,
   filters,
-  categories,
-  collections,
+  families,
+  subFamilies,
   updateFilter,
   clearFilters,
   t,
@@ -253,7 +231,7 @@ function FilterSheet({
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <Motion.div
           variants={SCRIM_VARIANTS}
           initial="initial"
           animate="animate"
@@ -261,7 +239,7 @@ function FilterSheet({
           className="fixed inset-0 z-[80] flex items-end lg:hidden"
           onClick={onClose}
         >
-          <motion.div
+          <Motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -315,8 +293,8 @@ function FilterSheet({
             <div className="px-5 pt-6">
               <FilterContent
                 filters={filters}
-                categories={categories}
-                collections={collections}
+                families={families}
+                subFamilies={subFamilies}
                 updateFilter={updateFilter}
                 t={t}
               />
@@ -340,8 +318,8 @@ function FilterSheet({
                 {t("products.apply_filters")}
               </Button>
             </div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );
@@ -371,23 +349,21 @@ export default function ProductViewList() {
 
   const [showDesktopFilters, setShowDesktopFilters] = useState(false);
 
-  const [categories, setCategories] = useState([]);
-
-  const [collections, setCollections] = useState([]);
+  const [families, setFamilies] = useState([]);
 
   useEffect(() => {
-    getCategories()
+    getFamilies()
       .then((response) => {
-        setCategories(flattenCategories(response?.data?.categories || []));
-      })
-      .catch(() => {});
-
-    getCollections()
-      .then((response) => {
-        setCollections(response?.data?.collections || []);
+        setFamilies(response?.data?.families || []);
       })
       .catch(() => {});
   }, []);
+
+  const subFamilies = useMemo(
+    () =>
+      families.find((family) => family.key === filters.family)?.subFamilies || [],
+    [families, filters.family],
+  );
 
   const searchDebounce = useRef(null);
 
@@ -451,10 +427,23 @@ export default function ProductViewList() {
   }, [queryParams]);
 
   const updateFilter = (key, value) => {
-    setFilters((previous) => ({
-      ...previous,
-      [key]: value,
-    }));
+    setFilters((previous) => {
+      if (key === "family") {
+        const availableSubFamilies =
+          families.find((family) => family.key === value)?.subFamilies || [];
+        const keepsSubFamily = availableSubFamilies.some(
+          (subFamily) => subFamily.key === previous.subFamily,
+        );
+
+        return {
+          ...previous,
+          family: value,
+          subFamily: keepsSubFamily ? previous.subFamily : "",
+        };
+      }
+
+      return { ...previous, [key]: value };
+    });
   };
 
   const clearFilters = () => {
@@ -575,7 +564,7 @@ export default function ProductViewList() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <motion.button
+                  <Motion.button
                     type="button"
                     whileTap={{ scale: 0.97 }}
                     transition={SPRING_DEFAULT}
@@ -599,9 +588,9 @@ export default function ProductViewList() {
                         {activeFilterCount}
                       </span>
                     )}
-                  </motion.button>
+                  </Motion.button>
 
-                  <motion.button
+                  <Motion.button
                     type="button"
                     whileTap={{ scale: 0.97 }}
                     transition={SPRING_DEFAULT}
@@ -625,7 +614,7 @@ export default function ProductViewList() {
                         {activeFilterCount}
                       </span>
                     )}
-                  </motion.button>
+                  </Motion.button>
 
                   <GlassIconButton
                     title={t("products.reset")}
@@ -640,7 +629,7 @@ export default function ProductViewList() {
               {/* Desktop filter panel */}
               <AnimatePresence initial={false}>
                 {showDesktopFilters && (
-                  <motion.div
+                  <Motion.div
                     initial={{
                       opacity: 0,
                       height: 0,
@@ -663,13 +652,13 @@ export default function ProductViewList() {
                     <div className="mt-3 border-t border-slate-100 pt-5">
                       <FilterContent
                         filters={filters}
-                        categories={categories}
-                        collections={collections}
+                        families={families}
+                        subFamilies={subFamilies}
                         updateFilter={updateFilter}
                         t={t}
                       />
                     </div>
-                  </motion.div>
+                  </Motion.div>
                 )}
               </AnimatePresence>
             </div>
@@ -725,7 +714,7 @@ export default function ProductViewList() {
                   length: 8,
                 }).map((_, index) => <ProductSkeleton key={index} />)
               : products.map((product, index) => (
-                  <motion.div
+                  <Motion.div
                     key={product._id}
                     initial={{
                       opacity: 0,
@@ -743,7 +732,7 @@ export default function ProductViewList() {
                     }}
                   >
                     <ProductCard product={product} />
-                  </motion.div>
+                  </Motion.div>
                 ))}
           </div>
 
@@ -776,7 +765,7 @@ export default function ProductViewList() {
           ===================================================== */}
           {products.length > 0 && (
             <div className="mx-auto mt-12 max-w-7xl">
-              <motion.div
+              <Motion.div
                 whileTap={{ scale: 0.985 }}
                 transition={SPRING_DEFAULT}
               >
@@ -805,7 +794,7 @@ export default function ProductViewList() {
                       ? t("products.load_more")
                       : t("products.no_more_products")}
                 </Button>
-              </motion.div>
+              </Motion.div>
             </div>
           )}
         </div>
@@ -814,8 +803,8 @@ export default function ProductViewList() {
           open={showFilterDrawer}
           onClose={() => setShowFilterDrawer(false)}
           filters={filters}
-          categories={categories}
-          collections={collections}
+          families={families}
+          subFamilies={subFamilies}
           updateFilter={updateFilter}
           clearFilters={clearFilters}
           t={t}

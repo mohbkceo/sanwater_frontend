@@ -23,7 +23,14 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // JSX component references are not marked as reads without the full
+      // eslint-plugin-react package. Keep the existing uppercase convention,
+      // include the project's Framer Motion namespace, and cover component
+      // aliases destructured from props.
+      'no-unused-vars': ['error', {
+        varsIgnorePattern: '^(?:[A-Z_]|motion$)',
+        argsIgnorePattern: '^[A-Z_]',
+      }],
     },
   },
 ])

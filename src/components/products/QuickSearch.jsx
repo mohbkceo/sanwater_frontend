@@ -5,12 +5,12 @@ import { getProducts } from "@/services/products/productServices";
 import { PRODUCTS, PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
 import { useTranslation } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 import { MATERIALIZE_VARIANTS, SCRIM_VARIANTS, SPRING_SNAPPY, REDUCED_MOTION_TRANSITION } from "@/lib/springs";
 
 // Navbar quick-search: debounced, top few results as suggestions, with a
 // link to the full filtered listing for everything else. Products only
-// (categories/collections/blog search is out of scope for this pass).
+// (broader site-wide content search is outside this component).
 export default function QuickSearch({ onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ export default function QuickSearch({ onClose }) {
   };
 
   return (
-    <motion.div
+    <Motion.div
       variants={SCRIM_VARIANTS}
       initial="initial" animate="animate" exit="exit"
       transition={spring}
@@ -62,7 +62,7 @@ export default function QuickSearch({ onClose }) {
       onClick={onClose}
       onKeyDown={(e) => e.key === "Escape" && onClose()}
     >
-      <motion.div
+      <Motion.div
         variants={MATERIALIZE_VARIANTS}
         initial="initial" animate="animate" exit="exit"
         transition={spring}
@@ -80,9 +80,9 @@ export default function QuickSearch({ onClose }) {
             placeholder={t("nav.search_placeholder")}
             className="flex-1 outline-none text-sm"
           />
-          <motion.button whileTap={{ scale: 0.85 }} onClick={onClose} aria-label="Close" className="text-gray-400 hover:text-gray-700 shrink-0">
+          <Motion.button whileTap={{ scale: 0.85 }} onClick={onClose} aria-label="Close" className="text-gray-400 hover:text-gray-700 shrink-0">
             <X size={20} />
-          </motion.button>
+          </Motion.button>
         </div>
 
         <div className="max-h-96 overflow-y-auto">
@@ -95,7 +95,7 @@ export default function QuickSearch({ onClose }) {
           )}
 
           {results.map((product) => (
-            <motion.button
+            <Motion.button
               key={product._id}
               whileTap={{ scale: 0.98, backgroundColor: "rgba(0,0,0,0.03)" }}
               onClick={() => {
@@ -118,20 +118,20 @@ export default function QuickSearch({ onClose }) {
               {product.prices?.productPrice > 0 && (
                 <div className="text-sm font-bold text-[#0050A4] shrink-0">{formatPrice(product.prices.productPrice)} DA</div>
               )}
-            </motion.button>
+            </Motion.button>
           ))}
 
           {results.length > 0 && (
-            <motion.button
+            <Motion.button
               whileTap={{ scale: 0.98 }}
               onClick={goToFullResults}
               className="w-full px-4 py-3 text-sm font-semibold text-[#0050A4] hover:bg-gray-50 text-center"
             >
               {t("products.view_details")} →
-            </motion.button>
+            </Motion.button>
           )}
         </div>
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   );
 }

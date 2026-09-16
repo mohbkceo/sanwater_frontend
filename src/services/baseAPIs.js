@@ -26,13 +26,8 @@ const newsAPI = axios.create({
     withCredentials: true
 })
 
-const categoryAPI = axios.create({
-    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/categories`,
-    withCredentials: true
-})
-
-const collectionAPI = axios.create({
-    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/collections`,
+const familyAPI = axios.create({
+    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/families`,
     withCredentials: true
 })
 
@@ -46,9 +41,9 @@ const leadAPI = axios.create({
     withCredentials: true
 })
 
-export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI, leadAPI } ;
+export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quotationAPI, leadAPI } ;
 
-const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, categoryAPI, collectionAPI, quotationAPI, leadAPI];
+const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quotationAPI, leadAPI];
 
 // Read the CSRF double-submit cookie (server: middlewares/authentication/csrf.js)
 // and echo it back as a header on state-changing requests — the server

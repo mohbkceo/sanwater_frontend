@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import GoBacKButton from "@/components/shared_uis/gobackbutton";
 import MainLayout from "@/layouts/MainLayout";
 import { useEffect, useRef, useState } from "react";
@@ -387,7 +388,7 @@ export default function About() {
               "
             >
               <span className="h-2 w-2 rounded-full bg-blue-500" />
-              SANWATER
+              SAN WATER
             </div>
           </div>
 
@@ -602,7 +603,7 @@ export default function About() {
 
                   <p className="text-sm leading-7 text-slate-500 sm:text-base sm:leading-8">
                     <strong className="font-semibold text-slate-800">
-                      SANWATER
+                      SAN WATER
                     </strong>
                     , fondée en 2011 à Dar El Beida (Alger), est spécialisée
                     dans les accessoires sanitaires et les solutions pour salle

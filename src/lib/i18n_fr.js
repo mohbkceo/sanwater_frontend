@@ -32,7 +32,7 @@ export const fr = {
     badge: "QUI SOMMES-NOUS?",
     title: "Solutions sanitaires de qualité depuis 2011",
     description:
-      "SANWATER, fondée en 2011 à Dar El Beida (Alger), est spécialisée dans les accessoires sanitaires et les solutions pour salle de bains. La marque propose des produits de qualité à prix compétitifs, avec une large gamme de modèles, en suivant les tendances internationales.",
+      "SAN WATER, fondée en 2011 à Dar El Beida (Alger), est spécialisée dans les accessoires sanitaires et les solutions pour salle de bains. La marque propose des produits de qualité à prix compétitifs, avec une large gamme de modèles, en suivant les tendances internationales.",
     years_experience: "ANNÉES D'EXPÉRIENCE",
     quality_freshness: "QUALITÉ & FRAÎCHEUR",
     experience_desc: "Une décennie et demie de savoir-faire",
@@ -46,6 +46,9 @@ export const fr = {
     advanced_filters: "Filtres avancés",
     reset: "Réinitialiser",
     family: "Famille",
+    all_families: "Toutes les familles",
+    sub_family: "Sous-famille",
+    all_sub_families: "Toutes les sous-familles",
     min_price: "Prix minimum",
     max_price: "Prix maximum",
     availability: "Disponibilité",
@@ -70,10 +73,6 @@ export const fr = {
     no_image: "Pas d'image",
     serial: "Numéro de série:",
     read_more: "Lire plus",
-    category: "Catégorie",
-    all_categories: "Toutes les catégories",
-    collection: "Collection",
-    all_collections: "Toutes les collections",
     filters: "Filtres",
     clear_filters: "Réinitialiser les filtres",
     apply_filters: "Appliquer les filtres",
@@ -159,8 +158,7 @@ export const fr = {
   hiring: {
     join_our_team: "Rejoignez notre équipe",
     careers_at_sanwater: "Carrières chez San Water",
-    hero_title:
-      "Rejoignez une équipe qui façonne l’avenir de la gestion de l’eau.",
+    hero_title: "Rejoignez une équipe qui façonne l’avenir de San Water",
     hero_description:
       "Découvrez les postes ouverts, explorez notre culture d’entreprise et trouvez un rôle où vos compétences auront un impact concret.",
     view_open_roles: "Envoyez-nous votre CV",

@@ -12,7 +12,6 @@ import { useTranslation } from "@/lib/i18n.jsx";
 
 import { PRODUCTS, PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
 
-import { formatPrice } from "@/lib/utils";
 
 import { REDUCED_MOTION_TRANSITION, SPRING_DEFAULT } from "@/lib/springs";
 

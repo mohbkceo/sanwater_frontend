@@ -8,13 +8,13 @@ import {
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion as Motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components";
 
 import { PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
 
-import { formatPrice, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/hooks/useCompare";
@@ -27,7 +27,7 @@ import { REDUCED_MOTION_TRANSITION, SPRING_DEFAULT } from "@/lib/springs";
 
 function GlassAction({ active, onClick, title, children }) {
   return (
-    <motion.button
+    <Motion.button
       type="button"
       title={title}
       aria-label={title}
@@ -49,7 +49,7 @@ function GlassAction({ active, onClick, title, children }) {
       )}
     >
       {children}
-    </motion.button>
+    </Motion.button>
   );
 }
 
@@ -67,7 +67,7 @@ export default function ProductCard({ product }) {
     ? REDUCED_MOTION_TRANSITION
     : SPRING_DEFAULT;
 
-  const { name, gallery, tags, family, productId, serialNumber, prices } =
+  const { name, gallery, tags, family, productId, serialNumber } =
     product;
 
   const image = gallery?.[0];
@@ -97,7 +97,7 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <motion.article
+    <Motion.article
       layout
       whileHover={prefersReducedMotion ? undefined : { y: -3 }}
       transition={spring}
@@ -176,7 +176,7 @@ export default function ProductCard({ product }) {
           Content
       ======================================================= */}
       <div className="flex min-h-[220px] flex-col p-4">
-        {/* Category / family */}
+        {/* Family */}
         <div className="flex min-w-0 items-center justify-between gap-3">
           {family ? (
             <div className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-slate-500">
@@ -254,6 +254,6 @@ export default function ProductCard({ product }) {
           </Button>
         </div>
       </div>
-    </motion.article>
+    </Motion.article>
   );
 }
