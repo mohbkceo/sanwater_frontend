@@ -143,8 +143,8 @@ function FilterContent({ filters, families, subFamilies, updateFilter, t }) {
           <option value="">{t("products.all_families")}</option>
 
           {families.map((family) => (
-            <option key={family.key} value={family.key}>
-              {family.displayName}
+            <option key={family._id} value={family.slug}>
+              {family.name}
             </option>
           ))}
         </FilterSelect>
@@ -159,8 +159,8 @@ function FilterContent({ filters, families, subFamilies, updateFilter, t }) {
           <option value="">{t("products.all_sub_families")}</option>
 
           {subFamilies.map((subFamily) => (
-            <option key={subFamily.key} value={subFamily.key}>
-              {subFamily.displayName}
+            <option key={subFamily._id} value={subFamily.slug}>
+              {subFamily.name}
             </option>
           ))}
         </FilterSelect>
@@ -361,7 +361,7 @@ export default function ProductViewList() {
 
   const subFamilies = useMemo(
     () =>
-      families.find((family) => family.key === filters.family)?.subFamilies || [],
+      families.find((family) => family.slug === filters.family)?.subFamilies || [],
     [families, filters.family],
   );
 
@@ -430,9 +430,9 @@ export default function ProductViewList() {
     setFilters((previous) => {
       if (key === "family") {
         const availableSubFamilies =
-          families.find((family) => family.key === value)?.subFamilies || [];
+          families.find((family) => family.slug === value)?.subFamilies || [];
         const keepsSubFamily = availableSubFamilies.some(
-          (subFamily) => subFamily.key === previous.subFamily,
+          (subFamily) => subFamily.slug === previous.subFamily,
         );
 
         return {

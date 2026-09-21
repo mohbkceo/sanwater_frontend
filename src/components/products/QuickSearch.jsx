@@ -113,7 +113,7 @@ export default function QuickSearch({ onClose }) {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-gray-900 truncate">{product.name}</div>
-                <div className="text-xs text-gray-500 truncate">{product.family}</div>
+                <div className="text-xs text-gray-500 truncate">{product.family?.name}</div>
               </div>
               {product.prices?.productPrice > 0 && (
                 <div className="text-sm font-bold text-[#0050A4] shrink-0">{formatPrice(product.prices.productPrice)} DA</div>

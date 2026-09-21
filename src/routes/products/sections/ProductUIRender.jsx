@@ -37,7 +37,6 @@ import { useCompare } from "@/hooks/useCompare";
 import { useTranslation } from "@/lib/i18n";
 
 import { formatPrice } from "@/lib/utils";
-import { deriveSubFamily } from "@/utils/catalogFamilies";
 import {
   REDUCED_MOTION_TRANSITION,
   SCRIM_VARIANTS,
@@ -262,7 +261,7 @@ function ProductUIRender({ product }) {
               {product?.family && (
                 <>
                   <ChevronRight size={13} />
-                  <span className="truncate">{product.family}</span>
+                  <span className="truncate">{product.family.name}</span>
                 </>
               )}
 
@@ -427,12 +426,12 @@ function ProductUIRender({ product }) {
               {/* Derived catalog placement */}
               {product?.family && (
                 <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-blue-600">
-                  <span>{product.family}</span>
-                  {deriveSubFamily(product.productId).length === 2 && (
+                  <span>{product.family.name}</span>
+                  {product.subFamily?.name && (
                     <>
                       <span className="text-slate-300">•</span>
                       <span className="text-slate-400">
-                        {deriveSubFamily(product.productId)}
+                        {product.subFamily.name}
                       </span>
                     </>
                   )}
@@ -626,10 +625,10 @@ function ProductUIRender({ product }) {
                   </p>
                 )}
 
-                {deriveSubFamily(product?.productId).length === 2 && (
+                {product?.subFamily?.name && (
                   <p>
                     <span className="text-slate-500">Sub Family:</span>{" "}
-                    {deriveSubFamily(product.productId)}
+                    {product.subFamily.name}
                   </p>
                 )}
               </div>

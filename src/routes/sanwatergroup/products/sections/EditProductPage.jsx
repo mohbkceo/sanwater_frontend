@@ -30,7 +30,7 @@ function EditProductPage() {
   async function searchProduct(serialNumber) {
     setLoading(true);
     try {
-        const result = await getProduct(serialNumber);
+        const result = await getProduct(serialNumber, { isAdmin: true });
         setProduct(result.data);
     } catch (error) {
         console.log(error)

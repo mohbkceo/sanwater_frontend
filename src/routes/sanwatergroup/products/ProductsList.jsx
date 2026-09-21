@@ -18,6 +18,7 @@ export default function ProductsPage() {
   const [families, setFamilies] = useState([]);
   const [family, setFamily] = useState("");
   const [subFamily, setSubFamily] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.PRODUCTS.MANAGE);
@@ -36,28 +37,26 @@ export default function ProductsPage() {
   }, []);
 
   const subFamilies = useMemo(
-    () => families.find((entry) => entry.key === family)?.subFamilies || [],
+    () => families.find((entry) => entry.slug === family)?.subFamilies || [],
     [families, family],
   );
 
   function handleFamilyChange(value) {
     setFamily(value);
     setSubFamily((current) =>
-      (families.find((entry) => entry.key === value)?.subFamilies || []).some(
-        (entry) => entry.key === current,
+      (families.find((entry) => entry.slug === value)?.subFamilies || []).some(
+        (entry) => entry.slug === current,
       )
         ? current
         : "",
     );
   }
-  async function handleDelete(serialNumber) {
+  async function handleDelete() {
+    if (!pendingDelete) return;
     try {
-      const confirmed = window.confirm(
-        "Are you sure you want to delete this product?",
-      );
-      if (!confirmed) return;
-      await deleteProduct(serialNumber);
+      await deleteProduct(pendingDelete.serialNumber);
       toast.success("Product deleted successfully");
+      setPendingDelete(null);
       loadProducts();
     } catch (error) {
       console.error(error);
@@ -143,7 +142,7 @@ export default function ProductsPage() {
               >
                 <option value="">All Families</option>
                 {families.map((entry) => (
-                  <option key={entry.key} value={entry.key}>{entry.displayName}</option>
+                  <option key={entry._id} value={entry.slug}>{entry.name}</option>
                 ))}
               </select>
               <select
@@ -155,7 +154,7 @@ export default function ProductsPage() {
               >
                 <option value="">All Sub Families</option>
                 {subFamilies.map((entry) => (
-                  <option key={entry.key} value={entry.key}>{entry.displayName}</option>
+                  <option key={entry._id} value={entry.slug}>{entry.name}</option>
                 ))}
               </select>
               {/* Ecommerce filter */}{" "}
@@ -228,7 +227,7 @@ export default function ProductsPage() {
                 {" "}
                 <ProductCard
                   product={product}
-                  onDelete={() => handleDelete(product.serialNumber)}
+                  onDelete={() => setPendingDelete(product)}
                   onToggleActive={handleToggleActive}
                   canManage={canManage}
                 />{" "}
@@ -242,6 +241,18 @@ export default function ProductsPage() {
           </div>
         )}{" "}
       </div>{" "}
+      {pendingDelete && (
+        <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-semibold text-slate-950">Delete Product</h2>
+            <p className="mt-2 text-sm text-slate-600">You are about to permanently delete <strong>{pendingDelete.name || pendingDelete.productId}</strong>. This action cannot be undone.</p>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setPendingDelete(null)}>Cancel</Button>
+              <Button type="button" onClick={handleDelete} className="bg-red-600 text-white hover:bg-red-700">Delete permanently</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

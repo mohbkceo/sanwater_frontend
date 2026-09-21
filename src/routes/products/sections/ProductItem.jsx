@@ -182,7 +182,7 @@ export default function ProductCard({ product }) {
             <div className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-slate-500">
               <TableCellsSplit size={13} className="shrink-0 text-blue-500" />
 
-              <span className="truncate">{family}</span>
+              <span className="truncate">{family.name}</span>
             </div>
           ) : (
             <span />

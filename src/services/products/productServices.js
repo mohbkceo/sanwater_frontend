@@ -11,8 +11,8 @@ export const getProducts = async (params = {}) => {
   return res.data;
 };
 
-export const getProduct = async (serialNumber) => {
-    const res = await productAPI.get(`/${serialNumber}`);
+export const getProduct = async (serialNumber, { isAdmin = false } = {}) => {
+    const res = await productAPI.get(`${isAdmin ? '/admin' : ''}/${serialNumber}`);
     return res.data;
 };
 

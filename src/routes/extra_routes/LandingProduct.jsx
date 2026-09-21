@@ -309,7 +309,7 @@ export default function ProductPage() {
           <ChevronLeft size={12} className="rotate-180" />
 
           <span className="truncate text-zinc-600">
-            {product.family || "Produits San Water"}
+            {product.family?.name || "Produits San Water"}
           </span>
         </div>
 
@@ -485,7 +485,7 @@ export default function ProductPage() {
             >
               <ProductInfo
                 label="Catégorie"
-                value={product.family || "Accessoires"}
+                value={product.family?.name || "Accessoires"}
               />
 
               <ProductInfo
@@ -549,7 +549,7 @@ export default function ProductPage() {
                     text-zinc-400
                   "
                 >
-                  {product.family || "San Water"}
+                  {product.family?.name || "San Water"}
                 </p>
 
                 <h1

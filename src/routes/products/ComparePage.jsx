@@ -11,7 +11,6 @@ import { PRODUCTS, PRODUCTVIEWDETAIL } from "@/configs/routes/routesConfig";
 import { useNavigate } from "react-router-dom";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { SPRING_DEFAULT } from "@/lib/springs";
-import { deriveSubFamily } from "@/utils/catalogFamilies";
 
 export default function ComparePage() {
   const { t } = useTranslation();
@@ -74,12 +73,12 @@ export default function ComparePage() {
     {
       key: "family",
       label: t("products.family"),
-      render: (p) => p.family || "—",
+      render: (p) => p.family?.name || "—",
     },
     {
       key: "subFamily",
       label: t("products.sub_family"),
-      render: (p) => deriveSubFamily(p.productId) || "—",
+      render: (p) => p.subFamily?.name || "—",
     },
     {
       key: "material",

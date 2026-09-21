@@ -71,7 +71,7 @@ function ProductCard({ product, index, t }) {
           {/* Family */}
           {product.family && (
             <div className="absolute left-4 top-4 rounded-full border border-white/70 bg-white/65 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-slate-700 backdrop-blur-2xl backdrop-saturate-150 shadow-xs">
-              {product.family}
+              {product.family.name}
             </div>
           )}
         </div>

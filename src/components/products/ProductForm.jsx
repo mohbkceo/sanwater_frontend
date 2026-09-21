@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   createProduct,
   updateProduct,
@@ -7,7 +7,7 @@ import ProductGalleryUpload from "./ProductGalleryUpload";
 import { Button } from "..";
 import { destroyImage } from "@/services/contents/imageHandler";
 import { toast } from "sonner";
-import { deriveSubFamily, normalizeFamilyKey } from "@/utils/catalogFamilies";
+import { getFamilies } from "@/services/products/familyServices";
 
 /* ---------------------------------------------------------
    Constants
@@ -259,7 +259,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       name: product?.name || "",
       serialNumber: product?.serialNumber || "",
       productId: product?.productId || "",
-      family: product?.family || "",
+      familyId: product?.family?._id || product?.subFamily?.family || "",
+      subFamily: product?.subFamily?._id || "",
 
       isEcommerce: product?.isEcommerce || false,
       isActive: product?.isActive ?? true,
@@ -331,9 +332,19 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
   const [gallery, setGallery] = useState(product?.gallery || []);
 
   const [loading, setLoading] = useState(false);
+  const [families, setFamilies] = useState([]);
+  const [taxonomyLoading, setTaxonomyLoading] = useState(true);
+  const availableSubFamilies = useMemo(
+    () => families.find((entry) => entry._id === formData.familyId)?.subFamilies || [],
+    [families, formData.familyId],
+  );
 
-  const derivedFamily = normalizeFamilyKey(formData.family);
-  const derivedSubFamily = deriveSubFamily(formData.productId);
+  useEffect(() => {
+    getFamilies({ isAdmin: true })
+      .then((response) => setFamilies(response?.data?.families || []))
+      .catch(() => toast.error('Failed to load catalog Families.'))
+      .finally(() => setTaxonomyLoading(false));
+  }, []);
 
   /* -------------------------------------------------------
      Form handlers
@@ -346,6 +357,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       ...prev,
 
       [name]: type === "checkbox" ? checked : value,
+
+      ...(name === 'familyId' ? { subFamily: '' } : {}),
 
       ...(name === "productPrice" || name === "shippingPrice"
         ? {
@@ -590,8 +603,10 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
     setLoading(true);
 
     try {
+      const productFields = { ...formData };
+      delete productFields.familyId;
       const payload = {
-        ...formData,
+        ...productFields,
 
         tags: formData.tags
           .split(",")
@@ -642,8 +657,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
         delete payload.slug;
       }
 
-      if (!payload.author) {
-        toast.error("Author is required.");
+      if (!payload.subFamily) {
+        toast.error("Select a Sub Family before saving.");
         return;
       }
 
@@ -839,39 +854,6 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                 </Field>
 
                 <Field
-                  label="Serie / Family"
-                  required
-                  description="Raw Family key used for automatic catalog placement."
-                >
-                  <Input
-                    name="family"
-                    required
-                    placeholder="e.g. SM"
-                    value={formData.family}
-                    onChange={handleChange}
-                  />
-                </Field>
-
-                <Field
-                  label="Author"
-                  required
-                  description={
-                    currentUserId
-                      ? "Assigned automatically from the current account."
-                      : "User or administrator responsible for this product."
-                  }
-                >
-                  <Input
-                    name="author"
-                    required
-                    readOnly={!!currentUserId}
-                    placeholder="User ID / Admin ID"
-                    value={formData.author}
-                    onChange={handleChange}
-                  />
-                </Field>
-
-                <Field
                   label="Tags"
                   description="Separate multiple values with commas."
                 >
@@ -969,36 +951,22 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             <Section
               eyebrow="03"
               title="Catalog placement"
-              description="Placement is derived automatically from Family and the first two Product ID characters."
+              description="Choose a Sub Family. The server securely inherits its parent Family; Product ID does not affect taxonomy."
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-600">
-                    Derived catalog placement
-                  </p>
+                <Field label="Family" required description="Filters the available Sub Families.">
+                  <Select name="familyId" required value={formData.familyId} onChange={handleChange} disabled={taxonomyLoading}>
+                    <option value="">{taxonomyLoading ? 'Loading Families…' : 'Select a Family'}</option>
+                    {families.map((family) => <option key={family._id} value={family._id}>{family.name}{!family.isActive ? ' (hidden)' : ''}</option>)}
+                  </Select>
+                </Field>
 
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl border border-white bg-white/80 px-4 py-3">
-                      <p className="text-xs font-medium text-slate-400">Family</p>
-                      <p className="mt-1 font-mono text-sm font-semibold text-slate-900">
-                        {derivedFamily || "Enter a Family key"}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl border border-white bg-white/80 px-4 py-3">
-                      <p className="text-xs font-medium text-slate-400">Sub Family</p>
-                      <p className="mt-1 font-mono text-sm font-semibold text-slate-900">
-                        {derivedSubFamily.length === 2
-                          ? derivedSubFamily
-                          : "Enter at least 2 Product ID characters"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="mt-3 text-xs leading-5 text-slate-500">
-                    Sub Family is read-only and recalculates immediately. Changing either source field moves the product automatically.
-                  </p>
-                </div>
+                <Field label="Sub Family" required description="This is the authoritative product assignment.">
+                  <Select name="subFamily" required value={formData.subFamily} onChange={handleChange} disabled={!formData.familyId || taxonomyLoading}>
+                    <option value="">Select a Sub Family</option>
+                    {availableSubFamilies.map((subFamily) => <option key={subFamily._id} value={subFamily._id}>{subFamily.name}{!subFamily.isActive ? ' (hidden)' : ''}</option>)}
+                  </Select>
+                </Field>
 
                 <Field
                   label="Publication status"

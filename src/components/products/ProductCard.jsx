@@ -142,7 +142,7 @@ export default function ProductCard({
                 backdrop-blur-xl
               "
             >
-              {product.family}
+              {product.family.name}
             </span>
           )}
 

@@ -42,7 +42,7 @@ const navSections = [
         permission: PERMISSIONS.PRODUCTS.VIEW,
       },
       {
-        name: "Families Control",
+        name: "Families",
         icon: FolderTree,
         path: SANWATERGROUPROUTES.products.families.control.fullPath,
         permission: PERMISSIONS.PRODUCTS.VIEW,
