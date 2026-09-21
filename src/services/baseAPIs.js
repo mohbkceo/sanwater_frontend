@@ -1,5 +1,6 @@
 import { errorAxiosInterceptor, unauthorizeErrorHandle } from "@/configs/errors/errorAxiosInteraptor";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+import { clearCsrfToken, ensureCsrfToken, isCsrfError, setCsrfToken } from "./csrfToken";
 import axios from "axios";
 
 
@@ -45,27 +46,35 @@ export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quot
 
 const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quotationAPI, leadAPI];
 
-// Read the CSRF double-submit cookie (server: middlewares/authentication/csrf.js)
-// and echo it back as a header on state-changing requests — the server
-// rejects POST/PUT/PATCH/DELETE under an admin session without a match.
-// Safe to attach on every instance: it's a no-op for public/unauthenticated
-// calls (no cookie, header omitted) and for GET requests (not checked).
-function readCookie(name) {
-    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-    return match ? decodeURIComponent(match[1]) : null;
-}
-
-allAPIs.forEach(api => api.interceptors.request.use(config => {
+// In production the frontend and API use different hosts, so the API's
+// host-only CSRF cookie is intentionally invisible to document.cookie on the
+// frontend. Fetch the matching nonce from the API and echo it in the header.
+allAPIs.forEach(api => api.interceptors.request.use(async config => {
     if (config.method && !['get', 'head', 'options'].includes(config.method)) {
-        const csrfToken = readCookie('csrf_token');
-        if (csrfToken) config.headers['X-CSRF-Token'] = csrfToken;
+        const csrfToken = await ensureCsrfToken();
+        config.headers['X-CSRF-Token'] = csrfToken;
     }
     return config;
 }))
 
-allAPIs.forEach(api => api.interceptors.response.use(res => res,
+allAPIs.forEach(api => api.interceptors.response.use(res => {
+    setCsrfToken(res.data?.csrfToken);
+    return res;
+},
     async (error) => {
-        await unauthorizeErrorHandle(api, error, SANWATERGROUPROUTES.auth.login.fullPath)
+        if (isCsrfError(error) && error.config && !error.config._csrfRetry) {
+            error.config._csrfRetry = true;
+            clearCsrfToken();
+            try {
+                await ensureCsrfToken();
+                return api(error.config);
+            } catch {
+                // Fall through to the normal API error handling below.
+            }
+        }
+
+        const retriedResponse = await unauthorizeErrorHandle(api, error, SANWATERGROUPROUTES.auth.login.fullPath)
+        if (retriedResponse) return retriedResponse;
         const apiPath = error.config?.baseURL?.substring(import.meta.env.VITE_BACK_END_BASE_URL.length)
         return errorAxiosInterceptor(error, apiPath);
     }

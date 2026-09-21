@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { errorHandler } from "./errorHandler";
 import axios from "axios";
+import { clearCsrfToken, setCsrfToken } from "@/services/csrfToken";
 
 export async function errorAxiosInterceptor(error, apiEndPointName){
     let message;
@@ -60,10 +61,11 @@ export async function unauthorizeErrorHandle(axiosInstance, err, loginRoute) {
           const response = await axios.get(`${import.meta.env.VITE_BACK_END_BASE_URL}/user/auth/getaccesstoken/v1`, {
           withCredentials: true
           });
-          console.log(response)
+          setCsrfToken(response.data?.csrfToken);
           processQueue(null, response.statusText);
           return axiosInstance(originalRequest);
         } catch (refreshError) {
+          clearCsrfToken();
           processQueue(refreshError, null);
           window.location.href = loginRoute
           
@@ -72,4 +74,6 @@ export async function unauthorizeErrorHandle(axiosInstance, err, loginRoute) {
           isRefreshing = false;
         }
       }
+
+      return null;
 }

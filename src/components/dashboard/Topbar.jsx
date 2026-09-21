@@ -1,6 +1,30 @@
-import { Bell, Search, ChevronDown, Menu } from "lucide-react";
+import { useState } from "react";
+import { Bell, Search, ChevronDown, LogOut, Menu } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { logout_API } from "@/services/auth/sanwater_group.auth";
+import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 
 export default function Topbar({ onMenu }) {
+  const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+
+    setLoggingOut(true);
+    try {
+      await logout_API();
+      ["role", "permissions", "authKey", "public_id"].forEach((key) =>
+        localStorage.removeItem(key),
+      );
+      navigate(SANWATERGROUPROUTES.auth.login.fullPath, { replace: true });
+    } catch {
+      // The shared API interceptor already shows the server/network error.
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 px-4 pt-4 lg:px-6">
       <div
@@ -119,6 +143,19 @@ export default function Topbar({ onMenu }) {
             </div>
 
             <ChevronDown className="hidden h-4 w-4 text-slate-400 md:block" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            aria-label="Log out"
+            className="flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">
+              {loggingOut ? "Logging out..." : "Logout"}
+            </span>
           </button>
         </div>
       </div>
