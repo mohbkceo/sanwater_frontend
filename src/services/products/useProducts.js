@@ -7,6 +7,9 @@ export default function useProducts() {
 
   const [hasMore, setHasMore] = useState(true);
   const [nextLastId, setNextLastId] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const refetch = async (params = {}, append = false) => {
     try {
@@ -22,6 +25,9 @@ export default function useProducts() {
 
       setHasMore(data?.data?.hasMore ?? false);
       setNextLastId(data?.data?.nextLastId ?? null);
+      setPage(data?.data?.page ?? 1);
+      setTotalPages(data?.data?.totalPages ?? 1);
+      setTotalCount(data?.data?.totalCount ?? incomingProducts.length);
 
       return data;
     } catch (error) {
@@ -37,5 +43,8 @@ export default function useProducts() {
     refetch,
     hasMore,
     nextLastId,
+    page,
+    totalPages,
+    totalCount,
   };
 }

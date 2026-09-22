@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   createProduct,
   updateProduct,
@@ -7,7 +8,7 @@ import ProductGalleryUpload from "./ProductGalleryUpload";
 import { Button } from "..";
 import { destroyImage } from "@/services/contents/imageHandler";
 import { toast } from "sonner";
-import { getFamilies } from "@/services/products/familyServices";
+import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 
 /* ---------------------------------------------------------
    Constants
@@ -259,9 +260,6 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       name: product?.name || "",
       serialNumber: product?.serialNumber || "",
       productId: product?.productId || "",
-      familyId: product?.family?._id || product?.subFamily?.family || "",
-      subFamily: product?.subFamily?._id || "",
-
       isEcommerce: product?.isEcommerce || false,
       isActive: product?.isActive ?? true,
 
@@ -332,20 +330,6 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
   const [gallery, setGallery] = useState(product?.gallery || []);
 
   const [loading, setLoading] = useState(false);
-  const [families, setFamilies] = useState([]);
-  const [taxonomyLoading, setTaxonomyLoading] = useState(true);
-  const availableSubFamilies = useMemo(
-    () => families.find((entry) => entry._id === formData.familyId)?.subFamilies || [],
-    [families, formData.familyId],
-  );
-
-  useEffect(() => {
-    getFamilies({ isAdmin: true })
-      .then((response) => setFamilies(response?.data?.families || []))
-      .catch(() => toast.error('Failed to load catalog Families.'))
-      .finally(() => setTaxonomyLoading(false));
-  }, []);
-
   /* -------------------------------------------------------
      Form handlers
   ------------------------------------------------------- */
@@ -357,8 +341,6 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       ...prev,
 
       [name]: type === "checkbox" ? checked : value,
-
-      ...(name === 'familyId' ? { subFamily: '' } : {}),
 
       ...(name === "productPrice" || name === "shippingPrice"
         ? {
@@ -603,10 +585,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
     setLoading(true);
 
     try {
-      const productFields = { ...formData };
-      delete productFields.familyId;
       const payload = {
-        ...productFields,
+        ...formData,
 
         tags: formData.tags
           .split(",")
@@ -655,11 +635,6 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
       if (!payload.slug) {
         delete payload.slug;
-      }
-
-      if (!payload.subFamily) {
-        toast.error("Select a Sub Family before saving.");
-        return;
       }
 
       if (isEditMode) {
@@ -950,23 +925,19 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="03"
-              title="Catalog placement"
-              description="Choose a Sub Family. The server securely inherits its parent Family; Product ID does not affect taxonomy."
+              title="Classification"
+              description="Classification is managed from Families → Sub Families. Product ID never affects taxonomy."
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Field label="Family" required description="Filters the available Sub Families.">
-                  <Select name="familyId" required value={formData.familyId} onChange={handleChange} disabled={taxonomyLoading}>
-                    <option value="">{taxonomyLoading ? 'Loading Families…' : 'Select a Family'}</option>
-                    {families.map((family) => <option key={family._id} value={family._id}>{family.name}{!family.isActive ? ' (hidden)' : ''}</option>)}
-                  </Select>
-                </Field>
-
-                <Field label="Sub Family" required description="This is the authoritative product assignment.">
-                  <Select name="subFamily" required value={formData.subFamily} onChange={handleChange} disabled={!formData.familyId || taxonomyLoading}>
-                    <option value="">Select a Sub Family</option>
-                    {availableSubFamilies.map((subFamily) => <option key={subFamily._id} value={subFamily._id}>{subFamily.name}{!subFamily.isActive ? ' (hidden)' : ''}</option>)}
-                  </Select>
-                </Field>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Current assignment</p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div><p className="text-xs text-slate-400">Family</p><p className="mt-1 font-semibold text-slate-800">{product?.family?.name || 'Unassigned'}</p></div>
+                    <div><p className="text-xs text-slate-400">Sub Family</p><p className="mt-1 font-semibold text-slate-800">{product?.subFamily?.name || 'Unassigned'}</p></div>
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-slate-500">{isEditMode ? 'To assign or move this product, open the destination Sub Family.' : 'This product will be created unassigned. You can classify it later from a Sub Family.'}</p>
+                  <Link to={SANWATERGROUPROUTES.products.families.control.fullPath} className="mt-3 inline-flex h-9 items-center rounded-xl border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-700 hover:bg-blue-50">Manage assignment</Link>
+                </div>
 
                 <Field
                   label="Publication status"

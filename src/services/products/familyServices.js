@@ -41,3 +41,13 @@ export async function deleteSubFamily(id, { password, replacementSubFamilyId } =
   });
   return response.data;
 }
+
+export async function assignProductsToSubFamily(id, productIds) {
+  const response = await familyAPI.post(`/subfamilies/${id}/products`, { productIds });
+  return response.data;
+}
+
+export async function removeProductsFromSubFamily(id, productIds) {
+  const response = await familyAPI.delete(`/subfamilies/${id}/products`, { data: { productIds } });
+  return response.data;
+}

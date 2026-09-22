@@ -13,22 +13,23 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { PERMISSIONS } from "@/configs/permissions";
 import { getFamilies } from "@/services/products/familyServices";
 export default function ProductsPage() {
-  const { products, loading, refetch } = useProducts();
+  const { products, loading, refetch, totalPages, totalCount } = useProducts();
   const [isEcommerce, setIsEcommerce] = useState(false);
   const [families, setFamilies] = useState([]);
   const [family, setFamily] = useState("");
   const [subFamily, setSubFamily] = useState("");
+  const [page, setPage] = useState(1);
   const [pendingDelete, setPendingDelete] = useState(null);
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.PRODUCTS.MANAGE);
   const loadProducts = () => {
-    refetch({ isAdmin: true, isEcommerce, family, subFamily });
+    refetch({ isAdmin: true, isEcommerce, family, subFamily, page, limit: 24 });
   };
   useEffect(() => {
     loadProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEcommerce, family, subFamily]);
+  }, [isEcommerce, family, subFamily, page]);
 
   useEffect(() => {
     getFamilies({ isAdmin: true })
@@ -42,6 +43,7 @@ export default function ProductsPage() {
   );
 
   function handleFamilyChange(value) {
+    setPage(1);
     setFamily(value);
     setSubFamily((current) =>
       (families.find((entry) => entry.slug === value)?.subFamilies || []).some(
@@ -115,8 +117,8 @@ export default function ProductsPage() {
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />{" "}
                   <span className="text-xs font-medium text-slate-600">
                     {" "}
-                    {products.length}{" "}
-                    {products.length === 1 ? "product" : "products"}{" "}
+                    {totalCount}{" "}
+                    {totalCount === 1 ? "product" : "products"}{" "}
                   </span>{" "}
                 </div>{" "}
                 {isEcommerce && (
@@ -147,7 +149,7 @@ export default function ProductsPage() {
               </select>
               <select
                 value={subFamily}
-                onChange={(event) => setSubFamily(event.target.value)}
+                onChange={(event) => { setSubFamily(event.target.value); setPage(1); }}
                 aria-label="Filter by Sub Family"
                 disabled={!family}
                 className="h-10 rounded-xl border border-slate-200/70 bg-white/75 px-3 text-sm text-slate-700 outline-none focus:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
@@ -160,7 +162,7 @@ export default function ProductsPage() {
               {/* Ecommerce filter */}{" "}
               <button
                 type="button"
-                onClick={() => setIsEcommerce((current) => !current)}
+                onClick={() => { setIsEcommerce((current) => !current); setPage(1); }}
                 className={` group inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-3.5 text-sm font-medium transition ${isEcommerce ? ` border-blue-100 bg-blue-50 text-blue-700 ` : ` border-slate-200/70 bg-white/75 text-slate-600 hover:border-blue-100 hover:bg-blue-50/60 hover:text-blue-700 `} `}
               >
                 {" "}
@@ -240,6 +242,7 @@ export default function ProductsPage() {
             <ProductNotFound />{" "}
           </div>
         )}{" "}
+        {totalPages > 1 && <div className="mt-7 flex items-center justify-center gap-3"><Button type="button" variant="outline" disabled={page <= 1 || loading} onClick={() => setPage((current) => current - 1)}>Previous</Button><span className="text-xs font-medium text-slate-500">Page {page} of {totalPages}</span><Button type="button" variant="outline" disabled={page >= totalPages || loading} onClick={() => setPage((current) => current + 1)}>Next</Button></div>}
       </div>{" "}
       {pendingDelete && (
         <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
