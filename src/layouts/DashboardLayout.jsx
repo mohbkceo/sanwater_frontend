@@ -1,13 +1,19 @@
 import { Topbar, Sidebar } from "@/components";
 import { Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
+import { useLegacyAdminTranslations } from "@/lib/useLegacyAdminTranslations";
 
 
 export default function DashboardLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { direction, t } = useTranslation();
+  const dashboardRef = useRef(null);
+  useLegacyAdminTranslations(dashboardRef);
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div ref={dashboardRef} dir={direction} className="flex h-screen bg-gray-50">
       <Sidebar />
 
       <div className="flex flex-col flex-1">
@@ -17,7 +23,7 @@ export default function DashboardLayout() {
           <Outlet />
         </main>
       </div>
-      {mobileNavOpen && <div className="fixed inset-0 z-[70] bg-slate-950/40 p-3 backdrop-blur-sm lg:hidden" onMouseDown={() => setMobileNavOpen(false)}><div className="h-full w-[min(88vw,320px)] overflow-y-auto rounded-3xl bg-[#f6f9ff] p-2 shadow-2xl" onMouseDown={(event) => event.stopPropagation()}><div className="flex justify-end p-2"><button type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" className="rounded-xl border bg-white p-2"><X className="h-4 w-4" /></button></div><Sidebar mobile onNavigate={() => setMobileNavOpen(false)} /></div></div>}
+      {mobileNavOpen && <div className="fixed inset-0 z-[70] bg-slate-950/40 p-3 backdrop-blur-sm lg:hidden" onMouseDown={() => setMobileNavOpen(false)}><div className="h-full w-[min(88vw,320px)] overflow-y-auto rounded-3xl bg-[#f6f9ff] p-2 shadow-2xl" onMouseDown={(event) => event.stopPropagation()}><div className="flex justify-end p-2"><button type="button" onClick={() => setMobileNavOpen(false)} aria-label={t("admin.shell.close_navigation")} className="rounded-xl border bg-white p-2"><X className="h-4 w-4" /></button></div><Sidebar mobile onNavigate={() => setMobileNavOpen(false)} /></div></div>}
     </div>
   );
 }

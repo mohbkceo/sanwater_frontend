@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "@/lib/i18n";
 
 function isoDate(date) {
   const copy = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
@@ -6,6 +7,7 @@ function isoDate(date) {
 }
 
 function DateFilter({ filters, setFilters }) {
+  const { t } = useTranslation();
   const applyPreset = (days) => {
     const to = new Date();
     const from = new Date();
@@ -16,17 +18,17 @@ function DateFilter({ filters, setFilters }) {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Quick range</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">{t("admin.analytics.quick_range")}</p>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => applyPreset(1)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">Today</button>
-          <button type="button" onClick={() => applyPreset(7)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">Last 7 days</button>
-          <button type="button" onClick={() => applyPreset(30)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">Last 30 days</button>
+          <button type="button" onClick={() => applyPreset(1)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">{t("admin.analytics.today")}</button>
+          <button type="button" onClick={() => applyPreset(7)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">{t("admin.analytics.last_7_days")}</button>
+          <button type="button" onClick={() => applyPreset(30)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">{t("admin.analytics.last_30_days")}</button>
         </div>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
       <div className="flex-1">
         <label className="mb-2 block text-xs font-semibold text-slate-600">
-          From
+          {t("admin.analytics.from")}
         </label>
         <input
           type="date"
@@ -40,7 +42,7 @@ function DateFilter({ filters, setFilters }) {
 
       <div className="flex-1">
         <label className="mb-2 block text-xs font-semibold text-slate-600">
-          To
+          {t("admin.analytics.to")}
         </label>
         <input
           type="date"

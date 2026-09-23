@@ -3,29 +3,31 @@ import { Users } from "lucide-react";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 import { usePermissions } from "@/hooks/usePermissions";
 import { PERMISSIONS } from "@/configs/permissions";
+import { useTranslation } from "@/lib/i18n";
 
 
 
 function Settings() {
   const { can } = usePermissions();
+  const { t } = useTranslation();
 
   const settingsContents = [
     {
       id: 1,
-      label: "Managing Admins",
+      label: t("admin.settings.managing_admins"),
       path: SANWATERGROUPROUTES.settings.children.manage_users.subPath,
-      description: "Control admin accounts and permissions.",
+      description: t("admin.settings.managing_admins_description"),
       icon: Users,
       permission: PERMISSIONS.USERS.VIEW,
     },
     {
       id: 2,
-      label: "Add Users",
+      label: t("admin.settings.add_users"),
       // Creating an admin account now runs through the caller's own
       // authenticated session (see routes/sanwatergroup/main.jsx) rather
       // than the old "?auth_key=" invite-link workaround.
       path: SANWATERGROUPROUTES.auth.register.fullPath,
-      description: "Create a new admin account.",
+      description: t("admin.settings.add_users_description"),
       icon: Users,
       permission: PERMISSIONS.USERS.CREATE,
     },
@@ -45,11 +47,11 @@ function Settings() {
         
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-            Settings
+            {t("admin.settings.title")}
           </h1>
 
           <p className="mt-2 text-sm text-slate-600 md:text-base">
-            Manage system settings and account permissions.
+            {t("admin.settings.description")}
           </p>
         </div>
 
@@ -80,7 +82,7 @@ function Settings() {
                 <div className="mt-5 h-px w-full bg-slate-100" />
 
                 <div className="mt-4 text-sm font-medium text-slate-700 transition-colors group-hover:text-slate-950">
-                  Open section
+                  {t("admin.settings.open_section")}
                 </div>
               </a>
             );

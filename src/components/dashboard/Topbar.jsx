@@ -1,12 +1,54 @@
 import { useState } from "react";
-import { Bell, Search, ChevronDown, LogOut, Menu } from "lucide-react";
+import { Bell, Search, ChevronDown, LogOut, Menu, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { logout_API } from "@/services/auth/sanwater_group.auth";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+import { SUPPORTED_LANGUAGES, useTranslation } from "@/lib/i18n";
+
+const languageLabels = {
+  fr: "Français",
+  ar: "العربية",
+  en: "English",
+};
+
+function LanguageSelector() {
+  const { lang, setLang, t } = useTranslation();
+
+  return (
+    <label className="relative flex h-10 items-center rounded-xl border border-blue-100 bg-blue-50/70 text-slate-600 transition hover:border-blue-200 hover:bg-blue-50">
+      <Globe
+        aria-hidden="true"
+        className="pointer-events-none absolute start-3 h-4 w-4 text-blue-500"
+      />
+
+      <span className="sr-only">{t("admin.shell.language")}</span>
+
+      <select
+        value={lang}
+        onChange={(event) => setLang(event.target.value)}
+        aria-label={t("admin.shell.language")}
+        dir="ltr"
+        className="h-full w-[112px] cursor-pointer appearance-none bg-transparent ps-9 pe-7 text-xs font-semibold uppercase tracking-wide outline-none"
+      >
+        {SUPPORTED_LANGUAGES.map((language) => (
+          <option key={language} value={language}>
+            {languageLabels[language]}
+          </option>
+        ))}
+      </select>
+
+      <ChevronDown
+        aria-hidden="true"
+        className="pointer-events-none absolute end-2.5 h-3.5 w-3.5 text-slate-400"
+      />
+    </label>
+  );
+}
 
 export default function Topbar({ onMenu }) {
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     if (loggingOut) return;
@@ -40,7 +82,7 @@ export default function Topbar({ onMenu }) {
         "
       >
         {/* Brand */}
-        <button type="button" onClick={onMenu} aria-label="Open navigation" className="mr-2 grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-600 hover:bg-blue-50 lg:hidden"><Menu className="h-5 w-5" /></button>
+        <button type="button" onClick={onMenu} aria-label={t("admin.shell.open_navigation")} className="me-2 grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-600 hover:bg-blue-50 lg:hidden"><Menu className="h-5 w-5" /></button>
         <div className="hidden w-64 shrink-0 items-center px-2 sm:flex lg:px-3">
           <img
             src="/logo.svg"
@@ -69,12 +111,12 @@ export default function Topbar({ onMenu }) {
             <Search className="h-4 w-4 shrink-0 text-blue-500" />
 
             <span className="truncate">
-              Search products, quotations, users...
+              {t("admin.shell.search_placeholder")}
             </span>
 
             <span
               className="
-                ml-auto hidden
+                ms-auto hidden
                 rounded-md
                 border border-blue-100
                 bg-white/80
@@ -91,7 +133,7 @@ export default function Topbar({ onMenu }) {
         </div>
 
         {/* Right actions */}
-        <div className="ml-3 flex items-center gap-2">
+        <div className="ms-3 flex items-center gap-2">
           <button
             className="
               relative
@@ -107,7 +149,7 @@ export default function Topbar({ onMenu }) {
 
             <span
               className="
-                absolute right-2 top-2
+                absolute end-2 top-2
                 h-1.5 w-1.5
                 rounded-full
                 bg-blue-600
@@ -136,8 +178,8 @@ export default function Topbar({ onMenu }) {
               SW
             </div>
 
-            <div className="hidden text-left md:block">
-              <p className="text-xs font-semibold text-slate-800">Admin</p>
+            <div className="hidden text-start md:block">
+              <p className="text-xs font-semibold text-slate-800">{t("admin.shell.admin")}</p>
 
               <p className="text-[11px] text-slate-400">San Water Group</p>
             </div>
@@ -145,16 +187,18 @@ export default function Topbar({ onMenu }) {
             <ChevronDown className="hidden h-4 w-4 text-slate-400 md:block" />
           </button>
 
+          <LanguageSelector />
+
           <button
             type="button"
             onClick={handleLogout}
             disabled={loggingOut}
-            aria-label="Log out"
+            aria-label={t("admin.shell.logout")}
             className="flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">
-              {loggingOut ? "Logging out..." : "Logout"}
+              {loggingOut ? t("admin.shell.logging_out") : t("admin.shell.logout")}
             </span>
           </button>
         </div>

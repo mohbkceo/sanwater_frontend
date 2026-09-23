@@ -2,9 +2,11 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { fr } from "./i18n_fr";
 import { ar } from "./i18n_ar";
+import { adminTranslations } from "./i18n_admin";
 
 const translations = {
   en: {
+    admin: adminTranslations.en,
     nav: {
       products: "Products",
       about: "About",
@@ -250,20 +252,32 @@ const translations = {
       all_rights_reserved: "All rights reserved.",
     },
   },
-  fr: fr,
-  ar: ar,
+  fr: { ...fr, admin: adminTranslations.fr },
+  ar: { ...ar, admin: adminTranslations.ar },
+};
+
+export const SUPPORTED_LANGUAGES = ["fr", "ar", "en"];
+
+export const getLanguageDirection = (language) =>
+  language === "ar" ? "rtl" : "ltr";
+
+const getInitialLanguage = () => {
+  const storedLanguage = localStorage.getItem("lang");
+
+  return SUPPORTED_LANGUAGES.includes(storedLanguage) ? storedLanguage : "fr";
 };
 
 const I18nContext = createContext();
 
 export function I18nProvider({ children }) {
-  const [lang, setLang] = useState(localStorage.getItem("lang") || "fr");
+  const [lang, setLang] = useState(getInitialLanguage);
+  const direction = getLanguageDirection(lang);
 
   useEffect(() => {
     localStorage.setItem("lang", lang);
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = direction;
     document.documentElement.lang = lang;
-  }, [lang]);
+  }, [lang, direction]);
 
   // `vars` fills {{placeholders}} in the translation string (e.g.
   // t('hiring.roles_available', { count: 3 })). Several existing strings
@@ -277,6 +291,12 @@ export function I18nProvider({ children }) {
     for (const key of keys) {
       if (result) result = result[key];
     }
+    if (typeof result !== "string" && lang !== "en") {
+      result = translations.en;
+      for (const key of keys) {
+        if (result) result = result[key];
+      }
+    }
     if (typeof result !== "string") return result || path;
     if (!vars) return result;
     return result.replace(/\{\{(\w+)\}\}/g, (match, key) =>
@@ -285,7 +305,7 @@ export function I18nProvider({ children }) {
   };
 
   return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>
+    <I18nContext.Provider value={{ lang, setLang, t, direction }}>
       {children}
     </I18nContext.Provider>
   );

@@ -4,9 +4,11 @@ import { Header } from '@/components';
 import { Mail, CheckCircle, Archive, Trash2, Square, CheckSquare } from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PERMISSIONS } from '@/configs/permissions';
+import { useTranslation } from '@/lib/i18n';
 
 function ContactSubmissions() {
   const { can } = usePermissions();
+  const { t } = useTranslation();
   const canManage = can(PERMISSIONS.SUBMISSIONS.MANAGE);
 
   const [submissions, setSubmissions] = useState([]);
@@ -54,7 +56,7 @@ function ContactSubmissions() {
   };
 
   const handleDeleteOne = async (id) => {
-    const ok = window.confirm('Delete this submission?');
+    const ok = window.confirm(t('admin.submissions.delete_one_confirm'));
     if (!ok) return;
 
     try {
@@ -69,7 +71,7 @@ function ContactSubmissions() {
   const handleDeleteSelected = async () => {
     if (selectedIds.length === 0) return;
 
-    const ok = window.confirm(`Delete ${selectedIds.length} selected submissions?`);
+    const ok = window.confirm(t('admin.submissions.delete_many_confirm', { count: selectedIds.length }));
     if (!ok) return;
 
     try {
@@ -86,7 +88,7 @@ function ContactSubmissions() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Header title="Contact Submissions" />
+      <Header title={t('admin.submissions.title')} />
 
       {canManage && submissions.length > 0 && (
         <div className="flex items-center justify-between bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
@@ -95,7 +97,7 @@ function ContactSubmissions() {
             className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
           >
             {allSelected ? <CheckSquare size={18} /> : <Square size={18} />}
-            {allSelected ? 'Unselect all' : 'Select all'}
+            {allSelected ? t('admin.submissions.unselect_all') : t('admin.submissions.select_all')}
           </button>
 
           <button
@@ -104,17 +106,17 @@ function ContactSubmissions() {
             className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-red-700"
           >
             <Trash2 size={16} />
-            Delete selected ({selectedIds.length})
+            {t('admin.submissions.delete_selected', { count: selectedIds.length })}
           </button>
         </div>
       )}
 
       <div className="grid gap-6">
         {loading ? (
-          <p className="text-gray-500">Loading submissions...</p>
+          <p className="text-gray-500">{t('admin.submissions.loading')}</p>
         ) : submissions.length === 0 ? (
           <div className="bg-white p-12 rounded-xl border border-dashed border-gray-200 text-center">
-            <p className="text-gray-400">No submissions found.</p>
+            <p className="text-gray-400">{t('admin.submissions.empty')}</p>
           </div>
         ) : (
           submissions.map((sub) => {
@@ -133,7 +135,7 @@ function ContactSubmissions() {
                       <button
                         onClick={() => toggleSelectOne(sub._id)}
                         className="mt-1 text-gray-500 hover:text-gray-900"
-                        title={isSelected ? 'Unselect' : 'Select'}
+                        title={isSelected ? t('admin.submissions.unselect') : t('admin.submissions.select')}
                       >
                         {isSelected ? <CheckSquare size={20} /> : <Square size={20} />}
                       </button>
@@ -145,10 +147,10 @@ function ContactSubmissions() {
 
                     <div>
                       <h3 className="text-lg font-bold text-gray-900">
-                        {sub.subject || 'No Subject'}
+                        {sub.subject || t('admin.submissions.no_subject')}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        From: <span className="font-medium text-gray-700">{sub.name}</span> ({sub.email})
+                        {t('admin.submissions.from')} <span className="font-medium text-gray-700">{sub.name}</span> ({sub.email})
                       </p>
                     </div>
                   </div>
@@ -162,7 +164,7 @@ function ContactSubmissions() {
                           ? 'bg-green-100 text-green-600'
                           : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                       }`}
-                      title={!canManage ? 'You do not have permission' : 'Mark as Read'}
+                      title={!canManage ? t('admin.common.permission_denied') : t('admin.submissions.mark_read')}
                     >
                       <CheckCircle size={18} />
                     </button>
@@ -175,7 +177,7 @@ function ContactSubmissions() {
                           ? 'bg-orange-100 text-orange-600'
                           : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                       }`}
-                      title={!canManage ? 'You do not have permission' : 'Archive'}
+                      title={!canManage ? t('admin.common.permission_denied') : t('admin.submissions.archive')}
                     >
                       <Archive size={18} />
                     </button>
@@ -184,7 +186,7 @@ function ContactSubmissions() {
                       onClick={() => handleDeleteOne(sub._id)}
                       disabled={!canManage}
                       className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                      title={!canManage ? 'You do not have permission' : 'Delete'}
+                      title={!canManage ? t('admin.common.permission_denied') : t('admin.common.delete')}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -198,7 +200,7 @@ function ContactSubmissions() {
                 </div>
 
                 <div className="mt-4 text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
-                  Received on {new Date(sub.createdAt).toLocaleString()}
+                  {t('admin.submissions.received_on', { date: new Date(sub.createdAt).toLocaleString() })}
                 </div>
               </div>
             );

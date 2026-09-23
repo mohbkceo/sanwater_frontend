@@ -1,6 +1,8 @@
 import { formatChange, formatNumber, formatRate } from "./analyticsFormatters";
+import { useTranslation } from "@/lib/i18n";
 
 export default function CommercialFunnel({ funnel, selectedStage, onSelectStage }) {
+  const { t } = useTranslation();
   const stages = funnel?.stages || [];
   return (
     <div className="space-y-4">
@@ -13,21 +15,23 @@ export default function CommercialFunnel({ funnel, selectedStage, onSelectStage 
             </div>
             <p className="mt-3 text-2xl font-bold text-slate-950">{formatNumber(stage.current)}</p>
             <p className="mt-2 text-xs text-slate-500">
-              {index === 0 ? "Unique visitor identities" : `${formatRate(stage.conversionRate)} from prior stage`}
+              {index === 0
+                ? t("admin.analytics.unique_visitors")
+                : t("admin.analytics.from_prior_stage", { value: formatRate(stage.conversionRate) })}
             </p>
-            {index > 0 && <p className="mt-1 text-[11px] text-slate-400">{formatRate(stage.dropOffRate)} drop-off</p>}
+            {index > 0 && <p className="mt-1 text-[11px] text-slate-400">{t("admin.analytics.drop_off", { value: formatRate(stage.dropOffRate) })}</p>}
           </button>
         ))}
       </div>
       {funnel?.biggestLeak && (
         <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-rose-700">Biggest conversion leak</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-rose-700">{t("admin.analytics.biggest_leak")}</p>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-lg font-bold text-slate-950">{funnel.biggestLeak.from} → {funnel.biggestLeak.to}</p>
-              <p className="mt-1 text-xs text-slate-600">{formatNumber(funnel.biggestLeak.lostEntities)} entities lost · minimum input safeguard {formatNumber(funnel.biggestLeak.minimumVolume)}</p>
+              <p className="mt-1 text-xs text-slate-600">{t("admin.analytics.entities_lost", { count: formatNumber(funnel.biggestLeak.lostEntities), minimum: formatNumber(funnel.biggestLeak.minimumVolume) })}</p>
             </div>
-            <p className="text-sm font-bold text-rose-700">{formatRate(funnel.biggestLeak.currentConversion)} now · {formatRate(funnel.biggestLeak.previousConversion)} previous</p>
+            <p className="text-sm font-bold text-rose-700">{t("admin.analytics.now_previous", { now: formatRate(funnel.biggestLeak.currentConversion), previous: formatRate(funnel.biggestLeak.previousConversion) })}</p>
           </div>
         </div>
       )}

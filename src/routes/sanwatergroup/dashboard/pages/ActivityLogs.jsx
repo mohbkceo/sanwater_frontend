@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { analyticsAPI } from '@/services/baseAPIs';
 import { Header } from '@/components';
+import { useTranslation } from '@/lib/i18n';
 
 const ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'MOVE', 'LOGIN', 'SECURITY'];
 const actionTone = {
@@ -60,6 +61,7 @@ function entityName(log) {
 }
 
 function ActivityLogs() {
+  const { t } = useTranslation();
   const [logs, setLogs] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [resources, setResources] = useState([]);
@@ -82,44 +84,44 @@ function ActivityLogs() {
       if (data.admins) setAdmins(data.admins);
       if (data.resources) setResources(data.resources);
     } catch (fetchError) {
-      setError(fetchError.response?.data?.message || 'Could not load activity logs.');
+      setError(fetchError.response?.data?.message || t('admin.activity.empty'));
     } finally {
       setLoading(false);
     }
-  }, [params]);
+  }, [params, t]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
   const updateFilter = (key, value) => { setPage(1); setFilters((current) => ({ ...current, [key]: value })); };
 
   return (
     <div className="flex flex-col gap-6">
-      <Header title="Admin Audit Trail" />
-      <section className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm" aria-label="Audit log filters">
+      <Header title={t('admin.activity.title')} />
+      <section className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm" aria-label={t('admin.activity.title')}>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <label className="text-xs font-medium text-gray-600">Admin
+          <label className="text-xs font-medium text-gray-600">{t('admin.activity.admin')}
             <select value={filters.userId} onChange={(event) => updateFilter('userId', event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
-              <option value="">All admins</option>{admins.map((admin) => <option key={admin._id} value={admin._id}>{admin.fullName || admin.email}</option>)}
+              <option value="">{t('admin.common.all_admins')}</option>{admins.map((admin) => <option key={admin._id} value={admin._id}>{admin.fullName || admin.email}</option>)}
             </select>
           </label>
-          <label className="text-xs font-medium text-gray-600">Action
+          <label className="text-xs font-medium text-gray-600">{t('admin.activity.action')}
             <select value={filters.action} onChange={(event) => updateFilter('action', event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
-              <option value="">All actions</option>{ACTIONS.map((action) => <option key={action}>{action}</option>)}
+              <option value="">{t('admin.common.all_actions')}</option>{ACTIONS.map((action) => <option key={action}>{action}</option>)}
             </select>
           </label>
-          <label className="text-xs font-medium text-gray-600">Resource
+          <label className="text-xs font-medium text-gray-600">{t('admin.activity.target')}
             <select value={filters.target} onChange={(event) => updateFilter('target', event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
-              <option value="">All resources</option>{resources.map((target) => <option key={target}>{target}</option>)}
+              <option value="">{t('admin.common.all_resources')}</option>{resources.map((target) => <option key={target}>{target}</option>)}
             </select>
           </label>
-          <label className="text-xs font-medium text-gray-600">From
+          <label className="text-xs font-medium text-gray-600">{t('admin.analytics.from')}
             <input type="date" value={filters.from} onChange={(event) => updateFilter('from', event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
           </label>
-          <label className="text-xs font-medium text-gray-600">To
+          <label className="text-xs font-medium text-gray-600">{t('admin.analytics.to')}
             <input type="date" value={filters.to} onChange={(event) => updateFilter('to', event.target.value)} className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
           </label>
         </div>
-        <label className="mt-3 block text-xs font-medium text-gray-600">Search
-          <input type="search" value={filters.search} onChange={(event) => updateFilter('search', event.target.value)} placeholder="Search activity, entity, or changed field" className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+        <label className="mt-3 block text-xs font-medium text-gray-600">{t('admin.common.search')}
+          <input type="search" value={filters.search} onChange={(event) => updateFilter('search', event.target.value)} placeholder={t('admin.activity.description')} className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
         </label>
       </section>
 
@@ -128,51 +130,51 @@ function ActivityLogs() {
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50"><tr>
-              {['Admin', 'Action', 'Resource', 'Activity', 'Changes', 'Date', 'View'].map((heading) => <th key={heading} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">{heading}</th>)}
+              {[t('admin.activity.admin'), t('admin.activity.action'), t('admin.activity.target'), t('admin.activity.activity'), t('admin.activity.changes'), t('admin.common.date'), t('admin.common.view')].map((heading) => <th key={heading} className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wider text-gray-500">{heading}</th>)}
             </tr></thead>
             <tbody className="divide-y divide-gray-100">
-              {loading ? <tr><td colSpan="7" className="px-6 py-8 text-center text-sm text-gray-500">Loading audit trail…</td></tr>
-                : logs.length === 0 ? <tr><td colSpan="7" className="px-6 py-8 text-center text-sm text-gray-500">No activity logs found.</td></tr>
+              {loading ? <tr><td colSpan="7" className="px-6 py-8 text-center text-sm text-gray-500">{t('admin.activity.loading')}</td></tr>
+                : logs.length === 0 ? <tr><td colSpan="7" className="px-6 py-8 text-center text-sm text-gray-500">{t('admin.activity.empty')}</td></tr>
                   : logs.map((log) => {
                     const changes = getChanges(log);
                     return <tr key={log._id} onClick={() => setSelected(log)} className="cursor-pointer transition-colors hover:bg-gray-50" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter') setSelected(log); }}>
-                      <td className="px-4 py-3"><div className="font-medium text-gray-900">{log.userId?.fullName || log.details?.entity?.name || 'Admin'}</div><div className="text-xs text-gray-500">{log.userId?.email || ''}</div></td>
+                      <td className="px-4 py-3"><div className="font-medium text-gray-900">{log.userId?.fullName || log.details?.entity?.name || t('admin.activity.admin')}</div><div className="text-xs text-gray-500">{log.userId?.email || ''}</div></td>
                       <td className="whitespace-nowrap px-4 py-3"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${actionTone[normalizeAction(log.action)]}`}>{normalizeAction(log.action)}</span></td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-700">{log.target || '—'}</td>
                       <td className="max-w-xs px-4 py-3 text-sm text-gray-700"><div className="truncate font-medium">{entityName(log)}</div><div className="truncate text-xs text-gray-500">{log.details?.summary || `${log.action} ${log.target}`}</div></td>
                       <td className="max-w-xs px-4 py-3 text-sm text-gray-600">{changes.length ? <span className="line-clamp-2">{changes.slice(0, 2).map((change) => `${change.label || change.field}: ${formatChange(change)}`).join(' · ')}{changes.length > 2 ? ` · +${changes.length - 2} more` : ''}</span> : '—'}</td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">{log.createdAt ? new Date(log.createdAt).toLocaleString() : '—'}</td>
-                      <td className="px-4 py-3"><button type="button" onClick={(event) => { event.stopPropagation(); setSelected(log); }} className="text-sm font-semibold text-blue-700 hover:text-blue-900">View</button></td>
+                      <td className="px-4 py-3"><button type="button" onClick={(event) => { event.stopPropagation(); setSelected(log); }} className="text-sm font-semibold text-blue-700 hover:text-blue-900">{t('admin.common.view')}</button></td>
                     </tr>;
                   })}
             </tbody>
           </table>
         </div>
         <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3 text-sm text-gray-600">
-          <span>{pagination.totalItems} activity records</span>
-          <div className="flex items-center gap-3"><span>Page {page} of {pagination.totalPages}</span>
-            <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((value) => value - 1)} className="rounded border px-3 py-1 disabled:opacity-40">Previous</button>
-            <button type="button" disabled={page >= pagination.totalPages || loading} onClick={() => setPage((value) => value + 1)} className="rounded border px-3 py-1 disabled:opacity-40">Next</button>
+          <span>{pagination.totalItems} {t('admin.activity.title').toLowerCase()}</span>
+          <div className="flex items-center gap-3"><span>{page} / {pagination.totalPages}</span>
+            <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((value) => value - 1)} className="rounded border px-3 py-1 disabled:opacity-40">{t('admin.common.previous')}</button>
+            <button type="button" disabled={page >= pagination.totalPages || loading} onClick={() => setPage((value) => value + 1)} className="rounded border px-3 py-1 disabled:opacity-40">{t('admin.common.next')}</button>
           </div>
         </div>
       </div>
 
       {selected && <div className="fixed inset-0 z-50 flex justify-end bg-black/40" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
         <aside role="dialog" aria-modal="true" aria-labelledby="audit-detail-title" className="h-full w-full max-w-xl overflow-y-auto bg-white shadow-2xl">
-          <div className="sticky top-0 flex items-start justify-between border-b bg-white px-6 py-5"><div><p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Audit record</p><h2 id="audit-detail-title" className="mt-1 text-xl font-semibold text-gray-900">{entityName(selected)}</h2></div><button type="button" aria-label="Close details" onClick={() => setSelected(null)} className="rounded-lg px-3 py-1 text-2xl leading-none text-gray-500 hover:bg-gray-100">×</button></div>
+          <div className="sticky top-0 flex items-start justify-between border-b bg-white px-6 py-5"><div><p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{t('admin.activity.audit_record')}</p><h2 id="audit-detail-title" className="mt-1 text-xl font-semibold text-gray-900">{entityName(selected)}</h2></div><button type="button" aria-label={t('admin.activity.close_details')} onClick={() => setSelected(null)} className="rounded-lg px-3 py-1 text-2xl leading-none text-gray-500 hover:bg-gray-100">×</button></div>
           <div className="space-y-6 px-6 py-5">
             <dl className="grid grid-cols-2 gap-4 text-sm">
-              <div><dt className="text-gray-500">Admin</dt><dd className="mt-1 font-medium text-gray-900">{selected.userId?.fullName || 'Admin'}<span className="block text-xs font-normal text-gray-500">{selected.userId?.email || '—'}</span></dd></div>
-              <div><dt className="text-gray-500">Action</dt><dd className="mt-1"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${actionTone[normalizeAction(selected.action)]}`}>{normalizeAction(selected.action)}</span></dd></div>
-              <div><dt className="text-gray-500">Target</dt><dd className="mt-1 font-medium text-gray-900">{selected.target || '—'}</dd></div>
-              <div><dt className="text-gray-500">Entity ID</dt><dd className="mt-1 break-all font-mono text-xs text-gray-800">{selected.targetId || selected.details?.entity?.id || '—'}</dd></div>
-              <div className="col-span-2"><dt className="text-gray-500">Timestamp</dt><dd className="mt-1 text-gray-900">{selected.createdAt ? new Date(selected.createdAt).toLocaleString() : '—'}</dd></div>
-              <div><dt className="text-gray-500">IP address</dt><dd className="mt-1 text-gray-900">{selected.ip || '—'}</dd></div>
-              <div><dt className="text-gray-500">Device</dt><dd className="mt-1 break-words text-gray-900">{selected.userAgent || '—'}</dd></div>
+              <div><dt className="text-gray-500">{t('admin.activity.admin')}</dt><dd className="mt-1 font-medium text-gray-900">{selected.userId?.fullName || t('admin.activity.admin')}<span className="block text-xs font-normal text-gray-500">{selected.userId?.email || '—'}</span></dd></div>
+              <div><dt className="text-gray-500">{t('admin.activity.action')}</dt><dd className="mt-1"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${actionTone[normalizeAction(selected.action)]}`}>{normalizeAction(selected.action)}</span></dd></div>
+              <div><dt className="text-gray-500">{t('admin.activity.target')}</dt><dd className="mt-1 font-medium text-gray-900">{selected.target || '—'}</dd></div>
+              <div><dt className="text-gray-500">{t('admin.activity.entity_id')}</dt><dd className="mt-1 break-all font-mono text-xs text-gray-800">{selected.targetId || selected.details?.entity?.id || '—'}</dd></div>
+              <div className="col-span-2"><dt className="text-gray-500">{t('admin.activity.timestamp')}</dt><dd className="mt-1 text-gray-900">{selected.createdAt ? new Date(selected.createdAt).toLocaleString() : '—'}</dd></div>
+              <div><dt className="text-gray-500">{t('admin.activity.ip_address')}</dt><dd className="mt-1 text-gray-900">{selected.ip || '—'}</dd></div>
+              <div><dt className="text-gray-500">{t('admin.activity.device')}</dt><dd className="mt-1 break-words text-gray-900">{selected.userAgent || '—'}</dd></div>
             </dl>
-            <section><h3 className="text-sm font-semibold text-gray-900">Activity</h3><p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">{selected.details?.summary || `${selected.action} ${selected.target}`}</p></section>
-            <section><h3 className="text-sm font-semibold text-gray-900">Changes</h3>
-              {getChanges(selected).length ? <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-100">{getChanges(selected).map((change, index) => <li key={`${change.field}-${index}`} className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-start sm:justify-between"><span className="text-sm font-medium text-gray-800">{change.label || change.field}</span><span className="break-words text-sm text-gray-600 sm:max-w-[65%] sm:text-right">{formatChange(change)}</span></li>)}</ul> : <p className="mt-2 text-sm text-gray-500">No field changes recorded for this activity.</p>}
+            <section><h3 className="text-sm font-semibold text-gray-900">{t('admin.activity.activity')}</h3><p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">{selected.details?.summary || `${selected.action} ${selected.target}`}</p></section>
+            <section><h3 className="text-sm font-semibold text-gray-900">{t('admin.activity.changes')}</h3>
+              {getChanges(selected).length ? <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-100">{getChanges(selected).map((change, index) => <li key={`${change.field}-${index}`} className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-start sm:justify-between"><span className="text-sm font-medium text-gray-800">{change.label || change.field}</span><span className="break-words text-sm text-gray-600 sm:max-w-[65%] sm:text-right">{formatChange(change)}</span></li>)}</ul> : <p className="mt-2 text-sm text-gray-500">{t('admin.activity.no_changes')}</p>}
             </section>
           </div>
         </aside>

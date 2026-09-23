@@ -1,12 +1,14 @@
 import React from "react";
+import { useTranslation } from "@/lib/i18n";
 
 function SourcesList({ sources = [] }) {
+  const { t } = useTranslation();
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Sources</h3>
-          <p className="text-sm text-slate-500">Traffic origin breakdown</p>
+          <h3 className="text-lg font-semibold text-slate-900">{t("admin.analytics.sources")}</h3>
+          <p className="text-sm text-slate-500">{t("admin.analytics.traffic_breakdown")}</p>
         </div>
       </div>
 
@@ -26,7 +28,7 @@ function SourcesList({ sources = [] }) {
             ))
           ) : (
             <div className="px-4 py-6 text-sm text-slate-500">
-              No sources found for the selected filters.
+              {t("admin.analytics.no_sources")}
             </div>
           )}
         </div>
@@ -35,4 +37,4 @@ function SourcesList({ sources = [] }) {
   );
 }
 
-export default SourcesList; 
+export default SourcesList;

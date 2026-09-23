@@ -1,36 +1,38 @@
-/* eslint-disable react-refresh/only-export-components */
 import React from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, FileText, Image, ShoppingBag } from "lucide-react";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+import { useTranslation } from "@/lib/i18n";
 
-export const editContents = [
+const editContents = [
   {
     id: 1,
-    label: "News",
+    label: "admin.content.news",
     path: SANWATERGROUPROUTES.content.children.news.fullPath,
-    description: "Manage articles, updates, and announcements.",
+    description: "admin.content.news_description",
     icon: FileText,
   },
   {
     id: 3,
-    label: "Sales",
+    label: "admin.content.sales",
     path: SANWATERGROUPROUTES.content.children.sales.fullPath,
-    description: "Edit offers, products, and promotions.",
+    description: "admin.content.sales_description",
     icon: ShoppingBag,
   },
 ];
 
 function Content() {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-            Editing Contents
+            {t("admin.content.title")}
           </h1>
           <p className="mt-2 text-sm text-slate-600 md:text-base">
-            Choose the section you want to manage.
+            {t("admin.content.description")}
           </p>
         </div>
 
@@ -56,17 +58,17 @@ function Content() {
 
                 <div className="mt-5">
                   <h2 className="text-lg font-semibold text-slate-900">
-                    {item.label}
+                    {t(item.label)}
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {item.description}
+                    {t(item.description)}
                   </p>
                 </div>
 
                 <div className="mt-5 h-px w-full bg-slate-100" />
 
                 <div className="mt-4 text-sm font-medium text-slate-700 transition-colors group-hover:text-slate-950">
-                  Open section
+                  {t("admin.content.open_section")}
                 </div>
               </Link>
             );

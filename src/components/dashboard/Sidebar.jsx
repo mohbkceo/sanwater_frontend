@@ -18,13 +18,14 @@ import { NavLink } from "react-router-dom";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 import { PERMISSIONS } from "@/configs/permissions";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useTranslation } from "@/lib/i18n";
 
 const navSections = [
   {
-    label: "Overview",
+    label: "admin.nav.overview",
     items: [
       {
-        name: "Analytics",
+        name: "admin.nav.analytics",
         icon: ChartColumnBig,
         path: SANWATERGROUPROUTES.analystics.fullPath,
         permission: PERMISSIONS.ANALYTICS.VIEW,
@@ -33,16 +34,16 @@ const navSections = [
   },
 
   {
-    label: "Catalog",
+    label: "admin.nav.catalog",
     items: [
       {
-        name: "Products",
+        name: "admin.nav.products",
         icon: Box,
         path: SANWATERGROUPROUTES.products.list.fullPath,
         permission: PERMISSIONS.PRODUCTS.VIEW,
       },
       {
-        name: "Families",
+        name: "admin.nav.families",
         icon: FolderTree,
         path: SANWATERGROUPROUTES.products.families.control.fullPath,
         permission: PERMISSIONS.PRODUCTS.VIEW,
@@ -51,28 +52,28 @@ const navSections = [
   },
 
   {
-    label: "Operations",
+    label: "admin.nav.operations",
     items: [
       {
-        name: "Quotations",
+        name: "admin.nav.quotations",
         icon: FileText,
         path: SANWATERGROUPROUTES.quotations.fullPath,
         permission: PERMISSIONS.QUOTATIONS.VIEW,
       },
       {
-        name: "Leads",
+        name: "admin.nav.leads",
         icon: ContactRound,
         path: SANWATERGROUPROUTES.leads.fullPath,
         permission: PERMISSIONS.LEADS.VIEW,
       },
       {
-        name: "Hiring",
+        name: "admin.nav.hiring",
         icon: Briefcase,
         path: SANWATERGROUPROUTES.hiring.list.fullPath,
         permission: PERMISSIONS.HIRING.VIEW,
       },
       {
-        name: "Submissions",
+        name: "admin.nav.submissions",
         icon: MessageSquare,
         path: SANWATERGROUPROUTES.submissions.list.fullPath,
         permission: PERMISSIONS.SUBMISSIONS.VIEW,
@@ -81,28 +82,28 @@ const navSections = [
   },
 
   {
-    label: "System",
+    label: "admin.nav.system",
     items: [
       {
-        name: "Activity Logs",
+        name: "admin.nav.activity_logs",
         icon: ClipboardList,
         path: SANWATERGROUPROUTES.logs.list.fullPath,
         permission: PERMISSIONS.LOGS.VIEW,
       },
       {
-        name: "Content",
+        name: "admin.nav.content",
         icon: Rss,
         path: SANWATERGROUPROUTES.content.fullPath,
         permission: PERMISSIONS.CONTENT.VIEW,
       },
       {
-        name: "Profile",
+        name: "admin.nav.profile",
         icon: User,
         path: SANWATERGROUPROUTES.profile.fullPath,
         permission: null,
       },
       {
-        name: "Settings",
+        name: "admin.nav.settings",
         icon: Settings,
         path: SANWATERGROUPROUTES.settings.fullPath,
         permission: null,
@@ -113,6 +114,7 @@ const navSections = [
 
 export default function Sidebar({ mobile = false, onNavigate }) {
   const { can } = usePermissions();
+  const { t } = useTranslation();
 
   return (
     <aside className={mobile ? "block w-full" : "hidden w-64 shrink-0 lg:block"}>
@@ -156,10 +158,10 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                 San Water Group
               </p>
 
-              <p className="text-[11px] text-slate-400">Administration</p>
+              <p className="text-[11px] text-slate-400">{t("admin.shell.administration")}</p>
             </div>
 
-            <ChevronRight className="h-4 w-4 text-slate-300" />
+            <ChevronRight className="h-4 w-4 text-slate-300 rtl:rotate-180" />
           </div>
 
           {/* Navigation */}
@@ -186,7 +188,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                       text-slate-400
                     "
                   >
-                    {section.label}
+                    {t(section.label)}
                   </p>
 
                   <div className="space-y-0.5">
@@ -234,7 +236,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                                 <span
                                   className="
                                     absolute
-                                    left-0
+                                    start-0
                                     h-5
                                     w-0.5
                                     rounded-full
@@ -262,15 +264,16 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                                 <Icon className="h-4 w-4" />
                               </span>
 
-                              <span className="truncate">{item.name}</span>
+                              <span className="truncate">{t(item.name)}</span>
 
                               {isActive && (
                                 <ChevronRight
                                   className="
-                                    ml-auto
+                                    ms-auto
                                     h-3.5
                                     w-3.5
                                     text-blue-400
+                                    rtl:rotate-180
                                   "
                                 />
                               )}
@@ -302,7 +305,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
               </span>
 
               <span className="text-xs font-medium text-blue-700">
-                System operational
+                {t("admin.shell.system_operational")}
               </span>
             </div>
           </div>
