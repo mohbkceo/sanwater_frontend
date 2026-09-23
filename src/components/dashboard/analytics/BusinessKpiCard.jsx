@@ -16,7 +16,7 @@ export default function BusinessKpiCard({ label, metric, format, secondary = fal
         {!unavailable && (
           <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${tone === "positive" ? "bg-emerald-50 text-emerald-700" : tone === "negative" ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-600"}`}>
             <Icon className="h-3.5 w-3.5" />
-            {formatChange(metric)}
+            {formatChange(metric, t)}
           </span>
         )}
       </div>
@@ -31,3 +31,4 @@ export default function BusinessKpiCard({ label, metric, format, secondary = fal
     </article>
   );
 }
+

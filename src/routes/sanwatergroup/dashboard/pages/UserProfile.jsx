@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Check,
@@ -161,6 +162,7 @@ function TextInput({ error, className = "", ...props }) {
 /* -------------------------------------------------------------------------- */
 
 function PasswordInput({ name, value, onChange, placeholder, error }) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   return (
@@ -179,7 +181,7 @@ function PasswordInput({ name, value, onChange, placeholder, error }) {
             border
             bg-white/65
             px-3.5
-            pr-11
+            pe-11
             text-sm
             font-medium
             text-slate-800
@@ -201,7 +203,7 @@ function PasswordInput({ name, value, onChange, placeholder, error }) {
         onClick={() => setVisible((prev) => !prev)}
         className="
           absolute
-          right-2
+          end-2
           top-1/2
           flex
           h-8
@@ -215,7 +217,7 @@ function PasswordInput({ name, value, onChange, placeholder, error }) {
           hover:bg-blue-50
           hover:text-blue-600
         "
-        aria-label={visible ? "Hide password" : "Show password"}
+        aria-label={visible ? t("admin.profile.hide_password") : t("admin.profile.show_password")}
       >
         {visible ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
@@ -228,25 +230,26 @@ function PasswordInput({ name, value, onChange, placeholder, error }) {
 /* -------------------------------------------------------------------------- */
 
 function PasswordStrength({ password }) {
+  const { t } = useTranslation();
   const checks = [
     {
-      label: "8+ characters",
+      label: t("admin.profile.password_rule_length"),
       valid: password.length >= 8,
     },
     {
-      label: "Uppercase",
+      label: t("admin.profile.password_rule_uppercase"),
       valid: /[A-Z]/.test(password),
     },
     {
-      label: "Lowercase",
+      label: t("admin.profile.password_rule_lowercase"),
       valid: /[a-z]/.test(password),
     },
     {
-      label: "Number",
+      label: t("admin.profile.password_rule_number"),
       valid: /\d/.test(password),
     },
     {
-      label: "Special character",
+      label: t("admin.profile.password_rule_special"),
       valid: /[^A-Za-z0-9]/.test(password),
     },
   ];
@@ -255,11 +258,11 @@ function PasswordStrength({ password }) {
 
   const percentage = (strength / checks.length) * 100;
 
-  let label = "Weak";
+  let label = t("admin.profile.password_strength_weak");
 
-  if (strength >= 4) label = "Strong";
-  else if (strength >= 3) label = "Good";
-  else if (strength >= 2) label = "Fair";
+  if (strength >= 4) label = t("admin.profile.password_strength_strong");
+  else if (strength >= 3) label = t("admin.profile.password_strength_good");
+  else if (strength >= 2) label = t("admin.profile.password_strength_fair");
 
   return (
     <div
@@ -273,7 +276,7 @@ function PasswordStrength({ password }) {
     >
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs font-semibold text-slate-700">
-          Password strength
+          {t("admin.profile.password_strength")}
         </span>
 
         <span
@@ -282,7 +285,7 @@ function PasswordStrength({ password }) {
             strength >= 3 ? "text-blue-600" : "text-slate-400",
           )}
         >
-          {password ? `${label} · ${strength}/5` : "Not started"}
+          {password ? t("admin.profile.password_strength_score", { label, score: strength }) : t("admin.profile.not_started")}
         </span>
       </div>
 
@@ -351,7 +354,7 @@ function InfoRow({ label, value }) {
     >
       <span className="text-xs text-slate-400">{label}</span>
 
-      <span className="max-w-[60%] truncate text-right text-sm font-medium text-slate-700">
+      <span className="max-w-[60%] truncate text-end text-sm font-medium text-slate-700">
         {value || "—"}
       </span>
     </div>
@@ -363,6 +366,7 @@ function InfoRow({ label, value }) {
 /* -------------------------------------------------------------------------- */
 
 export default function UserProfile() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
 
   const [savingProfile, setSavingProfile] = useState(false);
@@ -420,7 +424,7 @@ export default function UserProfile() {
       } catch (error) {
         console.error(error);
 
-        toast.error("Failed to load user profile");
+        toast.error(t("admin.profile.failed_to_load_user_profile"));
       } finally {
         setLoading(false);
       }
@@ -503,17 +507,17 @@ export default function UserProfile() {
     e.preventDefault();
 
     const newErrors = {
-      fullName: profileForm.fullName.trim() ? "" : "Full name is required",
+      fullName: profileForm.fullName.trim() ? "" : t("admin.profile.full_name_required"),
 
       phone:
         profileForm.phone && profileForm.phone.trim().length < 6
-          ? "Enter a valid phone number"
+          ? t("admin.profile.invalid_phone_number")
           : "",
 
       profileImage:
         profileForm.profileImage &&
         !/^https?:\/\//i.test(profileForm.profileImage)
-          ? "Use a valid image URL"
+          ? t("admin.profile.invalid_image_url")
           : "",
     };
 
@@ -539,11 +543,11 @@ export default function UserProfile() {
         ...profileForm,
       }));
 
-      toast.success("Profile updated successfully");
+      toast.success(t("admin.profile.profile_updated_successfully"));
     } catch (error) {
       console.error(error);
 
-      toast.error(error.response?.data?.message || "Failed to update profile");
+      toast.error(error.response?.data?.message || t("admin.profile.failed_to_update_profile"));
     } finally {
       setSavingProfile(false);
     }
@@ -559,17 +563,17 @@ export default function UserProfile() {
     const newErrors = {
       oldPassword: passwordForm.oldPassword
         ? ""
-        : "Current password is required",
+        : t("admin.profile.current_password_required"),
 
       newPassword:
         passwordForm.newPassword.length >= 8
           ? ""
-          : "Password must be at least 8 characters",
+          : t("admin.profile.password_too_short"),
 
       confirmPassword:
         passwordForm.newPassword === passwordForm.confirmPassword
           ? ""
-          : "Passwords do not match",
+          : t("admin.profile.passwords_do_not_match"),
     };
 
     setErrors(newErrors);
@@ -589,11 +593,11 @@ export default function UserProfile() {
         confirmPassword: "",
       });
 
-      toast.success("Password changed successfully");
+      toast.success(t("admin.profile.password_changed_successfully"));
     } catch (error) {
       console.error(error);
 
-      toast.error(error.response?.data?.message || "Failed to change password");
+      toast.error(error.response?.data?.message || t("admin.profile.failed_to_change_password"));
     } finally {
       setSavingPassword(false);
     }
@@ -611,7 +615,7 @@ export default function UserProfile() {
 
       setCopiedEmail(true);
 
-      toast.success("Email copied");
+      toast.success(t("admin.profile.email_copied"));
 
       window.setTimeout(() => {
         setCopiedEmail(false);
@@ -619,7 +623,7 @@ export default function UserProfile() {
     } catch (error) {
       console.error(error);
 
-      toast.error("Failed to copy email");
+      toast.error(t("admin.profile.failed_to_copy_email"));
     }
   };
 
@@ -656,7 +660,7 @@ export default function UserProfile() {
         className="
           pointer-events-none
           fixed
-          left-0
+          start-0
           top-0
           h-80
           w-80
@@ -671,7 +675,7 @@ export default function UserProfile() {
           pointer-events-none
           fixed
           bottom-0
-          right-0
+          end-0
           h-96
           w-96
           rounded-full
@@ -719,7 +723,7 @@ export default function UserProfile() {
                   {avatarSrc ? (
                     <img
                       src={avatarSrc}
-                      alt="Profile"
+                      alt={t("admin.profile.profile")}
                       className="h-full w-full object-cover"
                       onError={() => setImageError(true)}
                     />
@@ -732,15 +736,15 @@ export default function UserProfile() {
 
                 <div className="min-w-0">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-500">
-                    Account
+                    {t("admin.profile.account")}
                   </p>
 
                   <h1 className="mt-1 truncate text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-3xl">
-                    {profile.fullName || "My Profile"}
+                    {profile.fullName || t("admin.profile.my_profile")}
                   </h1>
 
                   <p className="mt-1 truncate text-sm text-slate-400">
-                    {profile.email || "Manage your account"}
+                    {profile.email || t("admin.profile.manage_your_account")}
                   </p>
                 </div>
               </div>
@@ -760,7 +764,7 @@ export default function UserProfile() {
               >
                 <div className="min-w-[88px] px-4 py-3">
                   <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    Complete
+                    {t("admin.profile.complete")}
                   </p>
 
                   <p className="mt-1 text-sm font-semibold text-slate-800">
@@ -770,7 +774,7 @@ export default function UserProfile() {
 
                 <div className="min-w-[88px] px-4 py-3">
                   <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    Role
+                    {t("admin.profile.role")}
                   </p>
 
                   <p className="mt-1 truncate text-sm font-semibold text-slate-800">
@@ -780,11 +784,11 @@ export default function UserProfile() {
 
                 <div className="min-w-[88px] px-4 py-3">
                   <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    Security
+                    {t("admin.profile.security")}
                   </p>
 
                   <p className="mt-1 text-sm font-semibold text-blue-600">
-                    {security.hasPassword ? "Protected" : "Setup needed"}
+                    {security.hasPassword ? t("admin.profile.protected") : t("admin.profile.setup_needed")}
                   </p>
                 </div>
               </div>
@@ -807,14 +811,14 @@ export default function UserProfile() {
             {/* ----------------------------------------------------------- */}
 
             <Section
-              title="Basic information"
-              description="Update the information associated with your account."
+              title={t("admin.profile.basic_information")}
+              description={t("admin.profile.update_the_information_associated_with_your_account")}
             >
               <form onSubmit={handleSaveProfile} className="space-y-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field
-                    label="Full name"
-                    hint="Required"
+                    label={t("admin.profile.full_name")}
+                    hint={t("admin.profile.required")}
                     error={errors.fullName}
                   >
                     <TextInput
@@ -822,14 +826,14 @@ export default function UserProfile() {
                       name="fullName"
                       value={profileForm.fullName}
                       onChange={handleProfileChange}
-                      placeholder="Enter your full name"
+                      placeholder={t("admin.profile.enter_your_full_name")}
                       error={errors.fullName}
                     />
                   </Field>
 
                   <Field
-                    label="Phone number"
-                    hint="Optional"
+                    label={t("admin.profile.phone_number")}
+                    hint={t("admin.profile.optional")}
                     error={errors.phone}
                   >
                     <TextInput
@@ -837,13 +841,13 @@ export default function UserProfile() {
                       name="phone"
                       value={profileForm.phone}
                       onChange={handleProfileChange}
-                      placeholder="Enter phone number"
+                      placeholder={t("admin.profile.enter_phone_number")}
                       error={errors.phone}
                     />
                   </Field>
                 </div>
 
-                <Field label="Email address" hint="Read only">
+                <Field label={t("admin.profile.email_address")} hint={t("admin.profile.read_only")}>
                   <div
                     className="
                       flex
@@ -892,14 +896,14 @@ export default function UserProfile() {
                     >
                       {copiedEmail ? <Check size={13} /> : <Copy size={13} />}
 
-                      {copiedEmail ? "Copied" : "Copy"}
+                      {copiedEmail ? t("admin.profile.copied") : t("admin.profile.copy")}
                     </button>
                   </div>
                 </Field>
 
                 <Field
-                  label="Profile image URL"
-                  hint="Optional"
+                  label={t("admin.profile.profile_image_url")}
+                  hint={t("admin.profile.optional")}
                   error={errors.profileImage}
                 >
                   <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_64px]">
@@ -926,7 +930,7 @@ export default function UserProfile() {
                       {profileForm.profileImage && !imageError ? (
                         <img
                           src={profileForm.profileImage}
-                          alt="Preview"
+                          alt={t("admin.profile.preview")}
                           className="h-full w-full object-cover"
                           onError={() => setImageError(true)}
                         />
@@ -963,7 +967,7 @@ export default function UserProfile() {
                       disabled:opacity-50
                     "
                   >
-                    {savingProfile ? "Saving..." : "Save changes"}
+                    {savingProfile ? t("admin.profile.saving") : t("admin.profile.save_changes")}
 
                     {!savingProfile && <ChevronRight size={15} />}
                   </button>
@@ -976,50 +980,50 @@ export default function UserProfile() {
             {/* ----------------------------------------------------------- */}
 
             <Section
-              title="Password & security"
-              description="Keep your account protected with a strong password."
+              title={t("admin.profile.password_security")}
+              description={t("admin.profile.keep_your_account_protected_with_a_strong_password")}
             >
               <form onSubmit={handleSavePassword} className="space-y-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field
-                    label="Current password"
-                    hint="Required"
+                    label={t("admin.profile.current_password")}
+                    hint={t("admin.profile.required")}
                     error={errors.oldPassword}
                   >
                     <PasswordInput
                       name="oldPassword"
                       value={passwordForm.oldPassword}
                       onChange={handlePasswordChange}
-                      placeholder="Current password"
+                      placeholder={t("admin.profile.current_password")}
                       error={errors.oldPassword}
                     />
                   </Field>
 
                   <Field
-                    label="New password"
-                    hint="Required"
+                    label={t("admin.profile.new_password")}
+                    hint={t("admin.profile.required")}
                     error={errors.newPassword}
                   >
                     <PasswordInput
                       name="newPassword"
                       value={passwordForm.newPassword}
                       onChange={handlePasswordChange}
-                      placeholder="New password"
+                      placeholder={t("admin.profile.new_password")}
                       error={errors.newPassword}
                     />
                   </Field>
                 </div>
 
                 <Field
-                  label="Confirm new password"
-                  hint="Required"
+                  label={t("admin.profile.confirm_new_password")}
+                  hint={t("admin.profile.required")}
                   error={errors.confirmPassword}
                 >
                   <PasswordInput
                     name="confirmPassword"
                     value={passwordForm.confirmPassword}
                     onChange={handlePasswordChange}
-                    placeholder="Repeat new password"
+                    placeholder={t("admin.profile.repeat_new_password")}
                     error={errors.confirmPassword}
                   />
                 </Field>
@@ -1052,7 +1056,7 @@ export default function UserProfile() {
                   >
                     <Lock size={15} />
 
-                    {savingPassword ? "Updating..." : "Change password"}
+                    {savingPassword ? t("admin.profile.updating") : t("admin.profile.change_password")}
                   </button>
                 </div>
               </form>
@@ -1069,19 +1073,19 @@ export default function UserProfile() {
             {/* ----------------------------------------------------------- */}
 
             <Section
-              title="Account details"
-              description="Current account information."
+              title={t("admin.profile.account_details")}
+              description={t("admin.profile.current_account_information")}
             >
               <div>
-                <InfoRow label="Role" value={security.role} />
+                <InfoRow label={t("admin.profile.role")} value={security.role} />
 
-                <InfoRow label="Member since" value={memberSince} />
+                <InfoRow label={t("admin.profile.member_since")} value={memberSince} />
 
-                <InfoRow label="Last updated" value={lastUpdated} />
+                <InfoRow label={t("admin.profile.last_updated")} value={lastUpdated} />
 
                 <InfoRow
-                  label="Password"
-                  value={security.hasPassword ? "Protected" : "Not configured"}
+                  label={t("admin.profile.password")}
+                  value={security.hasPassword ? t("admin.profile.protected") : t("admin.profile.not_configured")}
                 />
               </div>
             </Section>
@@ -1118,20 +1122,19 @@ export default function UserProfile() {
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold">Account security</h3>
+                    <h3 className="text-sm font-semibold">{t("admin.profile.account_security")}</h3>
 
                     <p className="mt-1 text-[11px] leading-5 text-blue-100">
-                      Use a unique password and keep your recovery information
-                      up to date.
+                      {t("admin.profile.use_a_unique_password_and_keep_your_recovery_information")}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-5 space-y-2">
                   {[
-                    "Use a unique password",
-                    "Keep your phone number current",
-                    "Use a valid profile image URL",
+                    "admin.profile.security_tip_unique_password",
+                    "admin.profile.security_tip_phone",
+                    "admin.profile.security_tip_image_url",
                   ].map((item) => (
                     <div
                       key={item}
@@ -1148,7 +1151,7 @@ export default function UserProfile() {
                       "
                     >
                       <Check size={13} />
-                      {item}
+                      {t(item)}
                     </div>
                   ))}
                 </div>

@@ -12,10 +12,10 @@ export function formatRate(value, digits = 1) {
   return value == null || Number.isNaN(Number(value)) ? "—" : `${Number(value).toFixed(digits)}%`;
 }
 
-export function formatChange(metric) {
-  if (!metric || metric.changeState === "unavailable") return "Unavailable";
-  if (metric.changeState === "new") return "New";
-  if (metric.percentageChange == null) return "No previous data";
+export function formatChange(metric, t) {
+  if (!metric || metric.changeState === "unavailable") return t("admin.analytics.change_unavailable");
+  if (metric.changeState === "new") return t("admin.analytics.change_new");
+  if (metric.percentageChange == null) return t("admin.analytics.no_previous_data");
   const value = Number(metric.percentageChange);
   return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
 }

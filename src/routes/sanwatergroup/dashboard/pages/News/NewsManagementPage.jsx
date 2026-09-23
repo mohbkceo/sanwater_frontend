@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -27,6 +28,10 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { PERMISSIONS } from "@/configs/permissions";
 
 const STATUS = ["draft", "review", "scheduled", "published", "archived"];
+const STATUS_LABEL_KEYS = Object.fromEntries(
+  STATUS.map((status) => [status, `admin.news.status_${status}`]),
+);
+const statusLabel = (status, t) => STATUS_LABEL_KEYS[status] ? t(STATUS_LABEL_KEYS[status]) : status;
 const initialFilters = {
   status: "",
   category: "",
@@ -35,15 +40,16 @@ const initialFilters = {
   from: "",
   to: "",
 };
-const formatDate = (date) =>
+const formatDate = (date, lang) =>
   date
-    ? new Intl.DateTimeFormat(undefined, {
+    ? new Intl.DateTimeFormat(lang, {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(new Date(date))
     : "—";
 
 export default function NewsManagementPage() {
+  const { lang, t } = useTranslation();
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.CONTENT.MANAGE);
@@ -95,7 +101,7 @@ export default function NewsManagementPage() {
       setUsers(payload.filters?.authors || []);
       setCategoryOptions(payload.filters?.categories || []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to load articles.");
+      toast.error(error?.response?.data?.message || t("admin.news.failed_to_load_articles"));
     } finally {
       setLoading(false);
     }
@@ -108,31 +114,32 @@ export default function NewsManagementPage() {
           ? { publishedAt: article.publishedAt }
           : {}),
       });
-      toast.success("Status updated.");
+      toast.success(t("admin.news.status_updated"));
       load();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Status update failed.");
+      toast.error(error?.response?.data?.message || t("admin.news.status_update_failed"));
     }
   }
   async function archive() {
     try {
       await deleteNewsArticle(pendingArchive._id);
       setPendingArchive(null);
-      toast.success("Article archived.");
+      toast.success(t("admin.news.article_archived"));
       load();
     } catch {
-      toast.error("Archive failed.");
+      toast.error(t("admin.news.archive_failed"));
     }
   }
   async function bulk(action) {
     if (!selected.length) return;
     try {
+      const count = selected.length;
       await bulkUpdateNews(selected, action);
       setSelected([]);
-      toast.success(`${selected.length} article(s) updated.`);
+      toast.success(t("admin.news.articles_updated", { count }));
       load();
     } catch {
-      toast.error("Bulk update failed.");
+      toast.error(t("admin.news.bulk_update_failed"));
     }
   }
 
@@ -145,11 +152,11 @@ export default function NewsManagementPage() {
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[.2em] text-blue-600">
-              Publishing CMS
+              {t("admin.news.publishing_cms")}
             </p>
-            <h1 className="mt-1 text-3xl font-bold">News Management</h1>
+            <h1 className="mt-1 text-3xl font-bold">{t("admin.news.news_management")}</h1>
             <p className="mt-1 text-sm text-slate-500">
-              Plan, write, review and publish San Water stories.
+              {t("admin.news.plan_write_review_and_publish_san_water_stories")}
             </p>
           </div>
           {canManage && (
@@ -158,21 +165,21 @@ export default function NewsManagementPage() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white"
             >
               <Plus className="h-4 w-4" />
-              New article
+              {t("admin.news.new_article")}
             </Link>
           )}
         </header>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {[
-            ["All", "", Object.values(counts).reduce((a, b) => a + b, 0)],
-            ...STATUS.map((status) => [status, status, counts[status] || 0]),
+            [t("admin.common.all"), "", Object.values(counts).reduce((a, b) => a + b, 0)],
+            ...STATUS.map((status) => [statusLabel(status, t), status, counts[status] || 0]),
           ].map(([label, value, count]) => (
             <button
               key={String(label)}
               onClick={() =>
                 setFilters((current) => ({ ...current, status: value }))
               }
-              className={`rounded-2xl border p-4 text-left ${filters.status === value ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"}`}
+              className={`rounded-2xl border p-4 text-start ${filters.status === value ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"}`}
             >
               <p className="text-xs font-bold uppercase text-slate-400">
                 {label}
@@ -187,7 +194,7 @@ export default function NewsManagementPage() {
               <input
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search title, excerpt, content, tags"
+                placeholder={t("admin.news.search_title_excerpt_content_tags")}
               />
             </Box>
             <Box icon={Filter}>
@@ -197,7 +204,7 @@ export default function NewsManagementPage() {
                   setFilters((f) => ({ ...f, category: e.target.value }))
                 }
               >
-                <option value="">All categories</option>
+                <option value="">{t("admin.news.all_categories")}</option>
                 {categoryOptions.map((category) => (
                   <option key={category}>{category}</option>
                 ))}
@@ -210,7 +217,7 @@ export default function NewsManagementPage() {
                   setFilters((f) => ({ ...f, author: e.target.value }))
                 }
               >
-                <option value="">All authors</option>
+                <option value="">{t("admin.news.all_authors")}</option>
                 {users.map((user) => (
                   <option key={user._id} value={user._id}>
                     {user.fullName}
@@ -225,9 +232,9 @@ export default function NewsManagementPage() {
                   setFilters((f) => ({ ...f, featured: e.target.value }))
                 }
               >
-                <option value="">Featured or standard</option>
-                <option value="true">Featured</option>
-                <option value="false">Not featured</option>
+                <option value="">{t("admin.news.featured_or_standard")}</option>
+                <option value="true">{t("admin.news.featured")}</option>
+                <option value="false">{t("admin.news.not_featured")}</option>
               </select>
             </Box>
             <Box>
@@ -255,7 +262,7 @@ export default function NewsManagementPage() {
               }}
               className="rounded-2xl border p-3 text-sm font-semibold"
             >
-              Clear filters
+              {t("admin.news.clear_filters")}
             </button>
             <div className="flex rounded-2xl border p-1">
               <button
@@ -263,47 +270,47 @@ export default function NewsManagementPage() {
                 className={`flex flex-1 items-center justify-center gap-2 rounded-xl text-sm ${view === "list" ? "bg-blue-600 text-white" : ""}`}
               >
                 <LayoutList className="h-4 w-4" />
-                List
+                {t("admin.news.list")}
               </button>
               <button
                 onClick={() => setView("calendar")}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-xl text-sm ${view === "calendar" ? "bg-blue-600 text-white" : ""}`}
               >
                 <CalendarDays className="h-4 w-4" />
-                Calendar
+                {t("admin.news.calendar")}
               </button>
             </div>
           </div>
         </section>
         {selected.length > 0 && canManage && (
           <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl bg-slate-900 p-3 text-white">
-            <span className="mr-auto text-sm font-semibold">
-              {selected.length} selected
+            <span className="me-auto text-sm font-semibold">
+              {selected.length} {t("admin.news.selected")}
             </span>
             <button
               onClick={() => bulk("publish")}
               className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold"
             >
-              Publish
+              {t("admin.news.publish")}
             </button>
             <button
               onClick={() => bulk("archive")}
               className="rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold"
             >
-              Archive
+              {t("admin.news.archive")}
             </button>
             <button
               onClick={() => bulk("unfeature")}
               className="rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold"
             >
-              Unfeature
+              {t("admin.news.unfeature")}
             </button>
           </div>
         )}
         {view === "list" ? (
           <div className="mt-5 overflow-hidden rounded-[26px] border border-blue-100 bg-white">
             <div className="overflow-x-auto">
-              <table className="min-w-[1100px] w-full text-left text-sm">
+              <table className="min-w-[1100px] w-full text-start text-sm">
                 <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                   <tr>
                     <th className="px-5 py-3">
@@ -317,14 +324,14 @@ export default function NewsManagementPage() {
                         }
                       />
                     </th>
-                    <th className="px-5 py-3">Title</th>
-                    <th className="px-5 py-3">Status</th>
-                    <th className="px-5 py-3">Category</th>
-                    <th className="px-5 py-3">Author</th>
-                    <th className="px-5 py-3">Published / Scheduled</th>
-                    <th className="px-5 py-3">Updated</th>
-                    <th className="px-5 py-3">Views</th>
-                    <th className="px-5 py-3">Actions</th>
+                    <th className="px-5 py-3">{t("admin.news.article_title_column")}</th>
+                    <th className="px-5 py-3">{t("admin.news.status")}</th>
+                    <th className="px-5 py-3">{t("admin.news.category")}</th>
+                    <th className="px-5 py-3">{t("admin.news.author")}</th>
+                    <th className="px-5 py-3">{t("admin.news.published_scheduled")}</th>
+                    <th className="px-5 py-3">{t("admin.news.updated")}</th>
+                    <th className="px-5 py-3">{t("admin.news.views")}</th>
+                    <th className="px-5 py-3">{t("admin.news.actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -356,7 +363,7 @@ export default function NewsManagementPage() {
                           <p className="truncate font-bold">{article.title}</p>
                           {article.isFeatured && (
                             <span className="text-[10px] font-bold text-blue-600">
-                              FEATURED
+                              {t("admin.news.featured_badge")}
                             </span>
                           )}
                         </td>
@@ -370,7 +377,7 @@ export default function NewsManagementPage() {
                               className="rounded-full border bg-white px-3 py-1 text-xs font-bold"
                             >
                               {STATUS.map((status) => (
-                                <option key={status}>{status}</option>
+                                <option key={status} value={status}>{statusLabel(status, t)}</option>
                               ))}
                             </select>
                           ) : (
@@ -382,10 +389,10 @@ export default function NewsManagementPage() {
                           {article.authorUser?.fullName || article.author}
                         </td>
                         <td className="px-5 py-4">
-                          {formatDate(article.publishedAt)}
+                          {formatDate(article.publishedAt, lang)}
                         </td>
                         <td className="px-5 py-4">
-                          {formatDate(article.updatedAt)}
+                          {formatDate(article.updatedAt, lang)}
                         </td>
                         <td className="px-5 py-4 font-semibold">
                           {article.views || 0}
@@ -426,9 +433,9 @@ export default function NewsManagementPage() {
                     <tr>
                       <td colSpan="9" className="py-16 text-center">
                         <FileText className="mx-auto h-8 w-8 text-slate-300" />
-                        <h3 className="mt-3 font-bold">No articles found</h3>
+                        <h3 className="mt-3 font-bold">{t("admin.news.no_articles_found")}</h3>
                         <p className="mt-1 text-sm text-slate-500">
-                          Create an article or adjust the filters.
+                          {t("admin.news.create_an_article_or_adjust_the_filters")}
                         </p>
                       </td>
                     </tr>
@@ -437,7 +444,7 @@ export default function NewsManagementPage() {
               </table>
             </div>
             <div className="flex items-center justify-between border-t px-5 py-4 text-sm text-slate-500">
-              <span>{totalItems} articles</span>
+              <span>{totalItems} {t("admin.news.articles")}</span>
               <div className="flex items-center gap-2">
                 <button
                   disabled={page <= 1}
@@ -482,10 +489,9 @@ export default function NewsManagementPage() {
           >
             <div className="flex justify-between">
               <div>
-                <h2 className="text-xl font-bold">Archive article?</h2>
+                <h2 className="text-xl font-bold">{t("admin.news.archive_article")}</h2>
                 <p className="mt-2 text-sm text-slate-500">
-                  {pendingArchive.title} will leave public listings but remain
-                  recoverable.
+                  {pendingArchive.title} {t("admin.news.will_leave_public_listings_but_remain_recoverable")}
                 </p>
               </div>
               <button onClick={() => setPendingArchive(null)}>
@@ -497,13 +503,13 @@ export default function NewsManagementPage() {
                 onClick={() => setPendingArchive(null)}
                 className="flex-1 rounded-2xl border p-3 text-sm font-bold"
               >
-                Cancel
+                {t("admin.news.cancel")}
               </button>
               <button
                 onClick={archive}
                 className="flex-1 rounded-2xl bg-rose-600 p-3 text-sm font-bold text-white"
               >
-                Archive
+                {t("admin.news.archive")}
               </button>
             </div>
           </div>
@@ -517,10 +523,10 @@ function Box({ icon: Icon, children }) {
   return (
     <div className="relative">
       {Icon && (
-        <Icon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Icon className="pointer-events-none absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       )}
       <div
-        className={`${Icon ? "[&>*]:pl-11" : "[&>*]:pl-4"} [&>*]:w-full [&>*]:rounded-2xl [&>*]:border [&>*]:bg-slate-50 [&>*]:py-3 [&>*]:pr-3 [&>*]:text-sm [&>*]:outline-none`}
+        className={`${Icon ? "[&>*]:ps-11" : "[&>*]:ps-4"} [&>*]:w-full [&>*]:rounded-2xl [&>*]:border [&>*]:bg-slate-50 [&>*]:py-3 [&>*]:pe-3 [&>*]:text-sm [&>*]:outline-none`}
       >
         {children}
       </div>
@@ -528,13 +534,15 @@ function Box({ icon: Icon, children }) {
   );
 }
 function Badge({ status }) {
+  const { t } = useTranslation();
   return (
     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-      {status}
+      {statusLabel(status, t)}
     </span>
   );
 }
 function CalendarView({ month, setMonth, articles, onArticle, onEmpty }) {
+  const { lang } = useTranslation();
   const year = month.getFullYear(),
     index = month.getMonth(),
     first = new Date(year, index, 1),
@@ -553,7 +561,7 @@ function CalendarView({ month, setMonth, articles, onArticle, onEmpty }) {
           <ChevronLeft className="h-4 w-4" />
         </button>
         <h2 className="text-lg font-bold">
-          {month.toLocaleDateString(undefined, {
+          {month.toLocaleDateString(lang, {
             month: "long",
             year: "numeric",
           })}
@@ -566,9 +574,9 @@ function CalendarView({ month, setMonth, articles, onArticle, onEmpty }) {
         </button>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+        {Array.from({ length: 7 }, (_, day) => day).map((day) => (
           <div key={day} className="p-2">
-            {day}
+            {new Intl.DateTimeFormat(lang, { weekday: "short" }).format(new Date(2024, 0, 7 + day))}
           </div>
         ))}
       </div>
@@ -605,7 +613,7 @@ function CalendarView({ month, setMonth, articles, onArticle, onEmpty }) {
                     e.stopPropagation();
                     onArticle(article);
                   }}
-                  className={`mt-1 block w-full truncate rounded-lg px-2 py-1 text-left text-[10px] font-bold ${article.status === "published" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}
+                  className={`mt-1 block w-full truncate rounded-lg px-2 py-1 text-start text-[10px] font-bold ${article.status === "published" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}
                 >
                   {article.publishedAt
                     ? new Date(article.publishedAt).toLocaleTimeString([], {

@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -29,6 +30,7 @@ import {
 } from "@/services/leads/leadServices";
 import { usePermissions } from "@/hooks/usePermissions";
 import { PERMISSIONS } from "@/configs/permissions";
+import { SAN_WATER_GROUP_NAME } from "@/configs/brand";
 
 const STATUSES = [
   "new",
@@ -40,21 +42,21 @@ const STATUSES = [
   "archived",
 ];
 const STATUS_LABELS = {
-  new: "New",
-  contacted: "Contacted",
-  qualified: "Qualified",
-  quote_sent: "Quote sent",
-  won: "Won",
-  lost: "Lost",
-  archived: "Archived",
+  new: "admin.leads.status_new",
+  contacted: "admin.leads.status_contacted",
+  qualified: "admin.leads.status_qualified",
+  quote_sent: "admin.leads.status_quote_sent",
+  won: "admin.leads.status_won",
+  lost: "admin.leads.status_lost",
+  archived: "admin.leads.status_archived",
 };
 const LOST_REASONS = {
-  price: "Price",
-  no_response: "No response",
-  competitor: "Competitor",
-  not_interested: "Not interested",
-  invalid_lead: "Invalid lead",
-  other: "Other",
+  price: "admin.leads.loss_price",
+  no_response: "admin.leads.loss_no_response",
+  competitor: "admin.leads.loss_competitor",
+  not_interested: "admin.leads.loss_not_interested",
+  invalid_lead: "admin.leads.loss_invalid_lead",
+  other: "admin.leads.loss_other",
 };
 const EMPTY_FILTERS = {
   search: "",
@@ -66,21 +68,22 @@ const EMPTY_FILTERS = {
   to: "",
 };
 
-const money = (value) =>
-  new Intl.NumberFormat(undefined, {
+const money = (value, lang) =>
+  new Intl.NumberFormat(lang, {
     style: "currency",
     currency: "DZD",
     maximumFractionDigits: 0,
   }).format(Number(value || 0));
-const dateTime = (value) =>
+const dateTime = (value, lang) =>
   value
-    ? new Intl.DateTimeFormat(undefined, {
+    ? new Intl.DateTimeFormat(lang, {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(new Date(value))
     : "—";
 
 export default function LeadsManagementPage() {
+  const { lang, t } = useTranslation();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.LEADS.MANAGE);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -162,7 +165,7 @@ export default function LeadsManagementPage() {
         },
       );
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load leads.");
+      setError(err?.response?.data?.message || t("admin.leads.failed_to_load_leads"));
     } finally {
       setLoading(false);
     }
@@ -173,7 +176,7 @@ export default function LeadsManagementPage() {
       setDetailLoading(true);
       setSelected((await getLead(id))?.data || null);
     } catch {
-      toast.error("Could not load lead details.");
+      toast.error(t("admin.leads.could_not_load_lead_details"));
     } finally {
       setDetailLoading(false);
     }
@@ -181,14 +184,14 @@ export default function LeadsManagementPage() {
 
   const stats = data.summary || {};
   const cards = [
-    ["Total Leads", stats.total],
-    ["New", stats.new],
-    ["Contacted", stats.contacted],
-    ["Qualified", stats.qualified],
-    ["Quote Sent", stats.quote_sent],
-    ["Won", stats.won],
-    ["Lost", stats.lost],
-    ["Pipeline Value", money(stats.estimatedPipelineValue)],
+    [t("admin.leads.total_leads"), stats.total],
+    [t("admin.leads.status_new"), stats.new],
+    [t("admin.leads.status_contacted"), stats.contacted],
+    [t("admin.leads.status_qualified"), stats.qualified],
+    [t("admin.leads.status_quote_sent"), stats.quote_sent],
+    [t("admin.leads.status_won"), stats.won],
+    [t("admin.leads.status_lost"), stats.lost],
+    [t("admin.leads.pipeline_value"), money(stats.estimatedPipelineValue, lang)],
   ];
 
   return (
@@ -197,13 +200,13 @@ export default function LeadsManagementPage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[.2em] text-blue-600">
-              San Water Group
+              {SAN_WATER_GROUP_NAME}
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight">
-              Sales Leads
+              {t("admin.leads.sales_leads")}
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              Manage inquiry, follow-up, qualification, quote and outcome.
+              {t("admin.leads.manage_inquiry_follow_up_qualification_quote_and_outcome")}
             </p>
           </div>
           <button
@@ -211,7 +214,7 @@ export default function LeadsManagementPage() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold"
           >
             <RefreshCw className="h-4 w-4" />
-            Refresh
+            {t("admin.leads.refresh")}
           </button>
         </div>
       </header>
@@ -229,7 +232,7 @@ export default function LeadsManagementPage() {
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, search: e.target.value }))
                 }
-                placeholder="Name, phone, email, company, product"
+                placeholder={t("admin.leads.name_phone_email_company_product")}
               />
             </FilterField>
             <FilterField icon={Filter}>
@@ -239,10 +242,10 @@ export default function LeadsManagementPage() {
                   setFilters((f) => ({ ...f, status: e.target.value }))
                 }
               >
-                <option value="">All statuses</option>
+                <option value="">{t("admin.leads.all_statuses")}</option>
                 {STATUSES.map((status) => (
                   <option key={status} value={status}>
-                    {STATUS_LABELS[status]}
+                    {t(STATUS_LABELS[status])}
                   </option>
                 ))}
               </select>
@@ -254,8 +257,8 @@ export default function LeadsManagementPage() {
                   setFilters((f) => ({ ...f, assignedTo: e.target.value }))
                 }
               >
-                <option value="">All assignees</option>
-                <option value="unassigned">Unassigned</option>
+                <option value="">{t("admin.leads.all_assignees")}</option>
+                <option value="unassigned">{t("admin.leads.unassigned")}</option>
                 {users.map((user) => (
                   <option key={user._id} value={user._id}>
                     {user.fullName}
@@ -270,7 +273,7 @@ export default function LeadsManagementPage() {
                   setFilters((f) => ({ ...f, product: e.target.value }))
                 }
               >
-                <option value="">All products</option>
+                <option value="">{t("admin.leads.all_products")}</option>
                 {products.map((product) => (
                   <option key={product._id} value={product._id}>
                     {product.name || product.productId}
@@ -285,7 +288,7 @@ export default function LeadsManagementPage() {
                   setFilters((f) => ({ ...f, source: e.target.value }))
                 }
               >
-                <option value="">All sources</option>
+                <option value="">{t("admin.leads.all_sources")}</option>
                 {sources.map((source) => (
                   <option key={source} value={source}>
                     {source}
@@ -315,7 +318,7 @@ export default function LeadsManagementPage() {
               onClick={() => setFilters(EMPTY_FILTERS)}
               className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600"
             >
-              Clear filters
+              {t("admin.leads.clear_filters")}
             </button>
           </div>
           {error && (
@@ -325,15 +328,15 @@ export default function LeadsManagementPage() {
             </div>
           )}
           <div className="overflow-x-auto">
-            <table className="min-w-[920px] w-full text-left text-sm">
+            <table className="min-w-[920px] w-full text-start text-sm">
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-5 py-3">Customer</th>
-                  <th className="px-5 py-3">Interest</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Assigned</th>
-                  <th className="px-5 py-3">Follow-up</th>
-                  <th className="px-5 py-3">Value</th>
+                  <th className="px-5 py-3">{t("admin.leads.customer")}</th>
+                  <th className="px-5 py-3">{t("admin.leads.interest")}</th>
+                  <th className="px-5 py-3">{t("admin.leads.status")}</th>
+                  <th className="px-5 py-3">{t("admin.leads.assigned")}</th>
+                  <th className="px-5 py-3">{t("admin.leads.follow_up")}</th>
+                  <th className="px-5 py-3">{t("admin.leads.value")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -357,9 +360,9 @@ export default function LeadsManagementPage() {
                   <tr>
                     <td colSpan="6" className="px-6 py-16 text-center">
                       <Search className="mx-auto h-8 w-8 text-slate-300" />
-                      <h3 className="mt-3 font-bold">No leads found</h3>
+                      <h3 className="mt-3 font-bold">{t("admin.leads.no_leads_found")}</h3>
                       <p className="mt-1 text-slate-500">
-                        Try clearing or changing the filters.
+                        {t("admin.leads.try_clearing_or_changing_the_filters")}
                       </p>
                     </td>
                   </tr>
@@ -368,7 +371,7 @@ export default function LeadsManagementPage() {
             </table>
           </div>
           <div className="flex items-center justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-500">
-            <span>{data.totalItems || 0} leads</span>
+            <span>{t("admin.leads.lead_count", { count: data.totalItems || 0 })}</span>
             <div className="flex items-center gap-2">
               <button
                 disabled={page <= 1}
@@ -378,7 +381,7 @@ export default function LeadsManagementPage() {
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <span>
-                Page {page} of {data.totalPages || 1}
+                {t("admin.common.page_of", { page, total: data.totalPages || 1 })}
               </span>
               <button
                 disabled={page >= (data.totalPages || 1)}
@@ -422,10 +425,10 @@ function FilterField({ icon: Icon, children }) {
   return (
     <div className="relative">
       {Icon && (
-        <Icon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Icon className="pointer-events-none absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       )}
       <div
-        className={`[&>*]:w-full [&>*]:rounded-2xl [&>*]:border [&>*]:border-slate-200 [&>*]:bg-slate-50 [&>*]:py-3 [&>*]:pr-3 [&>*]:text-sm [&>*]:outline-none ${Icon ? "[&>*]:pl-11" : "[&>*]:pl-4"}`}
+        className={`[&>*]:w-full [&>*]:rounded-2xl [&>*]:border [&>*]:border-slate-200 [&>*]:bg-slate-50 [&>*]:py-3 [&>*]:pe-3 [&>*]:text-sm [&>*]:outline-none ${Icon ? "[&>*]:ps-11" : "[&>*]:ps-4"}`}
       >
         {children}
       </div>
@@ -444,13 +447,14 @@ function followUpMeta(value) {
   );
   const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
   if (dueDay < start)
-    return { label: "OVERDUE", className: "bg-rose-50 text-rose-700" };
+    return { labelKey: "admin.leads.follow_up_overdue", className: "bg-rose-50 text-rose-700" };
   if (+dueDay === +start)
-    return { label: "DUE TODAY", className: "bg-amber-50 text-amber-700" };
-  return { label: "UPCOMING", className: "bg-blue-50 text-blue-700" };
+    return { labelKey: "admin.leads.follow_up_due_today", className: "bg-amber-50 text-amber-700" };
+  return { labelKey: "admin.leads.follow_up_upcoming", className: "bg-blue-50 text-blue-700" };
 }
 
 function LeadRow({ lead, onClick }) {
+  const { lang, t } = useTranslation();
   const follow = followUpMeta(lead.nextFollowUpAt);
   return (
     <tr onClick={onClick} className="cursor-pointer hover:bg-blue-50/40">
@@ -464,42 +468,44 @@ function LeadRow({ lead, onClick }) {
       <td className="px-5 py-4">
         <p className="font-medium">{lead.productName}</p>
         <p className="text-xs text-slate-500">
-          Qty {lead.quantity} · {lead.source || "unknown"}
+          {t("admin.leads.quantity_source", { quantity: lead.quantity, source: lead.source || t("admin.leads.unknown") })}
         </p>
       </td>
       <td className="px-5 py-4">
         <StatusBadge status={lead.status} />
       </td>
-      <td className="px-5 py-4">{lead.assignedTo?.fullName || "Unassigned"}</td>
+      <td className="px-5 py-4">{lead.assignedTo?.fullName || t("admin.leads.unassigned")}</td>
       <td className="px-5 py-4">
         {follow ? (
           <>
             <span
               className={`rounded-full px-2 py-1 text-[10px] font-bold ${follow.className}`}
             >
-              {follow.label}
+              {t(follow.labelKey)}
             </span>
             <p className="mt-1 text-xs text-slate-500">
-              {dateTime(lead.nextFollowUpAt)}
+              {dateTime(lead.nextFollowUpAt, lang)}
             </p>
           </>
         ) : (
           "—"
         )}
       </td>
-      <td className="px-5 py-4 font-semibold">{money(lead.estimatedValue)}</td>
+      <td className="px-5 py-4 font-semibold">{money(lead.estimatedValue, lang)}</td>
     </tr>
   );
 }
 function StatusBadge({ status }) {
+  const { t } = useTranslation();
   return (
     <span className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
-      {STATUS_LABELS[status] || status}
+      {STATUS_LABELS[status] ? t(STATUS_LABELS[status]) : status}
     </span>
   );
 }
 
 function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
+  const { lang, t } = useTranslation();
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("");
@@ -512,28 +518,28 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
     return [
       {
         at: lead.createdAt,
-        label: "Lead created",
-        detail: lead.source || "unknown source",
+        label: t("admin.leads.lead_created"),
+        detail: lead.source || t("admin.leads.unknown_source"),
       },
       ...(lead.statusHistory || [])
         .filter((item) => item.previousStatus)
         .map((item) => ({
           at: item.changedAt,
-          label: `${STATUS_LABELS[item.previousStatus]} → ${STATUS_LABELS[item.newStatus]}`,
-          detail: item.changedBy?.fullName || "System",
+          label: t("admin.leads.status_transition", { from: STATUS_LABELS[item.previousStatus] ? t(STATUS_LABELS[item.previousStatus]) : item.previousStatus, to: STATUS_LABELS[item.newStatus] ? t(STATUS_LABELS[item.newStatus]) : item.newStatus }),
+          detail: item.changedBy?.fullName || t("admin.leads.system"),
         })),
       ...(lead.assignmentHistory || []).map((item) => ({
         at: item.changedAt,
-        label: "Assignment changed",
-        detail: item.newAssignee?.fullName || "Unassigned",
+        label: t("admin.leads.assignment_changed"),
+        detail: item.newAssignee?.fullName || t("admin.leads.unassigned"),
       })),
       ...(lead.notes || []).map((item) => ({
         at: item.createdAt,
-        label: "Internal note",
-        detail: `${item.author?.fullName || "Admin"}: ${item.content}`,
+        label: t("admin.leads.internal_note"),
+        detail: t("admin.leads.note_by_author", { author: item.author?.fullName || t("admin.shell.admin"), content: item.content }),
       })),
     ].sort((a, b) => new Date(b.at) - new Date(a.at));
-  }, [lead]);
+  }, [lead, t]);
 
   async function act(callback, message) {
     try {
@@ -542,7 +548,7 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
       toast.success(message);
       await onChanged();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Update failed.");
+      toast.error(error?.response?.data?.message || t("admin.leads.update_failed"));
     } finally {
       setSaving(false);
     }
@@ -559,13 +565,13 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
       onMouseDown={onClose}
     >
       <aside
-        className="ml-auto h-full w-full max-w-2xl overflow-y-auto bg-white p-5 shadow-2xl sm:p-7"
+        className="ms-auto h-full w-full max-w-2xl overflow-y-auto bg-white p-5 shadow-2xl sm:p-7"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[.2em] text-blue-600">
-              Lead details
+              {t("admin.leads.lead_details")}
             </p>
             <h2 className="mt-1 text-2xl font-bold">{lead.fullName}</h2>
             <div className="mt-2">
@@ -576,39 +582,39 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
             <X className="h-4 w-4" />
           </button>
         </div>
-        <Section title="Customer">
-          <Info icon={Phone} label="Phone" value={lead.phone} />
-          <Info icon={Mail} label="Email" value={lead.email} />
-          <Info label="Company" value={lead.company} />
-          <Info label="Wilaya" value={lead.wilaya} />
+        <Section title={t("admin.leads.customer")}>
+          <Info icon={Phone} label={t("admin.leads.phone")} value={lead.phone} />
+          <Info icon={Mail} label={t("admin.leads.email")} value={lead.email} />
+          <Info label={t("admin.leads.company")} value={lead.company} />
+          <Info label={t("admin.leads.wilaya")} value={lead.wilaya} />
         </Section>
-        <Section title="Interest">
+        <Section title={t("admin.leads.interest")}>
           <Info
             icon={Package}
-            label="Product"
+            label={t("admin.leads.product")}
             value={`${lead.productName} × ${lead.quantity}`}
           />
           <Info
             icon={CircleDollarSign}
-            label="Estimated value"
-            value={money(lead.estimatedValue)}
+            label={t("admin.leads.estimated_value")}
+            value={money(lead.estimatedValue, lang)}
           />
         </Section>
-        <Section title="Attribution">
+        <Section title={t("admin.leads.attribution")}>
           <Info
-            label="Source / medium"
+            label={t("admin.leads.source_medium")}
             value={
               [lead.source, lead.medium].filter(Boolean).join(" / ") ||
-              "Unknown"
+              t("admin.leads.unknown_source")
             }
           />
-          <Info label="Campaign" value={lead.campaign} />
-          <Info label="Referrer" value={lead.referrer} />
-          <Info label="Landing page" value={lead.landingPage} />
+          <Info label={t("admin.leads.campaign")} value={lead.campaign} />
+          <Info label={t("admin.leads.referrer")} value={lead.referrer} />
+          <Info label={t("admin.leads.landing_page")} value={lead.landingPage} />
         </Section>
-        <Section title="Management">
+        <Section title={t("admin.leads.management")}>
           <label className="text-xs font-bold uppercase text-slate-400">
-            Assigned employee
+            {t("admin.leads.assigned_employee")}
           </label>
           <select
             disabled={!canManage || saving}
@@ -616,12 +622,12 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
             onChange={(e) =>
               act(
                 () => assignLead(lead._id, e.target.value || null),
-                "Lead assigned.",
+                t("admin.leads.lead_assigned"),
               )
             }
             className="mt-2 w-full rounded-2xl border p-3"
           >
-            <option value="">Unassigned</option>
+            <option value="">{t("admin.leads.unassigned")}</option>
             {users.map((user) => (
               <option key={user._id} value={user._id}>
                 {user.fullName}
@@ -629,7 +635,7 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
             ))}
           </select>
           <label className="mt-4 block text-xs font-bold uppercase text-slate-400">
-            Next follow-up
+            {t("admin.leads.next_follow_up")}
           </label>
           <input
             disabled={!canManage || saving}
@@ -652,13 +658,13 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
                       ? new Date(e.target.value).toISOString()
                       : null,
                   }),
-                "Follow-up updated.",
+                t("admin.leads.follow_up_updated"),
               )
             }
             className="mt-2 w-full rounded-2xl border p-3"
           />
           <label className="mt-4 block text-xs font-bold uppercase text-slate-400">
-            Status
+            {t("admin.leads.status")}
           </label>
           <select
             disabled={!canManage || saving}
@@ -668,7 +674,7 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
           >
             {STATUSES.map((item) => (
               <option key={item} value={item}>
-                {STATUS_LABELS[item]}
+                {t(STATUS_LABELS[item])}
               </option>
             ))}
           </select>
@@ -679,13 +685,13 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
                 min="0"
                 value={finalValue}
                 onChange={(e) => setFinalValue(e.target.value)}
-                placeholder="Final value *"
+                placeholder={t("admin.leads.final_value")}
                 className="rounded-2xl border p-3"
               />
               <input
                 value={orderReference}
                 onChange={(e) => setOrderReference(e.target.value)}
-                placeholder="Order reference"
+                placeholder={t("admin.leads.order_reference")}
                 className="rounded-2xl border p-3"
               />
             </div>
@@ -697,17 +703,17 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
                 onChange={(e) => setLostReason(e.target.value)}
                 className="w-full rounded-2xl border p-3"
               >
-                <option value="">Select loss reason *</option>
+                <option value="">{t("admin.leads.select_loss_reason")}</option>
                 {Object.entries(LOST_REASONS).map(([key, value]) => (
                   <option key={key} value={key}>
-                    {value}
+                    {t(value)}
                   </option>
                 ))}
               </select>
               <textarea
                 value={lostExplanation}
                 onChange={(e) => setLostExplanation(e.target.value)}
-                placeholder="Optional explanation"
+                placeholder={t("admin.leads.optional_explanation")}
                 className="w-full rounded-2xl border p-3"
               />
             </div>
@@ -731,22 +737,22 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
                         ? { lostReason, lostExplanation }
                         : {}),
                     }),
-                  "Status updated.",
+                  t("admin.leads.status_updated"),
                 )
               }
               className="mt-3 w-full rounded-2xl bg-blue-600 p-3 text-sm font-semibold text-white disabled:opacity-50"
             >
-              Save status change
+              {t("admin.leads.save_status_change")}
             </button>
           )}
         </Section>
-        <Section title="Internal notes">
+        <Section title={t("admin.leads.internal_notes")}>
           <div className="flex gap-2">
             <textarea
               disabled={!canManage}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Add an internal note"
+              placeholder={t("admin.leads.add_an_internal_note")}
               className="min-h-20 flex-1 rounded-2xl border p-3 text-sm"
             />
             <button
@@ -755,7 +761,7 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
                 act(async () => {
                   await addLeadNote(lead._id, note.trim());
                   setNote("");
-                }, "Note added.")
+                }, t("admin.leads.note_added"))
               }
               className="self-end rounded-2xl bg-slate-900 p-3 text-white"
             >
@@ -763,17 +769,17 @@ function LeadDrawer({ lead, loading, users, canManage, onClose, onChanged }) {
             </button>
           </div>
         </Section>
-        <Section title="Timeline">
+        <Section title={t("admin.leads.timeline")}>
           <div className="space-y-3">
             {timeline.map((item, index) => (
               <div
                 key={`${item.at}-${index}`}
-                className="border-l-2 border-blue-200 pl-4"
+                className="border-s-2 border-blue-200 ps-4"
               >
                 <p className="text-sm font-semibold">{item.label}</p>
                 <p className="mt-1 text-xs text-slate-500">{item.detail}</p>
                 <p className="mt-1 text-[10px] text-slate-400">
-                  {dateTime(item.at)}
+                  {dateTime(item.at, lang)}
                 </p>
               </div>
             ))}

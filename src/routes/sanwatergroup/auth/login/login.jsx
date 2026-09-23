@@ -1,26 +1,10 @@
+import { useTranslation } from "@/lib/i18n";
 import React, { useState } from 'react';
 import { signIn_API } from '@/services/auth/sanwater_group.auth'; // adjust path later
 import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
 
-const PAGE_CONTENT = {
-  brand: {
-    name: "Pagedone",
-    logoAlt: "Pagedone Logo",
-  },
-  loginSection: {
-    title: "Welcome Back",
-    subtitle: "Fetch every details happnes in your website.",
-    forgotPasswordText: "Forgot Password?",
-    buttonText: "Login",
-  },
-  promoSection: {
-    title: "Control your Data With Our Smart Tool",
-    description: "Invest intelligently and discover a better way to manage your entire wealth easily.",
-    dashboardAlt: "Dashboard Preview"
-  }
-};
-
 const LoginPage = () => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     identifier: "",
     password: ""
@@ -42,7 +26,7 @@ const LoginPage = () => {
     setError("");
 
     if (!form.identifier || !form.password) {
-      return setError("All fields are required.");
+      return setError(t("admin.auth.all_fields_are_required"));
     }
 
     try {
@@ -59,11 +43,11 @@ const LoginPage = () => {
         window.location.href = SANWATERGROUPROUTES.analystics.fullPath;
         
       } else {
-        setError(res?.message || "Login failed.");
+        setError(res?.message || t("admin.auth.login_failed"));
       }
 
     } catch (err) {
-      setError(err?.response?.data?.message || "Something went wrong.");
+      setError(err?.response?.data?.message || t("admin.auth.something_went_wrong"));
     } finally {
       setLoading(false);
     }
@@ -78,16 +62,16 @@ const LoginPage = () => {
           
           <div className="mb-12 flex items-center justify-center">
             <div className="flex w-20 items-center justify-center rounded-xl">
-              <img src='/logo.svg' alt="logo" />
+              <img src='/logo.svg' alt={t("admin.auth.logo")} />
             </div>
           </div>
 
-          <div className="text-center lg:text-left">
+          <div className="text-center lg:text-start">
             <h1 className="text-3xl font-mainFont lg:text-4xl">
-              {PAGE_CONTENT.loginSection.title}
+              {t("admin.auth.welcome_back")}
             </h1>
             <p className="mt-3 text-slate-500">
-              {PAGE_CONTENT.loginSection.subtitle}
+              {t("admin.auth.login_description")}
             </p>
           </div>
 
@@ -106,7 +90,7 @@ const LoginPage = () => {
                 name="identifier"
                 value={form.identifier}
                 onChange={handleChange}
-                placeholder="Email or Username"
+                placeholder={t("admin.auth.email_or_username")}
                 className="w-full placeholder:font-bold rounded-full border border-slate-200 px-6 py-4 outline-none transition focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
               />
             </div>
@@ -117,14 +101,14 @@ const LoginPage = () => {
                 name="password"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Password"
+                placeholder={t("admin.auth.password")}
                 className="w-full placeholder:font-bold rounded-full border border-slate-200 px-6 py-4 outline-none transition focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
               />
             </div>
 
             <div className="flex justify-end">
               <a href="#" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
-                {PAGE_CONTENT.loginSection.forgotPasswordText}
+                {t("admin.auth.forgot_password")}
               </a>
             </div>
 
@@ -133,7 +117,7 @@ const LoginPage = () => {
               className={`w-full rounded-full py-4 font-bold text-white transition active:scale-[0.98] 
               ${loading ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}
             >
-              {loading ? "Logging in..." : PAGE_CONTENT.loginSection.buttonText}
+              {loading ? t("admin.auth.logging_in") : t("admin.auth.login")}
             </button>
           </form>
 
@@ -142,12 +126,12 @@ const LoginPage = () => {
 
       {/* RIGHT SIDE */}
       <section className="hidden lg:relative lg:flex lg:w-1/2 flex-col items-center justify-start bg-indigo-600 overflow-hidden pt-20 px-12">
-        <div className="max-w-lg text-white text-center lg:text-left">
+        <div className="max-w-lg text-white text-center lg:text-start">
           <h2 className="text-4xl font-bold leading-tight">
-            {PAGE_CONTENT.promoSection.title}
+            {t("admin.auth.promo_title")}
           </h2>
           <p className="mt-6 text-indigo-100 text-lg opacity-90">
-            {PAGE_CONTENT.promoSection.description}
+            {t("admin.auth.promo_description")}
           </p>
         </div>
 
@@ -176,7 +160,7 @@ const LoginPage = () => {
           </div>
         </div>
 
-        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-indigo-500 opacity-20 blur-3xl"></div>
+        <div className="absolute -top-24 -end-24 h-64 w-64 rounded-full bg-indigo-500 opacity-20 blur-3xl"></div>
       </section>
     </div>
   );

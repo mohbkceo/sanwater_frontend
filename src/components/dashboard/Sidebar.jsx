@@ -19,6 +19,7 @@ import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 import { PERMISSIONS } from "@/configs/permissions";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useTranslation } from "@/lib/i18n";
+import { SAN_WATER_GROUP_NAME } from "@/configs/brand";
 
 const navSections = [
   {
@@ -155,7 +156,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
 
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-slate-900">
-                San Water Group
+                {SAN_WATER_GROUP_NAME}
               </p>
 
               <p className="text-[11px] text-slate-400">{t("admin.shell.administration")}</p>

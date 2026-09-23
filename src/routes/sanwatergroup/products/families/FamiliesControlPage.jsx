@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronRight, FolderTree, ImagePlus, Loader2, PackagePlus, Pencil, Plus, RefreshCw, Search, Trash2, Unlink, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -28,17 +29,19 @@ function Dialog({ title, children, onClose, wide = false }) {
 }
 
 function ProductPager({ page, totalPages, onPage }) {
+  const { t } = useTranslation();
   if (totalPages <= 1) return null;
   return (
     <div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-500">
-      <Button type="button" variant="outline" disabled={page <= 1} onClick={() => onPage(page - 1)}>Previous</Button>
-      <span>Page {page} of {totalPages}</span>
-      <Button type="button" variant="outline" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>Next</Button>
+      <Button type="button" variant="outline" disabled={page <= 1} onClick={() => onPage(page - 1)}>{t("admin.families.previous")}</Button>
+      <span>{t("admin.common.page_of", { page, total: totalPages })}</span>
+      <Button type="button" variant="outline" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>{t("admin.families.next")}</Button>
     </div>
   );
 }
 
 function AssignProductsDialog({ family, subFamily, onClose, onAssigned }) {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [assignment, setAssignment] = useState('unassigned');
   const [search, setSearch] = useState('');
@@ -60,7 +63,7 @@ function AssignProductsDialog({ family, subFamily, onClose, onAssigned }) {
         setTotalPages(response?.data?.totalPages || 1);
         setTotalCount(response?.data?.totalCount || 0);
       } catch {
-        if (active) toast.error('Could not load products.');
+        if (active) toast.error(t("admin.families.could_not_load_products"));
       } finally {
         if (active) setLoading(false);
       }
@@ -90,40 +93,41 @@ function AssignProductsDialog({ family, subFamily, onClose, onAssigned }) {
     setSaving(true);
     try {
       await assignProductsToSubFamily(subFamily._id, [...selected]);
-      toast.success(`${selected.size} product${selected.size === 1 ? '' : 's'} assigned to ${subFamily.name}.`);
+      toast.success(t(selected.size === 1 ? "admin.families.one_product_assigned" : "admin.families.products_assigned", { count: selected.size, family: subFamily.name }));
       await onAssigned();
       onClose();
-    } catch { toast.error('Product assignment failed.'); }
+    } catch { toast.error(t("admin.families.product_assignment_failed")); }
     finally { setSaving(false); }
   }
 
   return (
-    <Dialog title={`Assign Products to ${subFamily.name}`} onClose={onClose} wide>
+    <Dialog title={t("admin.families.assign_products_to_family", { family: subFamily.name })} onClose={onClose} wide>
       <div className="space-y-5 p-6">
-        <div className="rounded-2xl bg-blue-50 p-4 text-sm text-blue-900"><strong>{family.name} → {subFamily.name}</strong><p className="mt-1 text-xs text-blue-700">Assigning a product here also sets its parent Family. Products assigned elsewhere are moved automatically.</p></div>
+        <div className="rounded-2xl bg-blue-50 p-4 text-sm text-blue-900"><strong>{family.name} → {subFamily.name}</strong><p className="mt-1 text-xs text-blue-700">{t("admin.families.assigning_a_product_here_also_sets_its_parent_family")}</p></div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="relative flex-1"><Search className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Search by name, ID or serial…" className="h-11 w-full rounded-xl border border-slate-200 pl-10 pr-3 text-sm outline-none focus:border-blue-400" /></label>
+          <label className="relative flex-1"><Search className="absolute start-3 top-3.5 h-4 w-4 text-slate-400" /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("admin.families.search_by_name_id_or_serial")} className="h-11 w-full rounded-xl border border-slate-200 ps-10 pe-3 text-sm outline-none focus:border-blue-400" /></label>
           <select value={assignment} onChange={(event) => { setAssignment(event.target.value); setPage(1); }} className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
-            <option value="unassigned">Unassigned</option><option value="assigned">Assigned</option><option value="all">All</option>
+            <option value="unassigned">{t("admin.families.unassigned")}</option><option value="assigned">{t("admin.families.assigned")}</option><option value="all">{t("admin.families.all")}</option>
           </select>
         </div>
-        <div className="flex items-center justify-between text-xs text-slate-500"><button type="button" onClick={toggleVisible} className="font-semibold text-blue-700">Select all visible</button><span>{totalCount} products · {selected.size} selected</span></div>
+        <div className="flex items-center justify-between text-xs text-slate-500"><button type="button" onClick={toggleVisible} className="font-semibold text-blue-700">{t("admin.families.select_all_visible")}</button><span>{t("admin.families.selection_count", { total: totalCount, selected: selected.size })}</span></div>
         <div className="min-h-64 space-y-2">
-          {loading ? <div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin text-blue-600" /></div> : products.length === 0 ? <div className="grid min-h-64 place-items-center rounded-2xl border border-dashed border-slate-200 text-sm text-slate-500">No matching products.</div> : products.map((product) => (
+          {loading ? <div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin text-blue-600" /></div> : products.length === 0 ? <div className="grid min-h-64 place-items-center rounded-2xl border border-dashed border-slate-200 text-sm text-slate-500">{t("admin.families.no_matching_products")}</div> : products.map((product) => (
             <label key={product._id} className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 p-4 hover:border-blue-200 hover:bg-blue-50/30">
               <input type="checkbox" checked={selected.has(product._id)} onChange={() => toggleProduct(product._id)} />
-              <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-slate-900">{product.productId} — {product.name || 'Unnamed product'}</p><p className="mt-1 truncate text-xs text-slate-400">{product.serialNumber}{product.subFamily ? ` · ${product.family?.name || 'Unknown Family'} → ${product.subFamily.name}` : ' · Unassigned'}</p></div>
+              <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-slate-900">{product.productId} — {product.name || t("admin.families.unnamed_product")}</p><p className="mt-1 truncate text-xs text-slate-400">{product.serialNumber}{product.subFamily ? ` · ${product.family?.name || t("admin.families.unknown_family")} → ${product.subFamily.name}` : t("admin.families.unassigned_indicator")}</p></div>
             </label>
           ))}
         </div>
         <ProductPager page={page} totalPages={totalPages} onPage={setPage} />
-        <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button type="button" disabled={!selected.size || saving} onClick={assign} className="gap-2 bg-blue-600 text-white"><PackagePlus size={16} />{saving ? 'Assigning…' : `Assign ${selected.size || ''} Product${selected.size === 1 ? '' : 's'}`}</Button></div>
+        <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onClose}>{t("admin.families.cancel")}</Button><Button type="button" disabled={!selected.size || saving} onClick={assign} className="gap-2 bg-blue-600 text-white"><PackagePlus size={16} />{saving ? t("admin.families.assigning") : t(selected.size === 1 ? "admin.families.assign_one_product" : "admin.families.assign_product_count", { count: selected.size })}</Button></div>
       </div>
     </Dialog>
   );
 }
 
 function SubFamilyProductsDialog({ family, subFamily, canManage, onClose, onChanged }) {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('name:asc');
@@ -143,7 +147,7 @@ function SubFamilyProductsDialog({ family, subFamily, canManage, onClose, onChan
       setProducts(response?.data?.products || []);
       setTotalPages(response?.data?.totalPages || 1);
       setTotalCount(response?.data?.totalCount || 0);
-    } catch { toast.error('Could not load assigned products.'); }
+    } catch { toast.error(t("admin.families.could_not_load_assigned_products")); }
     finally { setLoading(false); }
   }
 
@@ -158,11 +162,11 @@ function SubFamilyProductsDialog({ family, subFamily, canManage, onClose, onChan
     setRemoving(true);
     try {
       await removeProductsFromSubFamily(subFamily._id, productIds);
-      toast.success(`${productIds.length} product${productIds.length === 1 ? '' : 's'} unassigned.`);
+      toast.success(t(productIds.length === 1 ? "admin.families.one_product_unassigned" : "admin.families.products_unassigned", { count: productIds.length }));
       setSelected(new Set());
       await onChanged();
       await loadProducts();
-    } catch { toast.error('Could not remove the assignment.'); }
+    } catch { toast.error(t("admin.families.could_not_remove_the_assignment")); }
     finally { setRemoving(false); }
   }
 
@@ -174,11 +178,11 @@ function SubFamilyProductsDialog({ family, subFamily, canManage, onClose, onChan
     <>
       <Dialog title={subFamily.name} onClose={onClose} wide>
         <div className="space-y-5 p-6">
-          <div className="flex flex-col gap-4 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-400">Parent Family</p><p className="mt-1 font-semibold text-slate-900">{family.name}</p><p className="mt-1 text-xs text-slate-500">{subFamily.isActive ? 'Visible' : 'Hidden'} · {totalCount} assigned products</p></div>{canManage && <Button type="button" onClick={() => setAssigning(true)} className="gap-2 bg-blue-600 text-white"><PackagePlus size={16} /> Assign Products</Button>}</div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center"><label className="relative flex-1"><Search className="absolute left-3 top-3.5 h-4 w-4 text-slate-400" /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Search assigned products…" className="h-11 w-full rounded-xl border border-slate-200 pl-10 pr-3 text-sm outline-none focus:border-blue-400" /></label><select value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }} className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm"><option value="name:asc">Name A–Z</option><option value="name:desc">Name Z–A</option><option value="createdAt:desc">Newest first</option><option value="createdAt:asc">Oldest first</option></select>{canManage && selected.size > 0 && <Button type="button" variant="outline" disabled={removing} onClick={() => remove([...selected])} className="gap-2 text-red-600"><Unlink size={15} /> Remove selected ({selected.size})</Button>}</div>
+          <div className="flex flex-col gap-4 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-400">{t("admin.families.parent_family")}</p><p className="mt-1 font-semibold text-slate-900">{family.name}</p><p className="mt-1 text-xs text-slate-500">{subFamily.isActive ? t("admin.families.visible") : t("admin.families.hidden")} · {totalCount} {t("admin.families.assigned_products")}</p></div>{canManage && <Button type="button" onClick={() => setAssigning(true)} className="gap-2 bg-blue-600 text-white"><PackagePlus size={16} /> {t("admin.families.assign_products")}</Button>}</div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center"><label className="relative flex-1"><Search className="absolute start-3 top-3.5 h-4 w-4 text-slate-400" /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("admin.families.search_assigned_products")} className="h-11 w-full rounded-xl border border-slate-200 ps-10 pe-3 text-sm outline-none focus:border-blue-400" /></label><select value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }} className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm"><option value="name:asc">{t("admin.families.name_a_z")}</option><option value="name:desc">{t("admin.families.name_z_a")}</option><option value="createdAt:desc">{t("admin.families.newest_first")}</option><option value="createdAt:asc">{t("admin.families.oldest_first")}</option></select>{canManage && selected.size > 0 && <Button type="button" variant="outline" disabled={removing} onClick={() => remove([...selected])} className="gap-2 text-red-600"><Unlink size={15} /> {t("admin.families.remove_selected")}{selected.size})</Button>}</div>
           <div className="min-h-64 space-y-2">
-            {loading ? <div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin text-blue-600" /></div> : products.length === 0 ? <div className="grid min-h-64 place-items-center rounded-2xl border border-dashed border-slate-200 text-center text-sm text-slate-500">No products are assigned to this Sub Family.</div> : products.map((product) => (
-              <div key={product._id} className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4">{canManage && <input type="checkbox" checked={selected.has(product._id)} onChange={() => toggle(product._id)} />}<div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-slate-900">{product.productId} — {product.name || 'Unnamed product'}</p><p className="mt-1 truncate text-xs text-slate-400">{product.serialNumber}</p></div>{canManage && <Button type="button" variant="outline" disabled={removing} onClick={() => remove([product._id])} className="gap-2 text-red-600"><Unlink size={14} /> Remove</Button>}</div>
+            {loading ? <div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin text-blue-600" /></div> : products.length === 0 ? <div className="grid min-h-64 place-items-center rounded-2xl border border-dashed border-slate-200 text-center text-sm text-slate-500">{t("admin.families.no_products_are_assigned_to_this_sub_family")}</div> : products.map((product) => (
+              <div key={product._id} className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4">{canManage && <input type="checkbox" checked={selected.has(product._id)} onChange={() => toggle(product._id)} />}<div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-slate-900">{product.productId} — {product.name || t("admin.families.unnamed_product")}</p><p className="mt-1 truncate text-xs text-slate-400">{product.serialNumber}</p></div>{canManage && <Button type="button" variant="outline" disabled={removing} onClick={() => remove([product._id])} className="gap-2 text-red-600"><Unlink size={14} /> {t("admin.families.remove")}</Button>}</div>
             ))}
           </div>
           <ProductPager page={page} totalPages={totalPages} onPage={setPage} />
@@ -190,19 +194,20 @@ function SubFamilyProductsDialog({ family, subFamily, canManage, onClose, onChan
 }
 
 function ImageDropzone({ value, onChange }) {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   async function handleFile(file) {
     if (!file) return;
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return toast.error('Use a JPG, PNG, or WebP image.');
-    if (file.size > 10 * 1024 * 1024) return toast.error('Image must be 10 MB or smaller.');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return toast.error(t("admin.families.use_a_jpg_png_or_webp_image"));
+    if (file.size > 10 * 1024 * 1024) return toast.error(t("admin.families.image_must_be_10_mb_or_smaller"));
     setUploading(true);
     try {
       const response = await uploadImage(file, { folder: 'catalog-families' });
       onChange(response.data.path);
-    } catch { toast.error('Image upload failed.'); }
+    } catch { toast.error(t("admin.families.image_upload_failed")); }
     finally { setUploading(false); }
   }
 
@@ -210,10 +215,10 @@ function ImageDropzone({ value, onChange }) {
     <div>
       {value ? (
         <div className="overflow-hidden rounded-2xl border border-slate-200">
-          <img src={value} alt="Family preview" className="h-48 w-full object-cover" />
+          <img src={value} alt={t("admin.families.family_preview")} className="h-48 w-full object-cover" />
           <div className="flex gap-2 p-3">
-            <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>Replace</Button>
-            <Button type="button" variant="outline" onClick={() => onChange(null)} className="text-red-600">Remove</Button>
+            <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>{t("admin.families.replace")}</Button>
+            <Button type="button" variant="outline" onClick={() => onChange(null)} className="text-red-600">{t("admin.families.remove")}</Button>
           </div>
         </div>
       ) : (
@@ -227,8 +232,8 @@ function ImageDropzone({ value, onChange }) {
         >
           <span>
             {uploading ? <Loader2 className="mx-auto animate-spin text-blue-600" /> : <ImagePlus className="mx-auto text-slate-400" />}
-            <span className="mt-3 block text-sm font-semibold text-slate-700">{uploading ? 'Uploading…' : 'Drop image here or choose an image'}</span>
-            <span className="mt-1 block text-xs text-slate-400">JPG, PNG or WebP · max 10 MB</span>
+            <span className="mt-3 block text-sm font-semibold text-slate-700">{uploading ? t("admin.families.uploading") : t("admin.families.drop_image_here_or_choose_an_image")}</span>
+            <span className="mt-1 block text-xs text-slate-400">{t("admin.families.jpg_png_or_webp_max_10_mb")}</span>
           </span>
         </button>
       )}
@@ -238,6 +243,7 @@ function ImageDropzone({ value, onChange }) {
 }
 
 function EntityEditor({ kind, initial, familyId, onClose, onSaved }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ ...EMPTY, ...initial, seo: { title: '', description: '', noIndex: false, ...(initial?.seo || {}) } });
   const [saving, setSaving] = useState(false);
   const isFamily = kind === 'family';
@@ -256,37 +262,38 @@ function EntityEditor({ kind, initial, familyId, onClose, onSaved }) {
       if (isFamily) await (editing ? updateFamily(form._id, payload) : createFamily(payload));
       else await (editing ? updateSubFamily(form._id, payload) : createSubFamily(familyId, payload));
       if (editing && initial.image && initial.image !== payload.image) {
-        await destroyImage(initial.image).catch(() => toast.warning('Saved, but the previous image could not be removed.'));
+        await destroyImage(initial.image).catch(() => toast.warning(t("admin.families.saved_but_the_previous_image_could_not_be_removed")));
       }
-      toast.success(`${isFamily ? 'Family' : 'Sub Family'} ${editing ? 'updated' : 'created'}.`);
+      toast.success(t(isFamily ? (editing ? "admin.families.family_updated" : "admin.families.family_created") : (editing ? "admin.families.sub_family_updated" : "admin.families.sub_family_created")));
       await onSaved();
       onClose();
-    } catch { toast.error(`Could not save ${isFamily ? 'Family' : 'Sub Family'}.`); }
+    } catch { toast.error(t(isFamily ? "admin.families.family_save_failed" : "admin.families.sub_family_save_failed")); }
     finally { setSaving(false); }
   }
 
   return (
-    <Dialog title={`${editing ? 'Edit' : 'Create'} ${isFamily ? 'Family' : 'Sub Family'}`} onClose={onClose} wide>
+    <Dialog title={t(isFamily ? (editing ? "admin.families.edit_family" : "admin.families.create_family") : (editing ? "admin.families.edit_sub_family" : "admin.families.create_sub_family"))} onClose={onClose} wide>
       <form onSubmit={submit} className="space-y-6 p-6">
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="text-sm font-medium text-slate-700">Name *<input required value={form.name} onChange={(e) => set('name', e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-blue-400" /></label>
-          <label className="text-sm font-medium text-slate-700">Slug<input value={form.slug || ''} onChange={(e) => set('slug', e.target.value.toLowerCase())} placeholder="auto-generated-if-empty" className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-blue-400" /></label>
-          <label className="text-sm font-medium text-slate-700 sm:col-span-2">Description<textarea rows={4} value={form.description || ''} onChange={(e) => set('description', e.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-blue-400" /></label>
-          <label className="text-sm font-medium text-slate-700">Display order<input type="number" value={form.order} onChange={(e) => set('order', e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-blue-400" /></label>
-          <label className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} /> Visible in public catalog</label>
+          <label className="text-sm font-medium text-slate-700">{t("admin.families.name")}<input required value={form.name} onChange={(e) => set('name', e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-blue-400" /></label>
+          <label className="text-sm font-medium text-slate-700">{t("admin.families.slug")}<input value={form.slug || ''} onChange={(e) => set('slug', e.target.value.toLowerCase())} placeholder={t("admin.families.auto_generated_if_empty")} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-blue-400" /></label>
+          <label className="text-sm font-medium text-slate-700 sm:col-span-2">{t("admin.families.description")}<textarea rows={4} value={form.description || ''} onChange={(e) => set('description', e.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-blue-400" /></label>
+          <label className="text-sm font-medium text-slate-700">{t("admin.families.display_order")}<input type="number" value={form.order} onChange={(e) => set('order', e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-blue-400" /></label>
+          <label className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} /> {t("admin.families.visible_in_public_catalog")}</label>
         </div>
-        <div><h3 className="mb-2 text-sm font-semibold text-slate-800">Image</h3><ImageDropzone value={form.image} onChange={(value) => set('image', value)} /></div>
+        <div><h3 className="mb-2 text-sm font-semibold text-slate-800">{t("admin.families.image")}</h3><ImageDropzone value={form.image} onChange={(value) => set('image', value)} /></div>
         {isFamily && <div className="grid gap-4 rounded-2xl bg-slate-50 p-4 sm:grid-cols-2">
-          <label className="text-sm font-medium text-slate-700">SEO title<input value={form.seo.title || ''} onChange={(e) => setForm((c) => ({ ...c, seo: { ...c.seo, title: e.target.value } }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3" /></label>
-          <label className="text-sm font-medium text-slate-700">SEO description<input value={form.seo.description || ''} onChange={(e) => setForm((c) => ({ ...c, seo: { ...c.seo, description: e.target.value } }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3" /></label>
+          <label className="text-sm font-medium text-slate-700">{t("admin.families.seo_title")}<input value={form.seo.title || ''} onChange={(e) => setForm((c) => ({ ...c, seo: { ...c.seo, title: e.target.value } }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3" /></label>
+          <label className="text-sm font-medium text-slate-700">{t("admin.families.seo_description")}<input value={form.seo.description || ''} onChange={(e) => setForm((c) => ({ ...c, seo: { ...c.seo, description: e.target.value } }))} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3" /></label>
         </div>}
-        <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button disabled={saving} className="bg-blue-600 text-white">{saving ? 'Saving…' : 'Save'}</Button></div>
+        <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onClose}>{t("admin.families.cancel")}</Button><Button disabled={saving} className="bg-blue-600 text-white">{saving ? t("admin.families.saving") : t("admin.families.save")}</Button></div>
       </form>
     </Dialog>
   );
 }
 
 function DeleteDialog({ target, families, onClose, onDeleted }) {
+  const { t } = useTranslation();
   const isFamily = target.kind === 'family';
   const entity = target.entity;
   const blocked = isFamily && (entity.subFamilyCount > 0 || entity.productCount > 0);
@@ -297,35 +304,36 @@ function DeleteDialog({ target, families, onClose, onDeleted }) {
 
   async function submit(event) {
     event.preventDefault();
-    if (!isFamily && entity.productCount > 0 && !replacement) return toast.error('Choose a replacement Sub Family.');
+    if (!isFamily && entity.productCount > 0 && !replacement) return toast.error(t("admin.families.choose_a_replacement_sub_family"));
     setDeleting(true);
     try {
       if (isFamily) await deleteFamily(entity._id, password);
       else await deleteSubFamily(entity._id, { password, replacementSubFamilyId: replacement });
       if (entity.image) await destroyImage(entity.image);
-      toast.success(`${isFamily ? 'Family' : 'Sub Family'} deleted.`);
+      toast.success(t(isFamily ? "admin.families.family_deleted" : "admin.families.sub_family_deleted"));
       await onDeleted();
       onClose();
-    } catch { toast.error('Delete failed. Check your password and the destination.'); }
+    } catch { toast.error(t("admin.families.delete_failed_check_your_password_and_the_destination")); }
     finally { setDeleting(false); }
   }
 
   return (
-    <Dialog title={`Delete ${isFamily ? 'Family' : 'Sub Family'}`} onClose={onClose}>
+    <Dialog title={t(isFamily ? "admin.families.delete_family" : "admin.families.delete_sub_family")} onClose={onClose}>
       <form onSubmit={submit} className="space-y-5 p-6">
-        <p className="text-sm text-slate-600">You are about to permanently delete <strong>{entity.name}</strong>.</p>
-        <div className="grid grid-cols-2 gap-3 rounded-2xl bg-red-50 p-4 text-sm"><span>Sub Families: <strong>{entity.subFamilyCount || 0}</strong></span><span>Products: <strong>{entity.productCount || 0}</strong></span></div>
-        {blocked ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">Move or delete all Sub Families before deleting this Family.</p> : <>
-          {!isFamily && entity.productCount > 0 && <label className="block text-sm font-medium text-slate-700">Replacement Sub Family *<select required value={replacement} onChange={(e) => setReplacement(e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3"><option value="">Select destination</option>{replacements.map((sub) => <option key={sub._id} value={sub._id}>{sub.familyName} — {sub.name}</option>)}</select></label>}
-          <label className="block text-sm font-medium text-slate-700">Current password *<input required type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3" /></label>
+        <p className="text-sm text-slate-600">{t("admin.families.delete_confirmation", { name: entity.name })}</p>
+        <div className="grid grid-cols-2 gap-3 rounded-2xl bg-red-50 p-4 text-sm"><span>{t("admin.families.sub_families")} <strong>{entity.subFamilyCount || 0}</strong></span><span>{t("admin.families.products_label")} <strong>{entity.productCount || 0}</strong></span></div>
+        {blocked ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">{t("admin.families.move_or_delete_all_sub_families_before_deleting_this")}</p> : <>
+          {!isFamily && entity.productCount > 0 && <label className="block text-sm font-medium text-slate-700">{t("admin.families.replacement_sub_family")}<select required value={replacement} onChange={(e) => setReplacement(e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3"><option value="">{t("admin.families.select_destination")}</option>{replacements.map((sub) => <option key={sub._id} value={sub._id}>{sub.familyName} — {sub.name}</option>)}</select></label>}
+          <label className="block text-sm font-medium text-slate-700">{t("admin.families.current_password")}<input required type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3" /></label>
         </>}
-        <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button>{!blocked && <Button disabled={deleting} className="bg-red-600 text-white hover:bg-red-700">{deleting ? 'Deleting…' : entity.productCount > 0 ? 'Move products & delete' : 'Delete permanently'}</Button>}</div>
+        <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={onClose}>{t("admin.families.cancel")}</Button>{!blocked && <Button disabled={deleting} className="bg-red-600 text-white hover:bg-red-700">{deleting ? t("admin.families.deleting") : entity.productCount > 0 ? t("admin.families.move_products_delete") : t("admin.families.delete_permanently")}</Button>}</div>
       </form>
     </Dialog>
   );
 }
 
 export default function FamiliesControlPage() {
+  const { t } = useTranslation();
   const [families, setFamilies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editor, setEditor] = useState(null);
@@ -337,7 +345,7 @@ export default function FamiliesControlPage() {
   async function loadFamilies() {
     setLoading(true);
     try { const response = await getFamilies({ isAdmin: true }); setFamilies(response?.data?.families || []); }
-    catch { toast.error('Failed to load Families.'); }
+    catch { toast.error(t("admin.families.failed_to_load_families")); }
     finally { setLoading(false); }
   }
   useEffect(() => { loadFamilies(); }, []);
@@ -346,16 +354,16 @@ export default function FamiliesControlPage() {
     <section className="px-4 pb-10 pt-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <header className="mb-7 flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/70 p-6 backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between">
-          <div><div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-blue-600"><FolderTree size={16} /> Catalog taxonomy</div><h1 className="text-3xl font-semibold text-slate-950">Families</h1><p className="mt-2 text-sm text-slate-500">Admin-managed Family → Sub Family → Product hierarchy.</p></div>
-          <div className="flex gap-2"><Button variant="outline" onClick={loadFamilies} disabled={loading}><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></Button>{canManage && <Button onClick={() => setEditor({ kind: 'family' })} className="gap-2 bg-blue-600 text-white"><Plus size={16} /> Create Family</Button>}</div>
+          <div><div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-blue-600"><FolderTree size={16} /> {t("admin.families.catalog_taxonomy")}</div><h1 className="text-3xl font-semibold text-slate-950">{t("admin.families.families")}</h1><p className="mt-2 text-sm text-slate-500">{t("admin.families.admin_managed_family_sub_family_product_hierarchy")}</p></div>
+          <div className="flex gap-2"><Button variant="outline" onClick={loadFamilies} disabled={loading}><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></Button>{canManage && <Button onClick={() => setEditor({ kind: 'family' })} className="gap-2 bg-blue-600 text-white"><Plus size={16} /> {t("admin.families.create_family")}</Button>}</div>
         </header>
 
-        {loading ? <div className="space-y-4">{[1, 2, 3].map((n) => <div key={n} className="h-28 animate-pulse rounded-3xl bg-white" />)}</div> : families.length === 0 ? <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center"><FolderTree className="mx-auto text-slate-300" /><h2 className="mt-3 font-semibold">No Families yet</h2><p className="mt-1 text-sm text-slate-500">Create the first Family, then add its Sub Families.</p></div> : <div className="space-y-4">
+        {loading ? <div className="space-y-4">{[1, 2, 3].map((n) => <div key={n} className="h-28 animate-pulse rounded-3xl bg-white" />)}</div> : families.length === 0 ? <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center"><FolderTree className="mx-auto text-slate-300" /><h2 className="mt-3 font-semibold">{t("admin.families.no_families_yet")}</h2><p className="mt-1 text-sm text-slate-500">{t("admin.families.create_the_first_family_then_add_its_sub_families")}</p></div> : <div className="space-y-4">
           {families.map((family) => <details key={family._id} open className="group overflow-hidden rounded-3xl border border-slate-200 bg-white">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6"><div className="flex min-w-0 items-center gap-3">{family.image ? <img src={family.image} alt="" className="h-12 w-12 rounded-xl object-cover" /> : <div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-blue-600"><FolderTree size={20} /></div>}<div><div className="flex items-center gap-2"><ChevronRight size={17} className="transition group-open:rotate-90" /><h2 className="font-semibold text-slate-950">{family.name}</h2>{!family.isActive && <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px]">Hidden</span>}</div><p className="ml-7 text-xs text-slate-400">/{family.slug} · {family.subFamilyCount} Sub Families</p></div></div><span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">{family.productCount} products</span></summary>
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6"><div className="flex min-w-0 items-center gap-3">{family.image ? <img src={family.image} alt="" className="h-12 w-12 rounded-xl object-cover" /> : <div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-blue-600"><FolderTree size={20} /></div>}<div><div className="flex items-center gap-2"><ChevronRight size={17} className="transition group-open:rotate-90" /><h2 className="font-semibold text-slate-950">{family.name}</h2>{!family.isActive && <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px]">{t("admin.families.hidden")}</span>}</div><p className="ms-7 text-xs text-slate-400">/{family.slug} · {family.subFamilyCount} {t("admin.families.sub_families_count_label")}</p></div></div><span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">{family.productCount} {t("admin.families.product_count_label")}</span></summary>
             <div className="border-t border-slate-100 p-5 sm:p-6">
-              {canManage && <div className="mb-5 flex flex-wrap gap-2"><Button variant="outline" onClick={() => setEditor({ kind: 'family', initial: family })} className="gap-2"><Pencil size={14} /> Edit Family</Button><Button variant="outline" onClick={() => setEditor({ kind: 'subFamily', familyId: family._id })} className="gap-2"><Plus size={14} /> Add Sub Family</Button><Button variant="outline" onClick={() => setDeleteTarget({ kind: 'family', entity: family })} className="ml-auto gap-2 text-red-600"><Trash2 size={14} /> Delete</Button></div>}
-              <div className="space-y-2">{family.subFamilies.length === 0 ? <p className="rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">No Sub Families.</p> : family.subFamilies.map((sub) => <div key={sub._id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-4 sm:flex-row sm:items-center"><button type="button" onClick={() => setSelectedSubFamily({ family, subFamily: sub })} className="min-w-0 flex-1 text-left"><div className="flex items-center gap-2"><h3 className="font-semibold text-slate-900">{sub.name}</h3>{!sub.isActive && <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px]">Hidden</span>}</div><p className="text-xs text-slate-400">/{sub.slug} · order {sub.order || 0}</p></button><span className="text-xs font-semibold text-slate-500">{sub.productCount} products</span><div className="flex gap-1"><Button variant="outline" onClick={() => setSelectedSubFamily({ family, subFamily: sub })}>Open</Button>{canManage && <><Button variant="outline" onClick={() => setEditor({ kind: 'subFamily', familyId: family._id, initial: sub })}><Pencil size={14} /></Button><Button variant="outline" onClick={() => setDeleteTarget({ kind: 'subFamily', entity: sub })} className="text-red-600"><Trash2 size={14} /></Button></>}</div></div>)}</div>
+              {canManage && <div className="mb-5 flex flex-wrap gap-2"><Button variant="outline" onClick={() => setEditor({ kind: 'family', initial: family })} className="gap-2"><Pencil size={14} /> {t("admin.families.edit_family")}</Button><Button variant="outline" onClick={() => setEditor({ kind: 'subFamily', familyId: family._id })} className="gap-2"><Plus size={14} /> {t("admin.families.add_sub_family")}</Button><Button variant="outline" onClick={() => setDeleteTarget({ kind: 'family', entity: family })} className="ms-auto gap-2 text-red-600"><Trash2 size={14} /> {t("admin.families.delete")}</Button></div>}
+              <div className="space-y-2">{family.subFamilies.length === 0 ? <p className="rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">{t("admin.families.no_sub_families")}</p> : family.subFamilies.map((sub) => <div key={sub._id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-4 sm:flex-row sm:items-center"><button type="button" onClick={() => setSelectedSubFamily({ family, subFamily: sub })} className="min-w-0 flex-1 text-start"><div className="flex items-center gap-2"><h3 className="font-semibold text-slate-900">{sub.name}</h3>{!sub.isActive && <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px]">{t("admin.families.hidden")}</span>}</div><p className="text-xs text-slate-400">/{sub.slug} {t("admin.families.order")} {sub.order || 0}</p></button><span className="text-xs font-semibold text-slate-500">{sub.productCount} {t("admin.families.product_count_label")}</span><div className="flex gap-1"><Button variant="outline" onClick={() => setSelectedSubFamily({ family, subFamily: sub })}>{t("admin.families.open")}</Button>{canManage && <><Button variant="outline" onClick={() => setEditor({ kind: 'subFamily', familyId: family._id, initial: sub })}><Pencil size={14} /></Button><Button variant="outline" onClick={() => setDeleteTarget({ kind: 'subFamily', entity: sub })} className="text-red-600"><Trash2 size={14} /></Button></>}</div></div>)}</div>
             </div>
           </details>)}
         </div>}

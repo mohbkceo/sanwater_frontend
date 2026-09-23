@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import React, { useEffect, useMemo, useState } from "react";
 
 import { contentAPI } from "@/services/baseAPIs";
@@ -23,17 +24,17 @@ const EMPTY_FORM = {
 
 const STATUS_META = {
   published: {
-    label: "Published",
+    labelKey: "admin.hiring.status_published",
     className: "border-blue-100 bg-blue-50 text-blue-700",
   },
 
   draft: {
-    label: "Draft",
+    labelKey: "admin.hiring.status_draft",
     className: "border-slate-200 bg-slate-50 text-slate-600",
   },
 
   closed: {
-    label: "Closed",
+    labelKey: "admin.hiring.status_closed",
     className: "border-blue-100 bg-blue-100/60 text-blue-800",
   },
 };
@@ -49,7 +50,7 @@ function splitLines(value = "") {
     .filter(Boolean);
 }
 
-function formatDate(value) {
+function formatDate(value, lang) {
   if (!value) return "—";
 
   const date = new Date(value);
@@ -58,7 +59,7 @@ function formatDate(value) {
     return "—";
   }
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(lang, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -74,7 +75,7 @@ function FieldLabel({ children, required = false }) {
     <label className="mb-2 block text-sm font-medium text-slate-800">
       {children}
 
-      {required && <span className="ml-1 text-blue-600">*</span>}
+      {required && <span className="ms-1 text-blue-600">*</span>}
     </label>
   );
 }
@@ -176,6 +177,7 @@ function Modal({
   onClose,
   widthClass = "max-w-4xl",
 }) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   return (
@@ -231,7 +233,7 @@ function Modal({
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-600">
-                Hiring
+                {t("admin.hiring.hiring")}
               </p>
 
               <h2 className="mt-1 truncate text-lg font-semibold tracking-tight text-slate-950">
@@ -259,7 +261,7 @@ function Modal({
                 hover:text-blue-700
               "
             >
-              Close
+              {t("admin.hiring.close")}
             </button>
           </div>
         </div>
@@ -324,6 +326,7 @@ function StatCard({ label, value, active = false }) {
 ========================================================= */
 
 function HiringCard({ item, onEdit, onDelete, onPreview, canManage = true }) {
+  const { lang, t } = useTranslation();
   const meta = STATUS_META[item.status] || STATUS_META.draft;
 
   const requirements = item.requirements || [];
@@ -357,19 +360,19 @@ function HiringCard({ item, onEdit, onDelete, onPreview, canManage = true }) {
               ${meta.className}
             `}
           >
-            {meta.label}
+            {t(meta.labelKey)}
           </span>
 
           <h3 className="mt-3 line-clamp-2 text-lg font-semibold tracking-tight text-slate-950">
-            {item.title || "Untitled position"}
+            {item.title || t("admin.hiring.untitled_position")}
           </h3>
 
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
-            <span>{item.location || "Location not specified"}</span>
+            <span>{item.location || t("admin.hiring.location_not_specified")}</span>
 
             <span className="text-slate-300">·</span>
 
-            <span>{item.type || "Type not specified"}</span>
+            <span>{item.type || t("admin.hiring.type_not_specified")}</span>
           </div>
         </div>
 
@@ -393,13 +396,13 @@ function HiringCard({ item, onEdit, onDelete, onPreview, canManage = true }) {
             hover:text-blue-700
           "
         >
-          Preview
+          {t("admin.hiring.preview")}
         </button>
       </div>
 
       {/* Description */}
       <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-500">
-        {item.description || "No description provided."}
+        {item.description || t("admin.hiring.no_description_provided")}
       </p>
 
       {/* Requirements */}
@@ -458,9 +461,9 @@ function HiringCard({ item, onEdit, onDelete, onPreview, canManage = true }) {
         "
       >
         <div className="text-[11px] text-slate-400">
-          Published{" "}
+          {t("admin.hiring.published")}{" "}
           <span className="font-medium text-slate-600">
-            {formatDate(item.publishDate)}
+            {formatDate(item.publishDate, lang)}
           </span>
         </div>
 
@@ -487,7 +490,7 @@ function HiringCard({ item, onEdit, onDelete, onPreview, canManage = true }) {
               disabled:opacity-40
             "
           >
-            Edit
+            {t("admin.hiring.edit")}
           </button>
 
           <button
@@ -512,7 +515,7 @@ function HiringCard({ item, onEdit, onDelete, onPreview, canManage = true }) {
               disabled:opacity-40
             "
           >
-            Delete
+            {t("admin.hiring.delete")}
           </button>
         </div>
       </div>
@@ -525,6 +528,7 @@ function HiringCard({ item, onEdit, onDelete, onPreview, canManage = true }) {
 ========================================================= */
 
 function EmptyState({ onCreate, hasFilters, canManage }) {
+  const { t } = useTranslation();
   return (
     <div
       className="
@@ -549,19 +553,19 @@ function EmptyState({ onCreate, hasFilters, canManage }) {
           text-blue-600
         "
       >
-        {hasFilters ? "No matching positions" : "No positions yet"}
+        {hasFilters ? t("admin.hiring.no_matching_positions") : t("admin.hiring.no_positions_yet")}
       </div>
 
       <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
         {hasFilters
-          ? "Try changing your filters"
-          : "Create your first hiring post"}
+          ? t("admin.hiring.try_changing_your_filters")
+          : t("admin.hiring.create_your_first_hiring_post")}
       </h3>
 
       <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
         {hasFilters
-          ? "Change the search term or status filter to see more results."
-          : "Publish structured job posts and manage them from one place."}
+          ? t("admin.hiring.change_the_search_term_or_status_filter_to_see")
+          : t("admin.hiring.publish_structured_job_posts_and_manage_them_from_one")}
       </p>
 
       {!hasFilters && (
@@ -584,7 +588,7 @@ function EmptyState({ onCreate, hasFilters, canManage }) {
             disabled:opacity-40
           "
         >
-          Create job post
+          {t("admin.hiring.create_job_post")}
         </button>
       )}
     </div>
@@ -622,7 +626,7 @@ function Td({ children, align = "left" }) {
         py-4
         text-sm
         text-slate-600
-        ${align === "right" ? "text-right" : ""}
+        ${align === "right" ? "text-end" : ""}
       `}
     >
       {children}
@@ -635,6 +639,7 @@ function Td({ children, align = "left" }) {
 ========================================================= */
 
 function HiringManagement() {
+  const { lang, t } = useTranslation();
   const { can } = usePermissions();
 
   const canManage = can(PERMISSIONS.HIRING.MANAGE);
@@ -836,7 +841,7 @@ function HiringManagement() {
       !payload.type ||
       !payload.description
     ) {
-      setFormError("Please fill in title, location, type, and description.");
+      setFormError(t("admin.hiring.required_job_fields"));
 
       return;
     }
@@ -857,7 +862,7 @@ function HiringManagement() {
       console.error("Error saving hiring post:", error);
 
       setFormError(
-        error?.response?.data?.message || "Failed to save hiring post.",
+        error?.response?.data?.message || t("admin.hiring.failed_to_save_job_post"),
       );
     } finally {
       setSubmitting(false);
@@ -934,7 +939,7 @@ function HiringManagement() {
                     text-slate-950
                   "
                 >
-                  Hiring
+                  {t("admin.hiring.hiring")}
                 </h1>
 
                 <span
@@ -954,7 +959,7 @@ function HiringManagement() {
               </div>
 
               <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
-                Create, organize and publish job opportunities.
+                {t("admin.hiring.create_organize_and_publish_job_opportunities")}
               </p>
             </div>
 
@@ -981,8 +986,8 @@ function HiringManagement() {
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "
-                title="Refresh"
-                aria-label="Refresh hiring posts"
+                title={t("admin.hiring.refresh")}
+                aria-label={t("admin.hiring.refresh_hiring_posts")}
               >
                 <RefreshCw
                   className={`
@@ -1019,7 +1024,7 @@ function HiringManagement() {
                 "
               >
                 <Plus className="h-4 w-4" />
-                New job post
+                {t("admin.hiring.new_job_post")}
               </button>
             </div>
           </div>
@@ -1038,13 +1043,13 @@ function HiringManagement() {
             lg:grid-cols-4
           "
         >
-          <StatCard label="Total posts" value={stats.total} />
+          <StatCard label={t("admin.hiring.total_posts")} value={stats.total} />
 
-          <StatCard label="Published" value={stats.published} active />
+          <StatCard label={t("admin.hiring.published")} value={stats.published} active />
 
-          <StatCard label="Drafts" value={stats.drafts} />
+          <StatCard label={t("admin.hiring.drafts")} value={stats.drafts} />
 
-          <StatCard label="Closed" value={stats.closed} />
+          <StatCard label={t("admin.hiring.closed")} value={stats.closed} />
         </div>
 
         {/* =================================================
@@ -1068,7 +1073,7 @@ function HiringManagement() {
                 className="
                   pointer-events-none
                   absolute
-                  left-3.5
+                  start-3.5
                   top-1/2
                   h-4
                   w-4
@@ -1080,7 +1085,7 @@ function HiringManagement() {
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search title, location, type or description..."
+                placeholder={t("admin.hiring.search_title_location_type_or_description")}
                 className="
                   h-11
                   w-full
@@ -1088,8 +1093,8 @@ function HiringManagement() {
                   border
                   border-slate-200
                   bg-slate-50/60
-                  pl-10
-                  pr-4
+                  ps-10
+                  pe-4
                   text-sm
                   text-slate-900
                   outline-none
@@ -1117,13 +1122,13 @@ function HiringManagement() {
                 onChange={(event) => setStatusFilter(event.target.value)}
                 className="min-w-[150px]"
               >
-                <option value="all">All statuses</option>
+                <option value="all">{t("admin.hiring.all_statuses")}</option>
 
-                <option value="published">Published</option>
+                <option value="published">{t("admin.hiring.published")}</option>
 
-                <option value="draft">Draft</option>
+                <option value="draft">{t("admin.hiring.draft")}</option>
 
-                <option value="closed">Closed</option>
+                <option value="closed">{t("admin.hiring.closed")}</option>
               </Select>
 
               <Select
@@ -1131,19 +1136,19 @@ function HiringManagement() {
                 onChange={(event) => setSortBy(event.target.value)}
                 className="min-w-[160px]"
               >
-                <option value="publishDate_desc">Newest first</option>
+                <option value="publishDate_desc">{t("admin.hiring.newest_first")}</option>
 
-                <option value="title_asc">Title A → Z</option>
+                <option value="title_asc">{t("admin.hiring.title_a_z")}</option>
 
-                <option value="title_desc">Title Z → A</option>
+                <option value="title_desc">{t("admin.hiring.title_z_a")}</option>
 
-                <option value="location_asc">Location A → Z</option>
+                <option value="location_asc">{t("admin.hiring.location_a_z")}</option>
 
-                <option value="location_desc">Location Z → A</option>
+                <option value="location_desc">{t("admin.hiring.location_z_a")}</option>
 
-                <option value="status_asc">Status A → Z</option>
+                <option value="status_asc">{t("admin.hiring.status_a_z")}</option>
 
-                <option value="status_desc">Status Z → A</option>
+                <option value="status_desc">{t("admin.hiring.status_z_a")}</option>
               </Select>
 
               {/* View selector */}
@@ -1179,7 +1184,7 @@ function HiringManagement() {
                     }
                   `}
                 >
-                  Grid
+                  {t("admin.hiring.grid")}
                 </button>
 
                 <button
@@ -1201,7 +1206,7 @@ function HiringManagement() {
                     }
                   `}
                 >
-                  Table
+                  {t("admin.hiring.table")}
                 </button>
               </div>
             </div>
@@ -1237,11 +1242,10 @@ function HiringManagement() {
             "
           >
             <div>
-              <p className="text-sm font-semibold text-slate-900">Job posts</p>
+              <p className="text-sm font-semibold text-slate-900">{t("admin.hiring.job_posts")}</p>
 
               <p className="mt-0.5 text-xs text-slate-400">
-                {filteredHiring.length}{" "}
-                {filteredHiring.length === 1 ? "result" : "results"}
+                {t(filteredHiring.length === 1 ? "admin.hiring.one_result" : "admin.hiring.result_count", { count: filteredHiring.length })}
               </p>
             </div>
 
@@ -1265,7 +1269,7 @@ function HiringManagement() {
                   sm:self-auto
                 "
               >
-                Clear filters
+                {t("admin.hiring.clear_filters")}
               </button>
             )}
           </div>
@@ -1326,12 +1330,12 @@ function HiringManagement() {
               <table className="min-w-full">
                 <thead className="border-b border-slate-100 bg-slate-50/70">
                   <tr>
-                    <Th>Position</Th>
-                    <Th>Location</Th>
-                    <Th>Type</Th>
-                    <Th>Status</Th>
-                    <Th>Publish date</Th>
-                    <Th align="right">Actions</Th>
+                    <Th>{t("admin.hiring.position")}</Th>
+                    <Th>{t("admin.hiring.location")}</Th>
+                    <Th>{t("admin.hiring.type")}</Th>
+                    <Th>{t("admin.hiring.status")}</Th>
+                    <Th>{t("admin.hiring.publish_date")}</Th>
+                    <Th align="right">{t("admin.hiring.actions")}</Th>
                   </tr>
                 </thead>
 
@@ -1376,11 +1380,11 @@ function HiringManagement() {
                                 ${meta.className}
                               `}
                           >
-                            {meta.label}
+                            {t(meta.labelKey)}
                           </span>
                         </Td>
 
-                        <Td>{formatDate(item.publishDate)}</Td>
+                        <Td>{formatDate(item.publishDate, lang)}</Td>
 
                         <Td align="right">
                           <div className="flex justify-end gap-2">
@@ -1403,7 +1407,7 @@ function HiringManagement() {
                                   hover:text-blue-700
                                 "
                             >
-                              Preview
+                              {t("admin.hiring.preview")}
                             </button>
 
                             <button
@@ -1428,7 +1432,7 @@ function HiringManagement() {
                                   disabled:opacity-40
                                 "
                             >
-                              Edit
+                              {t("admin.hiring.edit")}
                             </button>
                           </div>
                         </Td>
@@ -1448,8 +1452,8 @@ function HiringManagement() {
         <Modal
           open={isFormOpen}
           onClose={closeForm}
-          title={editingItem ? "Edit job post" : "Create job post"}
-          subtitle="Keep the position clear, structured and easy to scan."
+          title={editingItem ? t("admin.hiring.edit_job_post") : t("admin.hiring.create_job_post")}
+          subtitle={t("admin.hiring.editor_description")}
           widthClass="max-w-4xl"
         >
           <form onSubmit={submitForm} className="space-y-6">
@@ -1483,17 +1487,17 @@ function HiringManagement() {
             >
               <div className="mb-5">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-                  Basic information
+                  {t("admin.hiring.basic_information")}
                 </p>
 
                 <h3 className="mt-1 text-sm font-semibold text-slate-950">
-                  Position details
+                  {t("admin.hiring.position_details")}
                 </h3>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <FieldLabel required>Title</FieldLabel>
+                  <FieldLabel required>{t("admin.hiring.title")}</FieldLabel>
 
                   <TextInput
                     value={form.title}
@@ -1503,13 +1507,13 @@ function HiringManagement() {
                         title: event.target.value,
                       }))
                     }
-                    placeholder="Frontend Developer"
+                    placeholder={t("admin.hiring.frontend_developer")}
                     required
                   />
                 </div>
 
                 <div>
-                  <FieldLabel required>Location</FieldLabel>
+                  <FieldLabel required>{t("admin.hiring.location")}</FieldLabel>
 
                   <TextInput
                     value={form.location}
@@ -1519,13 +1523,13 @@ function HiringManagement() {
                         location: event.target.value,
                       }))
                     }
-                    placeholder="Remote / Algiers / Hybrid"
+                    placeholder={t("admin.hiring.remote_algiers_hybrid")}
                     required
                   />
                 </div>
 
                 <div>
-                  <FieldLabel required>Type</FieldLabel>
+                  <FieldLabel required>{t("admin.hiring.type")}</FieldLabel>
 
                   <TextInput
                     value={form.type}
@@ -1535,13 +1539,13 @@ function HiringManagement() {
                         type: event.target.value,
                       }))
                     }
-                    placeholder="Full-time / Part-time / Contract"
+                    placeholder={t("admin.hiring.full_time_part_time_contract")}
                     required
                   />
                 </div>
 
                 <div>
-                  <FieldLabel>Status</FieldLabel>
+                  <FieldLabel>{t("admin.hiring.status")}</FieldLabel>
 
                   <Select
                     value={form.status}
@@ -1552,16 +1556,16 @@ function HiringManagement() {
                       }))
                     }
                   >
-                    <option value="draft">Draft</option>
+                    <option value="draft">{t("admin.hiring.draft")}</option>
 
-                    <option value="published">Published</option>
+                    <option value="published">{t("admin.hiring.published")}</option>
 
-                    <option value="closed">Closed</option>
+                    <option value="closed">{t("admin.hiring.closed")}</option>
                   </Select>
                 </div>
 
                 <div className="md:col-span-2">
-                  <FieldLabel>Publish date</FieldLabel>
+                  <FieldLabel>{t("admin.hiring.publish_date")}</FieldLabel>
 
                   <TextInput
                     type="date"
@@ -1590,15 +1594,15 @@ function HiringManagement() {
             >
               <div className="mb-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-                  Content
+                  {t("admin.hiring.content")}
                 </p>
 
                 <h3 className="mt-1 text-sm font-semibold text-slate-950">
-                  Job description
+                  {t("admin.hiring.job_description")}
                 </h3>
               </div>
 
-              <FieldLabel required>Description</FieldLabel>
+              <FieldLabel required>{t("admin.hiring.description")}</FieldLabel>
 
               <TextArea
                 rows={7}
@@ -1609,7 +1613,7 @@ function HiringManagement() {
                     description: event.target.value,
                   }))
                 }
-                placeholder="Write a clear description of the role, responsibilities and expectations..."
+                placeholder={t("admin.hiring.write_a_clear_description_of_the_role_responsibilities_and")}
                 required
               />
             </div>
@@ -1633,11 +1637,11 @@ function HiringManagement() {
                 "
               >
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-                  Requirements
+                  {t("admin.hiring.requirements")}
                 </p>
 
                 <h3 className="mt-1 text-sm font-semibold text-slate-950">
-                  What candidates need
+                  {t("admin.hiring.what_candidates_need")}
                 </h3>
 
                 <TextArea
@@ -1650,13 +1654,11 @@ function HiringManagement() {
                       requirementsText: event.target.value,
                     }))
                   }
-                  placeholder={`3+ years experience
-React / TypeScript
-Strong communication`}
+                  placeholder={t("admin.hiring.requirements_example")}
                 />
 
                 <p className="mt-2 text-xs text-slate-400">
-                  One requirement per line.
+                  {t("admin.hiring.one_requirement_per_line")}
                 </p>
               </div>
 
@@ -1671,11 +1673,11 @@ Strong communication`}
                 "
               >
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-                  Benefits
+                  {t("admin.hiring.benefits")}
                 </p>
 
                 <h3 className="mt-1 text-sm font-semibold text-slate-950">
-                  What candidates receive
+                  {t("admin.hiring.what_candidates_receive")}
                 </h3>
 
                 <TextArea
@@ -1688,13 +1690,11 @@ Strong communication`}
                       benefitsText: event.target.value,
                     }))
                   }
-                  placeholder={`Flexible schedule
-Professional development
-Remote work`}
+                  placeholder={t("admin.hiring.benefits_example")}
                 />
 
                 <p className="mt-2 text-xs text-slate-400">
-                  One benefit per line.
+                  {t("admin.hiring.one_benefit_per_line")}
                 </p>
               </div>
             </div>
@@ -1739,7 +1739,7 @@ Remote work`}
                   disabled:opacity-50
                 "
               >
-                Cancel
+                {t("admin.hiring.cancel")}
               </button>
 
               <button
@@ -1760,10 +1760,10 @@ Remote work`}
                 "
               >
                 {submitting
-                  ? "Saving..."
+                  ? t("admin.hiring.saving")
                   : editingItem
-                    ? "Save changes"
-                    : "Create job post"}
+                    ? t("admin.hiring.save_changes")
+                    : t("admin.hiring.create_job_post")}
               </button>
             </div>
           </form>
@@ -1776,8 +1776,8 @@ Remote work`}
         <Modal
           open={Boolean(previewItem)}
           onClose={() => setPreviewItem(null)}
-          title="Job preview"
-          subtitle="Review the position before publishing."
+          title={t("admin.hiring.job_preview")}
+          subtitle={t("admin.hiring.preview_description")}
           widthClass="max-w-5xl"
         >
           {previewItem && (
@@ -1807,7 +1807,7 @@ Remote work`}
                     }
                   `}
                 >
-                  {STATUS_META[previewItem.status]?.label || previewItem.status}
+                  {STATUS_META[previewItem.status] ? t(STATUS_META[previewItem.status].labelKey) : previewItem.status}
                 </span>
 
                 <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
@@ -1816,22 +1816,22 @@ Remote work`}
 
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600">
                   <span>
-                    {previewItem.location || "Location not specified"}
+                    {previewItem.location || t("admin.hiring.location_not_specified")}
                   </span>
 
                   <span className="text-slate-300">·</span>
 
-                  <span>{previewItem.type || "Type not specified"}</span>
+                  <span>{previewItem.type || t("admin.hiring.type_not_specified")}</span>
 
                   <span className="text-slate-300">·</span>
 
-                  <span>{formatDate(previewItem.publishDate)}</span>
+                  <span>{formatDate(previewItem.publishDate, lang)}</span>
                 </div>
               </div>
 
               <div>
                 <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-                  Description
+                  {t("admin.hiring.description")}
                 </p>
 
                 <div className="rounded-2xl border border-slate-200/70 bg-white p-5">
@@ -1844,7 +1844,7 @@ Remote work`}
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-                    Requirements
+                    {t("admin.hiring.requirements")}
                   </p>
 
                   <div className="rounded-2xl border border-slate-200/70 bg-white p-5">
@@ -1869,7 +1869,7 @@ Remote work`}
                       </div>
                     ) : (
                       <p className="text-sm text-slate-400">
-                        No requirements added.
+                        {t("admin.hiring.no_requirements_added")}
                       </p>
                     )}
                   </div>
@@ -1877,7 +1877,7 @@ Remote work`}
 
                 <div>
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-                    Benefits
+                    {t("admin.hiring.benefits")}
                   </p>
 
                   <div className="rounded-2xl border border-slate-200/70 bg-white p-5">
@@ -1902,7 +1902,7 @@ Remote work`}
                       </div>
                     ) : (
                       <p className="text-sm text-slate-400">
-                        No benefits added.
+                        {t("admin.hiring.no_benefits_added")}
                       </p>
                     )}
                   </div>
@@ -1923,8 +1923,8 @@ Remote work`}
               setDeleteItem(null);
             }
           }}
-          title="Delete job post"
-          subtitle="This action cannot be undone."
+          title={t("admin.hiring.delete_job_post")}
+          subtitle={t("admin.hiring.delete_warning")}
           widthClass="max-w-lg"
         >
           <div className="space-y-5">
@@ -1938,7 +1938,7 @@ Remote work`}
               "
             >
               <p className="text-sm leading-6 text-red-700">
-                You are about to permanently delete{" "}
+                {t("admin.hiring.you_are_about_to_permanently_delete")}{" "}
                 <span className="font-semibold">{deleteItem?.title}</span>.
               </p>
             </div>
@@ -1962,7 +1962,7 @@ Remote work`}
                   hover:bg-slate-50
                 "
               >
-                Cancel
+                {t("admin.hiring.cancel")}
               </button>
 
               <button
@@ -1983,7 +1983,7 @@ Remote work`}
                   disabled:opacity-60
                 "
               >
-                {submitting ? "Deleting..." : "Delete job post"}
+                {submitting ? t("admin.hiring.deleting") : t("admin.hiring.delete_job_post")}
               </button>
             </div>
           </div>

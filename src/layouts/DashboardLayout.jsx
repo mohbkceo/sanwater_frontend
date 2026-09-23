@@ -1,19 +1,16 @@
 import { Topbar, Sidebar } from "@/components";
 import { Outlet } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
-import { useLegacyAdminTranslations } from "@/lib/useLegacyAdminTranslations";
 
 
 export default function DashboardLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { direction, t } = useTranslation();
-  const dashboardRef = useRef(null);
-  useLegacyAdminTranslations(dashboardRef);
 
   return (
-    <div ref={dashboardRef} dir={direction} className="flex h-screen bg-gray-50">
+    <div dir={direction} className="flex h-screen bg-gray-50">
       <Sidebar />
 
       <div className="flex flex-col flex-1">

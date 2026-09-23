@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { Copy, Check, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Button } from "..";
@@ -9,6 +10,7 @@ export default function ProductCard({
   onToggleActive,
   canManage = true,
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [copied, setCopied] = useState(false);
@@ -82,18 +84,18 @@ export default function ProductCard({
           w-full
           overflow-hidden
           bg-slate-100
-          text-left
+          text-start
           focus:outline-none
           focus-visible:ring-2
           focus-visible:ring-blue-500/40
           focus-visible:ring-inset
         "
-        aria-label={`Edit ${product.name || "product"}`}
+        aria-label={t("admin.products.edit_named_product", { name: product.name || t("admin.products.product") })}
       >
         <div className="relative aspect-[4/3] overflow-hidden">
           <img
             src={imageUrl}
-            alt={product.name || "Product"}
+            alt={product.name || t("admin.products.product")}
             className="
               h-full
               w-full
@@ -124,7 +126,7 @@ export default function ProductCard({
             <span
               className="
                 absolute
-                left-3.5
+                start-3.5
                 top-3.5
                 max-w-[60%]
                 truncate
@@ -150,7 +152,7 @@ export default function ProductCard({
           <span
             className={`
               absolute
-              right-3.5
+              end-3.5
               top-3.5
               rounded-full
               border
@@ -175,7 +177,7 @@ export default function ProductCard({
               }
             `}
           >
-            {isActive ? "Visible" : "Hidden"}
+            {isActive ? t("admin.products.visible") : t("admin.products.hidden")}
           </span>
 
           {/* Product name */}
@@ -189,7 +191,7 @@ export default function ProductCard({
                 text-white
               "
             >
-              {product.name || "Unnamed Product"}
+              {product.name || t("admin.products.unnamed_product")}
             </h2>
 
             {product.productId && (
@@ -209,7 +211,7 @@ export default function ProductCard({
         <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200/70 bg-slate-50/50">
           <div className="flex items-center justify-between gap-4 px-3.5 py-3">
             <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-slate-400">
-              Product ID
+              {t("admin.products.product_id")}
             </span>
 
             <span className="max-w-[55%] truncate font-mono text-xs font-medium text-slate-700">
@@ -219,7 +221,7 @@ export default function ProductCard({
 
           <div className="flex items-center justify-between gap-4 px-3.5 py-3">
             <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-slate-400">
-              Serial
+              {t("admin.products.serial")}
             </span>
 
             <span className="max-w-[55%] truncate font-mono text-xs font-medium text-slate-700">
@@ -240,10 +242,10 @@ export default function ProductCard({
             disabled={!canManage}
             title={
               !canManage
-                ? "You do not have permission"
+                ? t("admin.common.permission_denied")
                 : isActive
-                  ? "Hide product"
-                  : "Show product"
+                  ? t("admin.products.hide_product")
+                  : t("admin.products.show_product")
             }
             className={`
               h-10
@@ -274,15 +276,15 @@ export default function ProductCard({
               }
             `}
           >
-            {isActive ? "Hide product" : "Show product"}
+            {isActive ? t("admin.products.hide_product") : t("admin.products.show_product")}
           </Button>
 
           {/* Copy */}
           <Button
             type="button"
             onClick={handleCopyLink}
-            title="Copy product link"
-            aria-label="Copy product link"
+            title={t("admin.products.copy_product_link")}
+            aria-label={t("admin.products.copy_product_link")}
             className="
               grid
               h-10
@@ -312,7 +314,7 @@ export default function ProductCard({
             <Button
               type="button"
               onClick={() => setMenuOpen((current) => !current)}
-              aria-label="More product actions"
+              aria-label={t("admin.products.more_product_actions")}
               aria-expanded={menuOpen}
               className="
                 grid
@@ -338,7 +340,7 @@ export default function ProductCard({
               <>
                 <button
                   type="button"
-                  aria-label="Close menu"
+                  aria-label={t("admin.products.close_menu")}
                   onClick={() => setMenuOpen(false)}
                   className="fixed inset-0 z-10 cursor-default"
                 />
@@ -347,7 +349,7 @@ export default function ProductCard({
                   className="
                     absolute
                     bottom-12
-                    right-0
+                    end-0
                     z-20
                     w-36
                     overflow-hidden
@@ -370,7 +372,7 @@ export default function ProductCard({
                       rounded-xl
                       px-3
                       py-2.5
-                      text-left
+                      text-start
                       text-xs
                       font-medium
                       text-slate-700
@@ -379,7 +381,7 @@ export default function ProductCard({
                       hover:text-blue-700
                     "
                   >
-                    Edit product
+                    {t("admin.products.edit_product")}
                   </button>
 
                   <button
@@ -393,7 +395,7 @@ export default function ProductCard({
                       rounded-xl
                       px-3
                       py-2.5
-                      text-left
+                      text-start
                       text-xs
                       font-medium
                       text-red-600
@@ -403,7 +405,7 @@ export default function ProductCard({
                       disabled:opacity-40
                     "
                   >
-                    Delete product
+                    {t("admin.products.delete_product_action")}
                   </button>
                 </div>
               </>
@@ -412,7 +414,7 @@ export default function ProductCard({
         </div>
 
         <p className="mt-2 text-center text-[9px] font-medium uppercase tracking-[0.12em] text-slate-400">
-          Select product to edit
+          {t("admin.products.select_product_to_edit")}
         </p>
       </div>
     </article>

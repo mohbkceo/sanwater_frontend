@@ -8,10 +8,10 @@ export default function CommercialFunnel({ funnel, selectedStage, onSelectStage 
     <div className="space-y-4">
       <div className="grid gap-3 lg:grid-cols-5">
         {stages.map((stage, index) => (
-          <button key={stage.key} type="button" onClick={() => onSelectStage?.(stage.key)} className={`rounded-2xl border p-4 text-left transition ${selectedStage === stage.key ? "border-blue-500 bg-blue-50 ring-4 ring-blue-500/10" : "border-slate-200 bg-white hover:border-blue-300"}`}>
+          <button key={stage.key} type="button" onClick={() => onSelectStage?.(stage.key)} className={`rounded-2xl border p-4 text-start transition ${selectedStage === stage.key ? "border-blue-500 bg-blue-50 ring-4 ring-blue-500/10" : "border-slate-200 bg-white hover:border-blue-300"}`}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold text-slate-700">{stage.name}</span>
-              <span className="text-[10px] font-semibold text-slate-400">{formatChange(stage.comparison)}</span>
+              <span className="text-[10px] font-semibold text-slate-400">{formatChange(stage.comparison, t)}</span>
             </div>
             <p className="mt-3 text-2xl font-bold text-slate-950">{formatNumber(stage.current)}</p>
             <p className="mt-2 text-xs text-slate-500">
@@ -38,3 +38,4 @@ export default function CommercialFunnel({ funnel, selectedStage, onSelectStage 
     </div>
   );
 }
+

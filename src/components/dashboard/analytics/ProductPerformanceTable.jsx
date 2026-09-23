@@ -38,7 +38,7 @@ export default function ProductPerformanceTable({ products = [] }) {
                 <td className="p-4 font-semibold text-slate-700">{formatRate(product.salesIntentRate)}</td>
                 <td className="p-4 font-semibold text-slate-700">{formatRate(product.orderConversionRate)}</td>
                 <td className="p-4 font-semibold text-slate-900">{formatDZD(product.revenue)}</td>
-                <td className="p-4 text-slate-600">{formatChange(product.trend)}</td>
+                <td className="p-4 text-slate-600">{formatChange(product.trend, t)}</td>
                 <td className="p-4"><ProductClassificationBadge value={product.classification} /></td>
               </tr>
             ))}
@@ -49,3 +49,4 @@ export default function ProductPerformanceTable({ products = [] }) {
     </div>
   );
 }
+

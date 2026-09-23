@@ -7,8 +7,10 @@ import Image from "@tiptap/extension-image";
 import { Bold, Heading2, Heading3, Heading4, ImagePlus, Italic, Link2, List, ListOrdered, Minus, Quote, Redo2, UnderlineIcon, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/services/contents/imageHandler";
+import { useTranslation } from "@/lib/i18n";
 
 export default function RichTextEditor({ value, onChange, disabled = false }) {
+  const { t } = useTranslation();
   const fileRef = useRef(null);
   const [linkMode, setLinkMode] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -30,7 +32,7 @@ export default function RichTextEditor({ value, onChange, disabled = false }) {
   async function addImage(event) {
     const file = event.target.files?.[0]; if (!file) return;
     try { setUploading(true); const result = await uploadImage(file, { folder: "news", onProgress: () => {} }); const url = result?.data?.path; if (url) editor.chain().focus().setImage({ src: url, alt: file.name }).run(); }
-    catch { toast.error("Image upload failed."); } finally { setUploading(false); event.target.value = ""; }
+    catch { toast.error(t("admin.news.editor_image_upload_failed")); } finally { setUploading(false); event.target.value = ""; }
   }
   function applyLink() {
     if (!linkUrl) editor.chain().focus().unsetLink().run();
@@ -40,23 +42,23 @@ export default function RichTextEditor({ value, onChange, disabled = false }) {
 
   return <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
     <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 bg-slate-50 p-2">
-      {tool("Bold", Bold, () => editor.chain().focus().toggleBold().run(), editor.isActive("bold"))}
-      {tool("Italic", Italic, () => editor.chain().focus().toggleItalic().run(), editor.isActive("italic"))}
-      {tool("Underline", UnderlineIcon, () => editor.chain().focus().toggleUnderline().run(), editor.isActive("underline"))}
-      {tool("Heading 2", Heading2, () => editor.chain().focus().toggleHeading({ level: 2 }).run(), editor.isActive("heading", { level: 2 }))}
-      {tool("Heading 3", Heading3, () => editor.chain().focus().toggleHeading({ level: 3 }).run(), editor.isActive("heading", { level: 3 }))}
-      {tool("Heading 4", Heading4, () => editor.chain().focus().toggleHeading({ level: 4 }).run(), editor.isActive("heading", { level: 4 }))}
-      {tool("Bullet list", List, () => editor.chain().focus().toggleBulletList().run(), editor.isActive("bulletList"))}
-      {tool("Numbered list", ListOrdered, () => editor.chain().focus().toggleOrderedList().run(), editor.isActive("orderedList"))}
-      {tool("Blockquote", Quote, () => editor.chain().focus().toggleBlockquote().run(), editor.isActive("blockquote"))}
-      {tool("Divider", Minus, () => editor.chain().focus().setHorizontalRule().run())}
-      {tool("Link", Link2, () => setLinkMode((current) => !current), editor.isActive("link"))}
-      {tool(uploading ? "Uploading" : "Insert image", ImagePlus, () => fileRef.current?.click(), false, uploading)}
-      {tool("Undo", Undo2, () => editor.chain().focus().undo().run(), false, !editor.can().undo())}
-      {tool("Redo", Redo2, () => editor.chain().focus().redo().run(), false, !editor.can().redo())}
+      {tool(t("admin.news.editor_bold"), Bold, () => editor.chain().focus().toggleBold().run(), editor.isActive("bold"))}
+      {tool(t("admin.news.editor_italic"), Italic, () => editor.chain().focus().toggleItalic().run(), editor.isActive("italic"))}
+      {tool(t("admin.news.editor_underline"), UnderlineIcon, () => editor.chain().focus().toggleUnderline().run(), editor.isActive("underline"))}
+      {tool(t("admin.news.editor_heading_2"), Heading2, () => editor.chain().focus().toggleHeading({ level: 2 }).run(), editor.isActive("heading", { level: 2 }))}
+      {tool(t("admin.news.editor_heading_3"), Heading3, () => editor.chain().focus().toggleHeading({ level: 3 }).run(), editor.isActive("heading", { level: 3 }))}
+      {tool(t("admin.news.editor_heading_4"), Heading4, () => editor.chain().focus().toggleHeading({ level: 4 }).run(), editor.isActive("heading", { level: 4 }))}
+      {tool(t("admin.news.editor_bullet_list"), List, () => editor.chain().focus().toggleBulletList().run(), editor.isActive("bulletList"))}
+      {tool(t("admin.news.editor_numbered_list"), ListOrdered, () => editor.chain().focus().toggleOrderedList().run(), editor.isActive("orderedList"))}
+      {tool(t("admin.news.editor_blockquote"), Quote, () => editor.chain().focus().toggleBlockquote().run(), editor.isActive("blockquote"))}
+      {tool(t("admin.news.editor_divider"), Minus, () => editor.chain().focus().setHorizontalRule().run())}
+      {tool(t("admin.news.editor_link"), Link2, () => setLinkMode((current) => !current), editor.isActive("link"))}
+      {tool(uploading ? t("admin.news.editor_uploading") : t("admin.news.editor_insert_image"), ImagePlus, () => fileRef.current?.click(), false, uploading)}
+      {tool(t("admin.news.editor_undo"), Undo2, () => editor.chain().focus().undo().run(), false, !editor.can().undo())}
+      {tool(t("admin.news.editor_redo"), Redo2, () => editor.chain().focus().redo().run(), false, !editor.can().redo())}
       <input ref={fileRef} type="file" accept="image/*" onChange={addImage} className="hidden" />
     </div>
-    {linkMode && <div className="flex gap-2 border-b border-slate-200 p-2"><input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://..." className="flex-1 rounded-xl border px-3 py-2 text-sm" /><button type="button" onClick={applyLink} className="rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white">Apply</button></div>}
+    {linkMode && <div className="flex gap-2 border-b border-slate-200 p-2"><input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://..." className="flex-1 rounded-xl border px-3 py-2 text-sm" /><button type="button" onClick={applyLink} className="rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white">{t("admin.news.editor_apply")}</button></div>}
     <EditorContent editor={editor} />
   </div>;
 }

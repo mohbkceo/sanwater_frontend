@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -30,6 +31,13 @@ import {
 import { destroyImage, uploadImage } from "@/services/contents/imageHandler";
 import { getProducts } from "@/services/products/productServices";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+
+const REVISION_REASON_KEYS = {
+  manual_save: "admin.news.revision_manual_save",
+  publish: "admin.news.revision_publish",
+  substantial_update: "admin.news.revision_substantial_update",
+  restore: "admin.news.revision_restore",
+};
 
 const EMPTY = {
   title: "",
@@ -67,6 +75,7 @@ const algiersDateTimeToIso = (value) =>
   value ? new Date(`${value}:00+01:00`).toISOString() : null;
 
 export default function CreateEditNewsPage() {
+  const { lang, t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -81,7 +90,8 @@ export default function CreateEditNewsPage() {
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [publicationDirty, setPublicationDirty] = useState(false);
-  const [saveState, setSaveState] = useState("Saved");
+  const [saveState, setSaveState] = useState("saved");
+  const [lastSavedAt, setLastSavedAt] = useState(null);
   const [preview, setPreview] = useState(false);
   const [previewSize, setPreviewSize] = useState("desktop");
   const [products, setProducts] = useState([]);
@@ -114,7 +124,7 @@ export default function CreateEditNewsPage() {
         setDirty(false);
         setPublicationDirty(false);
       })
-      .catch(() => toast.error("Failed to load article."))
+      .catch(() => toast.error(t("admin.news.failed_to_load_article")))
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
@@ -173,7 +183,7 @@ export default function CreateEditNewsPage() {
       if (savingRef.current) return;
       try {
         savingRef.current = true;
-        setSaveState("Saving...");
+        setSaveState("saving");
         if (recordId) await autosaveNewsArticle(recordId, autosavePayload);
         else {
           const created = await createNewsArticle({
@@ -188,11 +198,10 @@ export default function CreateEditNewsPage() {
           }
         }
         setDirty(publicationDirty);
-        setSaveState(
-          `Saved at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
-        );
+        setLastSavedAt(new Date());
+        setSaveState("saved_at");
       } catch {
-        setSaveState("Autosave failed");
+        setSaveState("failed");
       } finally {
         savingRef.current = false;
       }
@@ -213,7 +222,7 @@ export default function CreateEditNewsPage() {
   function setField(name, value) {
     setForm((current) => ({ ...current, [name]: value }));
     setDirty(true);
-    setSaveState("Unsaved");
+    setSaveState("unsaved");
     if (["status", "publishedAt"].includes(name)) setPublicationDirty(true);
   }
   function payload() {
@@ -230,13 +239,13 @@ export default function CreateEditNewsPage() {
   }
   async function save() {
     if (!form.title.trim() || !form.content.trim())
-      return toast.error("Title and content are required.");
+      return toast.error(t("admin.news.title_and_content_are_required"));
     if (
       form.status === "scheduled" &&
       (!form.publishedAt ||
         new Date(algiersDateTimeToIso(form.publishedAt)) <= new Date())
     )
-      return toast.error("Choose a future date and time.");
+      return toast.error(t("admin.news.choose_a_future_date_and_time"));
     try {
       setSaving(true);
       const result = recordId
@@ -249,14 +258,13 @@ export default function CreateEditNewsPage() {
       }
       setDirty(false);
       setPublicationDirty(false);
-      setSaveState(
-        `Saved at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
-      );
+      setLastSavedAt(new Date());
+      setSaveState("saved_at");
       toast.success(
-        form.status === "published" ? "Article published." : "Article saved.",
+        form.status === "published" ? t("admin.news.article_published") : t("admin.news.article_saved"),
       );
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Save failed.");
+      toast.error(error?.response?.data?.message || t("admin.news.save_failed"));
     } finally {
       setSaving(false);
     }
@@ -277,9 +285,9 @@ export default function CreateEditNewsPage() {
         onProgress: setUploadProgress,
       });
       setField("coverImage", result?.data?.path || "");
-      toast.success("Cover uploaded.");
+      toast.success(t("admin.news.cover_uploaded"));
     } catch {
-      toast.error("Cover upload failed.");
+      toast.error(t("admin.news.cover_upload_failed"));
     } finally {
       setUploading(false);
       event.target.value = "";
@@ -294,7 +302,7 @@ export default function CreateEditNewsPage() {
     try {
       setRevision((await getNewsRevision(recordId, item._id))?.data || null);
     } catch {
-      toast.error("Could not load version.");
+      toast.error(t("admin.news.could_not_load_version"));
     }
   }
   async function restore(item) {
@@ -311,9 +319,9 @@ export default function CreateEditNewsPage() {
         ),
       });
       setRevision(null);
-      toast.success(`Version ${item.version} restored as a new revision.`);
+      toast.success(t("admin.news.version_restored", { version: item.version }));
     } catch {
-      toast.error("Restore failed.");
+      toast.error(t("admin.news.restore_failed"));
     } finally {
       setSaving(false);
     }
@@ -356,12 +364,12 @@ export default function CreateEditNewsPage() {
             </button>
             <div>
               <h1 className="text-2xl font-bold">
-                {recordId ? "Edit article" : "Create article"}
+                {recordId ? t("admin.news.edit_article") : t("admin.news.create_article")}
               </h1>
               <p
-                className={`text-xs ${saveState.includes("failed") ? "text-rose-600" : "text-slate-500"}`}
+                className={`text-xs ${saveState === "failed" ? "text-rose-600" : "text-slate-500"}`}
               >
-                {saveState}
+                {saveState === "saved_at" && lastSavedAt ? t("admin.news.saved_at", { time: new Intl.DateTimeFormat(lang, { timeStyle: "short" }).format(lastSavedAt) }) : t(`admin.news.save_state_${saveState}`)}
               </p>
             </div>
           </div>
@@ -371,7 +379,7 @@ export default function CreateEditNewsPage() {
               className="inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-semibold"
             >
               <Eye className="h-4 w-4" />
-              Preview
+              {t("admin.news.preview")}
             </button>
             <button
               onClick={save}
@@ -383,21 +391,21 @@ export default function CreateEditNewsPage() {
               ) : (
                 <Save className="h-4 w-4" />
               )}
-              {form.status === "published" ? "Publish" : "Save"}
+              {form.status === "published" ? t("admin.news.publish") : t("admin.news.save")}
             </button>
           </div>
         </header>
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
           <main className="space-y-5">
-            <Card title="Article">
-              <Input label="Title *">
+            <Card title={t("admin.news.article")}>
+              <Input label={t("admin.news.title")}>
                 <input
                   value={form.title}
                   onChange={(e) => setField("title", e.target.value)}
                   maxLength={200}
                 />
               </Input>
-              <Input label="Excerpt">
+              <Input label={t("admin.news.excerpt")}>
                 <textarea
                   value={form.excerpt || ""}
                   onChange={(e) => setField("excerpt", e.target.value)}
@@ -407,7 +415,7 @@ export default function CreateEditNewsPage() {
               </Input>
               <div>
                 <label className="mb-2 block text-xs font-bold uppercase text-slate-500">
-                  Content *
+                  {t("admin.news.content")}
                 </label>
                 <RichTextEditor
                   value={form.content}
@@ -415,11 +423,11 @@ export default function CreateEditNewsPage() {
                 />
               </div>
             </Card>
-            <Card title="Related Products">
+            <Card title={t("admin.news.related_products")}>
               <input
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
-                placeholder="Search products"
+                placeholder={t("admin.news.search_products")}
                 className="w-full rounded-2xl border p-3"
               />
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -449,27 +457,27 @@ export default function CreateEditNewsPage() {
                 ))}
               </div>
             </Card>
-            <Card title="SEO & Social">
+            <Card title={t("admin.news.seo_social")}>
               <Input
-                label={`SEO Title ${(form.seoTitle || form.title).length} / ~60`}
+                label={t("admin.news.seo_title_length", { count: (form.seoTitle || form.title).length })}
               >
                 <input
                   value={form.seoTitle || ""}
                   onChange={(e) => setField("seoTitle", e.target.value)}
-                  placeholder={form.title || "Defaults to article title"}
+                  placeholder={form.title || t("admin.news.defaults_to_article_title")}
                 />
               </Input>
               <Input
-                label={`Meta Description ${(form.seoDescription || form.excerpt || "").length} / ~160`}
+                label={t("admin.news.meta_description_length", { count: (form.seoDescription || form.excerpt || "").length })}
               >
                 <textarea
                   value={form.seoDescription || ""}
                   onChange={(e) => setField("seoDescription", e.target.value)}
-                  placeholder={form.excerpt || "Defaults to excerpt"}
+                  placeholder={form.excerpt || t("admin.news.defaults_to_excerpt")}
                   rows="3"
                 />
               </Input>
-              <Input label="Canonical URL">
+              <Input label={t("admin.news.canonical_url")}>
                 <input
                   type="url"
                   value={form.canonicalUrl || ""}
@@ -479,15 +487,15 @@ export default function CreateEditNewsPage() {
               </Input>
               <div className="rounded-2xl border bg-white p-4">
                 <p className="text-xs text-emerald-700">
-                  sanwater-dz.com › news
+                  {t("admin.news.sanwater_dz_com_news")}
                 </p>
                 <h3 className="mt-1 text-lg text-blue-700">
-                  {form.seoTitle || form.title || "Article title"}
+                  {form.seoTitle || form.title || t("admin.news.article_title")}
                 </h3>
                 <p className="mt-1 text-sm text-slate-600">
                   {form.seoDescription ||
                     form.excerpt ||
-                    "Article description preview"}
+                    t("admin.news.article_description_preview")}
                 </p>
               </div>
               <div className="overflow-hidden rounded-2xl border bg-slate-50">
@@ -495,15 +503,15 @@ export default function CreateEditNewsPage() {
                   <img
                     src={form.coverImage}
                     className="h-40 w-full object-cover"
-                    alt="Social preview"
+                    alt={t("admin.news.social_preview")}
                   />
                 )}
                 <div className="p-4">
                   <p className="text-xs uppercase text-slate-400">
-                    sanwater-dz.com
+                    {t("admin.news.sanwater_dz_com")}
                   </p>
                   <h3 className="mt-1 font-bold">
-                    {form.seoTitle || form.title || "Article title"}
+                    {form.seoTitle || form.title || t("admin.news.article_title")}
                   </h3>
                   <p className="mt-1 line-clamp-2 text-sm text-slate-500">
                     {form.seoDescription || form.excerpt}
@@ -513,32 +521,32 @@ export default function CreateEditNewsPage() {
             </Card>
           </main>
           <aside className="space-y-5">
-            <Card title="Publishing">
+            <Card title={t("admin.news.publishing")}>
               <label className="grid gap-2 text-sm">
                 <span className="text-xs font-bold uppercase text-slate-500">
-                  Status
+                  {t("admin.news.status")}
                 </span>
                 <select
                   value={form.status}
                   onChange={(e) => setField("status", e.target.value)}
                   className="rounded-2xl border p-3"
                 >
-                  <option value="draft">Draft</option>
-                  <option value="review">Review</option>
-                  <option value="scheduled">Scheduled</option>
-                  <option value="published">Publish now</option>
-                  <option value="archived">Archived</option>
+                  <option value="draft">{t("admin.news.draft")}</option>
+                  <option value="review">{t("admin.news.review")}</option>
+                  <option value="scheduled">{t("admin.news.scheduled")}</option>
+                  <option value="published">{t("admin.news.publish_now")}</option>
+                  <option value="archived">{t("admin.news.archived")}</option>
                 </select>
               </label>
               {form.status === "scheduled" && (
-                <Input label="Date & time">
+                <Input label={t("admin.news.date_time")}>
                   <input
                     type="datetime-local"
                     value={form.publishedAt}
                     onChange={(e) => setField("publishedAt", e.target.value)}
                   />
                   <p className="mt-1 text-xs text-slate-400">
-                    Timezone: Africa/Algiers
+                    {t("admin.news.timezone_africa_algiers")}
                   </p>
                 </Input>
               )}
@@ -548,15 +556,15 @@ export default function CreateEditNewsPage() {
                   checked={form.isFeatured}
                   onChange={(e) => setField("isFeatured", e.target.checked)}
                 />
-                Featured article
+                {t("admin.news.featured_article")}
               </label>
             </Card>
-            <Card title="Cover image">
+            <Card title={t("admin.news.cover_image")}>
               <div className="overflow-hidden rounded-2xl border bg-slate-50">
                 {form.coverImage ? (
                   <img
                     src={form.coverImage}
-                    alt="Cover"
+                    alt={t("admin.news.cover")}
                     className="h-48 w-full object-cover"
                   />
                 ) : (
@@ -571,8 +579,8 @@ export default function CreateEditNewsPage() {
                   {uploading
                     ? `${uploadProgress}%`
                     : form.coverImage
-                      ? "Replace"
-                      : "Upload"}
+                      ? t("admin.news.replace")
+                      : t("admin.news.upload")}
                   <input
                     type="file"
                     accept="image/*"
@@ -590,14 +598,14 @@ export default function CreateEditNewsPage() {
                 )}
               </div>
             </Card>
-            <Card title="Organization">
-              <Input label="Category">
+            <Card title={t("admin.news.organization")}>
+              <Input label={t("admin.news.category")}>
                 <input
                   value={form.category || ""}
                   onChange={(e) => setField("category", e.target.value)}
                 />
               </Input>
-              <Input label="Tags">
+              <Input label={t("admin.news.tags")}>
                 <div className="flex gap-2">
                   <input
                     value={tagInput}
@@ -614,7 +622,7 @@ export default function CreateEditNewsPage() {
                     type="button"
                     className="rounded-xl bg-slate-900 px-3 text-white"
                   >
-                    Add
+                    {t("admin.news.add")}
                   </button>
                 </div>
               </Input>
@@ -637,28 +645,27 @@ export default function CreateEditNewsPage() {
               </div>
             </Card>
             {recordId && (
-              <Card title="Version History" icon={History}>
+              <Card title={t("admin.news.version_history")} icon={History}>
                 {revisions.length ? (
                   <div className="space-y-2">
                     {revisions.map((item) => (
                       <button
                         key={item._id}
                         onClick={() => viewRevision(item)}
-                        className="w-full rounded-2xl border p-3 text-left"
+                        className="w-full rounded-2xl border p-3 text-start"
                       >
                         <p className="text-sm font-bold">
-                          Version {item.version} ·{" "}
-                          {item.reason.replaceAll("_", " ")}
+                          {t("admin.news.version_number_reason", { version: item.version, reason: REVISION_REASON_KEYS[item.reason] ? t(REVISION_REASON_KEYS[item.reason]) : item.reason })}
                         </p>
                         <p className="mt-1 text-xs text-slate-500">
                           {item.editor?.fullName || item.editor?.email} ·{" "}
-                          {new Date(item.createdAt).toLocaleString()}
+                          {new Date(item.createdAt).toLocaleString(lang)}
                         </p>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">No versions yet.</p>
+                  <p className="text-sm text-slate-500">{t("admin.news.no_versions_yet")}</p>
                 )}
               </Card>
             )}
@@ -704,9 +711,9 @@ export default function CreateEditNewsPage() {
         <Modal onClose={() => setRevision(null)}>
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold">Version {revision.version}</h2>
+              <h2 className="text-xl font-bold">{t("admin.news.version")} {revision.version}</h2>
               <p className="text-sm text-slate-500">
-                {new Date(revision.createdAt).toLocaleString()}
+                {new Date(revision.createdAt).toLocaleString(lang)}
               </p>
             </div>
             <button
@@ -717,9 +724,9 @@ export default function CreateEditNewsPage() {
             </button>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <VersionColumn title="Current" value={form} />
+            <VersionColumn title={t("admin.news.current")} value={form} />
             <VersionColumn
-              title={`Version ${revision.version}`}
+              title={t("admin.news.version_label", { version: revision.version })}
               value={revision.snapshot}
             />
           </div>
@@ -729,7 +736,7 @@ export default function CreateEditNewsPage() {
             className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white"
           >
             <History className="h-4 w-4" />
-            Restore this version
+            {t("admin.news.restore_this_version")}
           </button>
         </Modal>
       )}
@@ -776,6 +783,14 @@ function Modal({ onClose, children }) {
   );
 }
 function VersionColumn({ title, value }) {
+  const { t } = useTranslation();
+  const statusLabels = {
+    draft: "admin.news.status_draft",
+    review: "admin.news.status_review",
+    scheduled: "admin.news.status_scheduled",
+    published: "admin.news.status_published",
+    archived: "admin.news.status_archived",
+  };
   const safeContent = DOMPurify.sanitize(value?.content || "", {
     USE_PROFILES: { html: true },
   });
@@ -783,13 +798,13 @@ function VersionColumn({ title, value }) {
     <div className="rounded-2xl border bg-white p-4">
       <h3 className="font-bold">{title}</h3>
       <p className="mt-3 text-sm">
-        <strong>Title:</strong> {value?.title}
+        <strong>{t("admin.news.version_field_title")}</strong> {value?.title}
       </p>
       <p className="mt-2 text-sm">
-        <strong>Status:</strong> {value?.status}
+        <strong>{t("admin.news.version_field_status")}</strong> {statusLabels[value?.status] ? t(statusLabels[value.status]) : value?.status}
       </p>
       <p className="mt-2 text-sm">
-        <strong>Excerpt:</strong> {value?.excerpt}
+        <strong>{t("admin.news.version_field_excerpt")}</strong> {value?.excerpt}
       </p>
       <div
         className="mt-3 max-h-72 overflow-auto border-t pt-3 text-sm"

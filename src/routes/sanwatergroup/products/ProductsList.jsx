@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { PERMISSIONS } from "@/configs/permissions";
 import { getFamilies } from "@/services/products/familyServices";
 export default function ProductsPage() {
+  const { t } = useTranslation();
   const { products, loading, refetch, totalPages, totalCount } = useProducts();
   const [isEcommerce, setIsEcommerce] = useState(false);
   const [families, setFamilies] = useState([]);
@@ -57,24 +59,24 @@ export default function ProductsPage() {
     if (!pendingDelete) return;
     try {
       await deleteProduct(pendingDelete.serialNumber);
-      toast.success("Product deleted successfully");
+      toast.success(t("admin.products.product_deleted_successfully"));
       setPendingDelete(null);
       loadProducts();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete product");
+      toast.error(t("admin.products.failed_to_delete_product"));
     }
   }
   async function handleToggleActive(serialNumber, isActive) {
     try {
       await updateProduct(serialNumber, { isActive });
       toast.success(
-        isActive ? "Product is now visible" : "Product is now hidden",
+        isActive ? t("admin.products.product_is_now_visible") : t("admin.products.product_is_now_hidden"),
       );
       loadProducts();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update product visibility");
+      toast.error(t("admin.products.failed_to_update_product_visibility"));
     }
   }
   return (
@@ -98,17 +100,16 @@ export default function ProductsPage() {
                 </div>{" "}
                 <span className=" text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-600 ">
                   {" "}
-                  Catalog{" "}
+                  {t("admin.products.catalog")}{" "}
                 </span>{" "}
               </div>{" "}
               <h1 className=" text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl ">
                 {" "}
-                Products{" "}
+                {t("admin.products.products")}{" "}
               </h1>{" "}
               <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
                 {" "}
-                Manage your product catalog, visibility, and ecommerce
-                availability.{" "}
+                {t("admin.products.manage_your_product_catalog_visibility_and_ecommerce_availability")}{" "}
               </p>{" "}
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 {" "}
@@ -118,7 +119,7 @@ export default function ProductsPage() {
                   <span className="text-xs font-medium text-slate-600">
                     {" "}
                     {totalCount}{" "}
-                    {totalCount === 1 ? "product" : "products"}{" "}
+                    {totalCount === 1 ? t("admin.products.product") : t("admin.products.product_count_plural")}{" "}
                   </span>{" "}
                 </div>{" "}
                 {isEcommerce && (
@@ -127,7 +128,7 @@ export default function ProductsPage() {
                     <ShoppingBag className="h-3.5 w-3.5 text-blue-600" />{" "}
                     <span className="text-xs font-medium text-blue-700">
                       {" "}
-                      Ecommerce{" "}
+                      {t("admin.products.ecommerce")}{" "}
                     </span>{" "}
                   </div>
                 )}{" "}
@@ -139,10 +140,10 @@ export default function ProductsPage() {
               <select
                 value={family}
                 onChange={(event) => handleFamilyChange(event.target.value)}
-                aria-label="Filter by Family"
+                aria-label={t("admin.products.filter_by_family")}
                 className="h-10 rounded-xl border border-slate-200/70 bg-white/75 px-3 text-sm text-slate-700 outline-none focus:border-blue-300"
               >
-                <option value="">All Families</option>
+                <option value="">{t("admin.products.all_families")}</option>
                 {families.map((entry) => (
                   <option key={entry._id} value={entry.slug}>{entry.name}</option>
                 ))}
@@ -150,11 +151,11 @@ export default function ProductsPage() {
               <select
                 value={subFamily}
                 onChange={(event) => { setSubFamily(event.target.value); setPage(1); }}
-                aria-label="Filter by Sub Family"
+                aria-label={t("admin.products.filter_by_sub_family")}
                 disabled={!family}
                 className="h-10 rounded-xl border border-slate-200/70 bg-white/75 px-3 text-sm text-slate-700 outline-none focus:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <option value="">All Sub Families</option>
+                <option value="">{t("admin.products.all_sub_families")}</option>
                 {subFamilies.map((entry) => (
                   <option key={entry._id} value={entry.slug}>{entry.name}</option>
                 ))}
@@ -174,7 +175,7 @@ export default function ProductsPage() {
                     className={` absolute top-0.5 h-3 w-3 rounded-full bg-white transition-transform ${isEcommerce ? "-translate-x-3" : "translate-x-[0.8px]"} `}
                   />{" "}
                 </span>{" "}
-                <span>Online store</span>{" "}
+                <span>{t("admin.products.online_store")}</span>{" "}
               </button>{" "}
               {/* Refresh */}{" "}
               <Button
@@ -182,8 +183,8 @@ export default function ProductsPage() {
                 type="button"
                 onClick={loadProducts}
                 disabled={loading}
-                title="Refresh products"
-                aria-label="Refresh products"
+                title={t("admin.products.refresh_products")}
+                aria-label={t("admin.products.refresh_products")}
                 className=" grid h-10 w-10 shrink-0 place-items-center rounded-xl border-slate-200/70 bg-white/75 p-0 text-slate-500 transition hover:border-blue-100 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 "
               >
                 {" "}
@@ -197,12 +198,12 @@ export default function ProductsPage() {
                 onClick={() => navigate("create")}
                 disabled={!canManage}
                 title={
-                  !canManage ? "You do not have permission" : "Add Product"
+                  !canManage ? t("admin.common.permission_denied") : t("admin.products.add_product")
                 }
                 className=" inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700 active:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-40 "
               >
                 {" "}
-                <Plus className="h-4 w-4" /> <span>Add product</span>{" "}
+                <Plus className="h-4 w-4" /> <span>{t("admin.products.add_product")}</span>{" "}
               </Button>{" "}
             </div>{" "}
           </div>{" "}
@@ -239,19 +240,19 @@ export default function ProductsPage() {
         ) : (
           <div className=" rounded-3xl border border-white/70 bg-white/65 p-6 backdrop-blur-xl shadow-xs ">
             {" "}
-            <ProductNotFound />{" "}
+            <ProductNotFound admin />{" "}
           </div>
         )}{" "}
-        {totalPages > 1 && <div className="mt-7 flex items-center justify-center gap-3"><Button type="button" variant="outline" disabled={page <= 1 || loading} onClick={() => setPage((current) => current - 1)}>Previous</Button><span className="text-xs font-medium text-slate-500">Page {page} of {totalPages}</span><Button type="button" variant="outline" disabled={page >= totalPages || loading} onClick={() => setPage((current) => current + 1)}>Next</Button></div>}
+        {totalPages > 1 && <div className="mt-7 flex items-center justify-center gap-3"><Button type="button" variant="outline" disabled={page <= 1 || loading} onClick={() => setPage((current) => current - 1)}>{t("admin.products.previous")}</Button><span className="text-xs font-medium text-slate-500">{t("admin.common.page_of", { page, total: totalPages })}</span><Button type="button" variant="outline" disabled={page >= totalPages || loading} onClick={() => setPage((current) => current + 1)}>{t("admin.products.next")}</Button></div>}
       </div>{" "}
       {pendingDelete && (
         <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <h2 className="text-lg font-semibold text-slate-950">Delete Product</h2>
-            <p className="mt-2 text-sm text-slate-600">You are about to permanently delete <strong>{pendingDelete.name || pendingDelete.productId}</strong>. This action cannot be undone.</p>
+            <h2 className="text-lg font-semibold text-slate-950">{t("admin.products.delete_product")}</h2>
+            <p className="mt-2 text-sm text-slate-600">{t("admin.products.delete_confirmation", { product: pendingDelete.name || pendingDelete.productId })}</p>
             <div className="mt-6 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setPendingDelete(null)}>Cancel</Button>
-              <Button type="button" onClick={handleDelete} className="bg-red-600 text-white hover:bg-red-700">Delete permanently</Button>
+              <Button type="button" variant="outline" onClick={() => setPendingDelete(null)}>{t("admin.products.cancel")}</Button>
+              <Button type="button" onClick={handleDelete} className="bg-red-600 text-white hover:bg-red-700">{t("admin.products.delete_permanently")}</Button>
             </div>
           </div>
         </div>

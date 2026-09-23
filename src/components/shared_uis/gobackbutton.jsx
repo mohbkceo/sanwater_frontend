@@ -11,7 +11,7 @@ function GoBacKButton({variant = `outline`, className, text = 'Back', ...props})
      onClick={() => window.history.back()}
      {...props}
     >
-        <ChevronLeft /> {text}
+        <ChevronLeft className="rtl:rotate-180" /> {text}
     </Button>
   )
 }

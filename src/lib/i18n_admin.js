@@ -1,3 +1,5 @@
+import { adminUiTranslations } from "./i18n_admin_ui.js";
+
 const en = {
   shell: {
     language: "Language",
@@ -259,4 +261,16 @@ const ar = {
   },
 };
 
-export const adminTranslations = { en, fr, ar };
+const mergeAdminCopy = (base, additional) =>
+  Object.fromEntries(
+    [...new Set([...Object.keys(base), ...Object.keys(additional)])].map((namespace) => [
+      namespace,
+      { ...(additional[namespace] || {}), ...(base[namespace] || {}) },
+    ]),
+  );
+
+export const adminTranslations = {
+  en: mergeAdminCopy(en, adminUiTranslations.en),
+  fr: mergeAdminCopy(fr, adminUiTranslations.fr),
+  ar: mergeAdminCopy(ar, adminUiTranslations.ar),
+};

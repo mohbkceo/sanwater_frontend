@@ -8,7 +8,7 @@ import { useTranslation } from '@/lib/i18n';
 
 function ContactSubmissions() {
   const { can } = usePermissions();
-  const { t } = useTranslation();
+  const { lang, t } = useTranslation();
   const canManage = can(PERMISSIONS.SUBMISSIONS.MANAGE);
 
   const [submissions, setSubmissions] = useState([]);
@@ -200,7 +200,7 @@ function ContactSubmissions() {
                 </div>
 
                 <div className="mt-4 text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
-                  {t('admin.submissions.received_on', { date: new Date(sub.createdAt).toLocaleString() })}
+                  {t('admin.submissions.received_on', { date: new Date(sub.createdAt).toLocaleString(lang) })}
                 </div>
               </div>
             );

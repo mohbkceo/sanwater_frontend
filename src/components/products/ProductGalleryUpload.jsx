@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { uploadImage } from "@/services/contents/imageHandler";
 import { useRef } from "react";
 import { Button } from "..";
@@ -6,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Loader } from "lucide-react";
 
 export default function ProductGalleryUpload({ setGallery }) {
+  const { t } = useTranslation();
     const inputRef = useRef();
     const [loading, setLoading] = useState(false);
 
@@ -26,7 +28,7 @@ export default function ProductGalleryUpload({ setGallery }) {
         <div className={cn("", loading && 'opacity-50')}>
 
             <Button  disabled={loading} type='button' onClick={() => inputRef.current.click()} variant={'outline'}>
-                {loading ? <span className="flex justify-center items-center"> <Loader size={18} className="animate-spin" /> Procesing </span> : "Upload Image"}
+                {loading ? <span className="flex justify-center items-center"> <Loader size={18} className="animate-spin" /> {t("admin.products.procesing")} </span> : t("admin.products.upload_image")}
             </Button>
             <input
                 hidden

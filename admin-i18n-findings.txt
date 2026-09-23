@@ -1,0 +1,593 @@
+routes/sanwatergroup/auth/login/login.jsx:81 [alt] logo
+routes/sanwatergroup/auth/login/login.jsx:109 [placeholder] Email or Username
+routes/sanwatergroup/auth/login/login.jsx:120 [placeholder] Password
+routes/sanwatergroup/auth/register/register.jsx:82 [jsx] Account created for
+routes/sanwatergroup/auth/register/register.jsx:83 [jsx] . Grant permissions from User Management.
+routes/sanwatergroup/auth/register/register.jsx:104 [placeholder] Full Name
+routes/sanwatergroup/auth/register/register.jsx:113 [placeholder] Email
+routes/sanwatergroup/auth/register/register.jsx:122 [placeholder] Temporary password
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:29 [jsx] Other analytics remain available. Retry this section when ready.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:29 [jsx] Retry
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:37 [jsx] No behavioral trend data for this period.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:43 [jsx] No data for this breakdown.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:64 [jsx] Decision analytics
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:64 [jsx] Business Performance
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:64 [jsx] Revenue, commercial conversion, product opportunity, and acquisition quality first. Website diagnostics remain available when you need to explain why.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:64 [jsx] Refresh all
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:68 [title] Business analytics unavailable
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:69 [label] Revenue
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:69 [label] Orders
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:69 [label] Qualified Leads
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:69 [label] Visitor → Lead
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:69 [label] Lead → Order
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:70 [label] Average Order Value
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:72 [title] What Needs Attention
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:72 [description] Up to five material, high-confidence business signals. Minor diagnostic noise is suppressed.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:72 [jsx] No material business anomalies meet the current confidence and volume thresholds.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:73 [jsx] Commercial definition:
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:73 [jsx] ; revenue is
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [title] Conversion analytics unavailable
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [title] Commercial funnel
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [description] Unique visitors or commercial entities at every stage. Click a stage to inspect one segment at a time.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [title] Stage diagnostics
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [description] Progressive breakdown for the selected funnel stage.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [jsx] Product
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [jsx] Device
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [jsx] Source
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [jsx] Campaign
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [jsx] Landing page
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:76 [title] Funnel breakdown unavailable
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:77 [title] Product Performance
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:77 [description] Demand uses unique viewers. Classifications compare eligible products with the current site distribution and suppress tiny samples.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:77 [title] Product analytics unavailable
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:78 [title] Source Quality
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:78 [description] Sources are ranked by commercial quality and revenue, with traffic retained as context.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:78 [title] Acquisition analytics unavailable
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [title] Website behavior unavailable
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [label] Page Views
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [label] Sessions
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [label] Generic conversions
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [label] Event conversion rate
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [title] Website activity
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [description] Behavioral diagnostics that help explain commercial movement.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [title] Traffic sources
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [title] Devices
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [title] Top pages
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [title] Recent activity
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [description] Latest raw events for debugging tracking and legacy behavior analytics.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:79 [jsx] No recent events in this period.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [title] CRM Diagnostic
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [description] Existing lead records remain available for operational follow-up; they do not replace the executive KPIs.
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [title] CRM analytics unavailable
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [jsx] Lead
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [jsx] Stage
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [jsx] Source
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [jsx] Value
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [jsx] Owner
+routes/sanwatergroup/dashboard/pages/Analytics.jsx:80 [jsx] No CRM records in this period.
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:249 [jsx] Loading editor...
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:261 [jsx] CMS Editor
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:264 [jsx] Edit Sales Contact Page
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:265 [jsx] Manage the public page content, add or reorder sections, and save directly to MongoDB.
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:276 [jsx] Reset
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:294 [jsx] Slug:
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:311 [title] Page Identity
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:314 [jsx] Main title
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:318 [placeholder] Contactez notre équipe
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:322 [jsx] Logo path
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:326 [placeholder] /logo-white.svg
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:330 [jsx] Subtitle
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:334 [placeholder] Nos bureaux et équipes commerciales sont disponibles...
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:341 [title] Office Sections
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:352 [jsx] Add office
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:359 [jsx] No office sections yet. Add one to start building the page.
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:372 [jsx] Office #
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:373 [jsx] Reorder, edit, or remove this block.
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:411 [jsx] Remove
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:419 [jsx] Region
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:425 [placeholder] Algiers (Central)
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:430 [jsx] Gradient class
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:436 [placeholder] from-cyan-500/20 to-blue-600/20
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:441 [jsx] Address
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:447 [placeholder] Cité Freri 02 El - Hamiz D.E.B, Algiers
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:452 [jsx] Google Maps URL
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:466 [jsx] Companies
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:477 [jsx] Add
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:495 [placeholder] Company name
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:517 [jsx] Phones
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:528 [jsx] Add
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:545 [placeholder] Label
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:556 [placeholder] Phone number
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:582 [title] Sales Blocks
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:593 [jsx] Add sales block
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:600 [jsx] No sales blocks yet.
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:613 [jsx] Sales Block #
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:614 [jsx] Move or remove this card.
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:652 [jsx] Remove
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:660 [jsx] Title
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:666 [placeholder] Commercialisation en gros
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:672 [jsx] Phone numbers
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:683 [jsx] Add phone
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:728 [title] Live Preview
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:732 [alt] Logo
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:748 [jsx] Office card
+routes/sanwatergroup/dashboard/pages/EditSales.jsx:767 [jsx] Google Maps link set
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:233 [jsx] Hiring
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:261 [jsx] Close
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:395 [jsx] Preview
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:460 [jsx] Published
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:489 [jsx] Edit
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:514 [jsx] Delete
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:586 [jsx] Create job post
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:936 [jsx] Hiring
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:956 [jsx] Create, organize and publish job opportunities.
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:984 [title] Refresh
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:985 [aria-label] Refresh hiring posts
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1021 [jsx] New job post
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1041 [label] Total posts
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1043 [label] Published
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1045 [label] Drafts
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1047 [label] Closed
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1083 [placeholder] Search title, location, type or description...
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1120 [jsx] All statuses
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1122 [jsx] Published
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1124 [jsx] Draft
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1126 [jsx] Closed
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1134 [jsx] Newest first
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1136 [jsx] Title A → Z
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1138 [jsx] Title Z → A
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1140 [jsx] Location A → Z
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1142 [jsx] Location Z → A
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1144 [jsx] Status A → Z
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1146 [jsx] Status Z → A
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1181 [jsx] Grid
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1203 [jsx] Table
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1240 [jsx] Job posts
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1267 [jsx] Clear filters
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1329 [jsx] Position
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1330 [jsx] Location
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1331 [jsx] Type
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1332 [jsx] Status
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1333 [jsx] Publish date
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1334 [jsx] Actions
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1405 [jsx] Preview
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1430 [jsx] Edit
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1485 [jsx] Basic information
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1489 [jsx] Position details
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1496 [jsx] Title
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1506 [placeholder] Frontend Developer
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1512 [jsx] Location
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1522 [placeholder] Remote / Algiers / Hybrid
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1528 [jsx] Type
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1538 [placeholder] Full-time / Part-time / Contract
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1544 [jsx] Status
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1555 [jsx] Draft
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1557 [jsx] Published
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1559 [jsx] Closed
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1564 [jsx] Publish date
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1592 [jsx] Content
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1596 [jsx] Job description
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1601 [jsx] Description
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1612 [placeholder] Write a clear description of the role, responsibilities and expectations...
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1635 [jsx] Requirements
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1639 [jsx] What candidates need
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1658 [jsx] One requirement per line.
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1673 [jsx] Benefits
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1677 [jsx] What candidates receive
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1696 [jsx] One benefit per line.
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1741 [jsx] Cancel
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1779 [title] Job preview
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1833 [jsx] Description
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1846 [jsx] Requirements
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1871 [jsx] No requirements added.
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1879 [jsx] Benefits
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1904 [jsx] No benefits added.
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1926 [title] Delete job post
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1940 [jsx] You are about to permanently delete
+routes/sanwatergroup/dashboard/pages/HiringManagement.jsx:1964 [jsx] Cancel
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:199 [jsx] San Water Group
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:202 [jsx] Sales Leads
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:205 [jsx] Manage inquiry, follow-up, qualification, quote and outcome.
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:213 [jsx] Refresh
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:232 [placeholder] Name, phone, email, company, product
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:242 [jsx] All statuses
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:257 [jsx] All assignees
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:258 [jsx] Unassigned
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:273 [jsx] All products
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:288 [jsx] All sources
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:317 [jsx] Clear filters
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:331 [jsx] Customer
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:332 [jsx] Interest
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:333 [jsx] Status
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:334 [jsx] Assigned
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:335 [jsx] Follow-up
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:336 [jsx] Value
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:360 [jsx] No leads found
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:361 [jsx] Try clearing or changing the filters.
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:371 [jsx] leads
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:380 [jsx] Page
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:381 [jsx] of
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:466 [jsx] Qty
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:567 [jsx] Lead details
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:579 [title] Customer
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:580 [label] Phone
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:581 [label] Email
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:582 [label] Company
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:583 [label] Wilaya
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:585 [title] Interest
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:588 [label] Product
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:593 [label] Estimated value
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:597 [title] Attribution
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:599 [label] Source / medium
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:605 [label] Campaign
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:606 [label] Referrer
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:607 [label] Landing page
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:609 [title] Management
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:610 [jsx] Assigned employee
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:624 [jsx] Unassigned
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:631 [jsx] Next follow-up
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:660 [jsx] Status
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:682 [placeholder] Final value *
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:688 [placeholder] Order reference
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:700 [jsx] Select loss reason *
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:710 [placeholder] Optional explanation
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:738 [jsx] Save status change
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:743 [title] Internal notes
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:749 [placeholder] Add an internal note
+routes/sanwatergroup/dashboard/pages/LeadsManagementPage.jsx:766 [title] Timeline
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:373 [jsx] Preview
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:392 [title] Article
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:393 [label] Title *
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:400 [label] Excerpt
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:409 [jsx] Content *
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:418 [title] Related Products
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:422 [placeholder] Search products
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:452 [title] SEO & Social
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:472 [label] Canonical URL
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:481 [jsx] sanwater-dz.com › news
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:498 [alt] Social preview
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:502 [jsx] sanwater-dz.com
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:516 [title] Publishing
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:518 [jsx] Status
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:526 [jsx] Draft
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:527 [jsx] Review
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:528 [jsx] Scheduled
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:529 [jsx] Publish now
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:530 [jsx] Archived
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:534 [label] Date & time
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:540 [jsx] Timezone: Africa/Algiers
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:550 [jsx] Featured article
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:554 [title] Cover image
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:559 [alt] Cover
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:593 [title] Organization
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:594 [label] Category
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:600 [label] Tags
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:616 [jsx] Add
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:640 [title] Version History
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:649 [jsx] Version
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:661 [jsx] No versions yet.
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:707 [jsx] Version
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:720 [title] Current
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:731 [jsx] Restore this version
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:786 [jsx] Title:
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:789 [jsx] Status:
+routes/sanwatergroup/dashboard/pages/News/CreateEditNewsPage.jsx:792 [jsx] Excerpt:
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:147 [jsx] Publishing CMS
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:150 [jsx] News Management
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:151 [jsx] Plan, write, review and publish San Water stories.
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:160 [jsx] New article
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:190 [placeholder] Search title, excerpt, content, tags
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:200 [jsx] All categories
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:213 [jsx] All authors
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:228 [jsx] Featured or standard
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:229 [jsx] Featured
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:230 [jsx] Not featured
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:257 [jsx] Clear filters
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:265 [jsx] List
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:272 [jsx] Calendar
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:281 [jsx] selected
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:286 [jsx] Publish
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:292 [jsx] Archive
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:298 [jsx] Unfeature
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:320 [jsx] Title
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:321 [jsx] Status
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:322 [jsx] Category
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:323 [jsx] Author
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:324 [jsx] Published / Scheduled
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:325 [jsx] Updated
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:326 [jsx] Views
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:327 [jsx] Actions
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:358 [jsx] FEATURED
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:429 [jsx] No articles found
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:430 [jsx] Create an article or adjust the filters.
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:440 [jsx] articles
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:485 [jsx] Archive article?
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:487 [jsx] will leave public listings but remain recoverable.
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:499 [jsx] Cancel
+routes/sanwatergroup/dashboard/pages/News/NewsManagementPage.jsx:505 [jsx] Archive
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:146 [jsx] Admin dashboard
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:147 [jsx] Quotation Requests
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:148 [jsx] Review B2B/B2C quote requests and move them through the pipeline.
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:156 [jsx] Refresh
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:160 [jsx] total requests
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:168 [title] Total requests
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:169 [title] New / submitted
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:170 [title] Under review
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:171 [title] Approved
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:182 [placeholder] Search by name, phone, email, company, product...
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:194 [jsx] All statuses
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:205 [jsx] shown
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:227 [jsx] Requester
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:228 [jsx] Items
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:229 [jsx] Submitted
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:230 [jsx] Status
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:244 [jsx] No quotation requests found
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:245 [jsx] Try another search term or clear the filters.
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:278 [jsx] Quotation details
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:279 [jsx] Select a request to see the full item list, requester contact info, and update its status.
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:327 [jsx] item(s)
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:369 [jsx] Quotation details
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:372 [jsx] Close
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:383 [label] Phone
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:384 [label] Email
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:385 [label] Company
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:386 [label] Customer type
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:387 [label] Address
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:388 [label] Notes
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:391 [jsx] Items
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:396 [jsx] SN:
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:409 [jsx] Mark under review
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:416 [jsx] Mark quoted
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:423 [jsx] Approve
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:430 [jsx] Reject
+routes/sanwatergroup/dashboard/pages/QuotationsManagementPage.jsx:441 [jsx] Close request
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:91 [jsx] Permissions —
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:123 [jsx] Cancel
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:131 [jsx] Save permissions
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:210 [title] User & Permission Management
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:216 [jsx] Users
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:228 [jsx] Refresh
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:237 [jsx] Name
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:240 [jsx] Email
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:243 [jsx] Role
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:246 [jsx] Permissions
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:249 [jsx] Actions
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:258 [jsx] Loading users...
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:264 [jsx] No users found.
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:286 [jsx] Super Admin
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:290 [jsx] Admin
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:298 [jsx] All permissions (immutable)
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:300 [jsx] permission(s)
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:319 [jsx] Permissions
+routes/sanwatergroup/dashboard/pages/UserManagement.jsx:339 [jsx] Delete
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:275 [jsx] Password strength
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:722 [alt] Profile
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:734 [jsx] Account
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:762 [jsx] Complete
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:772 [jsx] Role
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:782 [jsx] Security
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:810 [title] Basic information
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:811 [description] Update the information associated with your account.
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:816 [label] Full name
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:825 [placeholder] Enter your full name
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:831 [label] Phone number
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:840 [placeholder] Enter phone number
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:846 [label] Email address
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:901 [label] Profile image URL
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:929 [alt] Preview
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:979 [title] Password & security
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:980 [description] Keep your account protected with a strong password.
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:985 [label] Current password
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:993 [placeholder] Current password
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:999 [label] New password
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1007 [placeholder] New password
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1014 [label] Confirm new password
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1022 [placeholder] Repeat new password
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1072 [title] Account details
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1073 [description] Current account information.
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1076 [label] Role
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1078 [label] Member since
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1080 [label] Last updated
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1083 [label] Password
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1121 [jsx] Account security
+routes/sanwatergroup/dashboard/pages/UserProfile.jsx:1123 [jsx] Use a unique password and keep your recovery information up to date.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:34 [jsx] Previous
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:35 [jsx] Page
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:35 [jsx] of
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:36 [jsx] Next
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:103 [jsx] Assigning a product here also sets its parent Family. Products assigned elsewhere are moved automatically.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:105 [placeholder] Search by name, ID or serial…
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:107 [jsx] Unassigned
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:107 [jsx] Assigned
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:107 [jsx] All
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:110 [jsx] Select all visible
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:110 [jsx] products ·
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:110 [jsx] selected
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:112 [jsx] No matching products.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:120 [jsx] Cancel
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:177 [jsx] Parent Family
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:177 [jsx] assigned products
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:177 [jsx] Assign Products
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:178 [placeholder] Search assigned products…
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:178 [jsx] Name A–Z
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:178 [jsx] Name Z–A
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:178 [jsx] Newest first
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:178 [jsx] Oldest first
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:178 [jsx] Remove selected (
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:180 [jsx] No products are assigned to this Sub Family.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:181 [jsx] Remove
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:213 [alt] Family preview
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:215 [jsx] Replace
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:216 [jsx] Remove
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:231 [jsx] JPG, PNG or WebP · max 10 MB
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:272 [jsx] Name *
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:273 [jsx] Slug
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:273 [placeholder] auto-generated-if-empty
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:274 [jsx] Description
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:275 [jsx] Display order
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:276 [jsx] Visible in public catalog
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:278 [jsx] Image
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:280 [jsx] SEO title
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:281 [jsx] SEO description
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:283 [jsx] Cancel
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:316 [jsx] You are about to permanently delete
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:317 [jsx] Sub Families:
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:317 [jsx] Products:
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:318 [jsx] Move or delete all Sub Families before deleting this Family.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:319 [jsx] Replacement Sub Family *
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:319 [jsx] Select destination
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:320 [jsx] Current password *
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:322 [jsx] Cancel
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:349 [jsx] Catalog taxonomy
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:349 [jsx] Families
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:349 [jsx] Admin-managed Family → Sub Family → Product hierarchy.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:350 [jsx] Create Family
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:353 [jsx] No Families yet
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:353 [jsx] Create the first Family, then add its Sub Families.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:355 [jsx] Hidden
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:355 [jsx] Sub Families
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:355 [jsx] products
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:357 [jsx] Edit Family
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:357 [jsx] Add Sub Family
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:357 [jsx] Delete
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:358 [jsx] No Sub Families.
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:358 [jsx] Hidden
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:358 [jsx] · order
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:358 [jsx] products
+routes/sanwatergroup/products/families/FamiliesControlPage.jsx:358 [jsx] Open
+routes/sanwatergroup/products/ProductsList.jsx:100 [jsx] Catalog
+routes/sanwatergroup/products/ProductsList.jsx:105 [jsx] Products
+routes/sanwatergroup/products/ProductsList.jsx:109 [jsx] Manage your product catalog, visibility, and ecommerce availability.
+routes/sanwatergroup/products/ProductsList.jsx:129 [jsx] Ecommerce
+routes/sanwatergroup/products/ProductsList.jsx:142 [aria-label] Filter by Family
+routes/sanwatergroup/products/ProductsList.jsx:145 [jsx] All Families
+routes/sanwatergroup/products/ProductsList.jsx:153 [aria-label] Filter by Sub Family
+routes/sanwatergroup/products/ProductsList.jsx:157 [jsx] All Sub Families
+routes/sanwatergroup/products/ProductsList.jsx:177 [jsx] Online store
+routes/sanwatergroup/products/ProductsList.jsx:185 [title] Refresh products
+routes/sanwatergroup/products/ProductsList.jsx:186 [aria-label] Refresh products
+routes/sanwatergroup/products/ProductsList.jsx:205 [jsx] Add product
+routes/sanwatergroup/products/ProductsList.jsx:245 [jsx] Previous
+routes/sanwatergroup/products/ProductsList.jsx:245 [jsx] Page
+routes/sanwatergroup/products/ProductsList.jsx:245 [jsx] of
+routes/sanwatergroup/products/ProductsList.jsx:245 [jsx] Next
+routes/sanwatergroup/products/ProductsList.jsx:250 [jsx] Delete Product
+routes/sanwatergroup/products/ProductsList.jsx:251 [jsx] You are about to permanently delete
+routes/sanwatergroup/products/ProductsList.jsx:251 [jsx] . This action cannot be undone.
+routes/sanwatergroup/products/ProductsList.jsx:253 [jsx] Cancel
+routes/sanwatergroup/products/ProductsList.jsx:254 [jsx] Delete permanently
+routes/sanwatergroup/products/sections/CreateProductPage.jsx:13 [jsx] Create New Product
+routes/sanwatergroup/products/sections/CreateProductPage.jsx:14 [jsx] Fill in the details below to add a new item to your inventory.
+routes/sanwatergroup/products/sections/EditProductPage.jsx:63 [jsx] No product found
+routes/sanwatergroup/products/sections/EditProductPage.jsx:64 [jsx] No Product has been found!
+routes/sanwatergroup/products/sections/EditProductPage.jsx:74 [jsx] Update Product
+routes/sanwatergroup/products/sections/EditProductPage.jsx:75 [jsx] Fill in the details below to add update items.
+components/dashboard/Sidebar.jsx:157 [jsx] San Water Group
+components/dashboard/Topbar.jsx:89 [alt] San Water Group
+components/dashboard/Topbar.jsx:129 [jsx] ⌘ K
+components/dashboard/Topbar.jsx:184 [jsx] San Water Group
+components/products/ProductForm.jsx:788 [title] Product identity
+components/products/ProductForm.jsx:789 [description] Core information used to identify and manage this product.
+components/products/ProductForm.jsx:792 [label] Product name
+components/products/ProductForm.jsx:796 [placeholder] Douchettes D’ablution
+components/products/ProductForm.jsx:802 [label] SKU / Product ID
+components/products/ProductForm.jsx:806 [placeholder] SM19
+components/products/ProductForm.jsx:813 [label] Serial number
+components/products/ProductForm.jsx:825 [placeholder] SN-2025-001
+components/products/ProductForm.jsx:832 [label] Tags
+components/products/ProductForm.jsx:833 [description] Separate multiple values with commas.
+components/products/ProductForm.jsx:837 [placeholder] 100% ALUMINIUM, Premium, Durable
+components/products/ProductForm.jsx:853 [label] Active product
+components/products/ProductForm.jsx:854 [description] Controls whether the product is available in the system.
+components/products/ProductForm.jsx:865 [label] Available for ecommerce
+components/products/ProductForm.jsx:866 [description] Include this product in the ecommerce catalog.
+components/products/ProductForm.jsx:877 [title] Pricing
+components/products/ProductForm.jsx:878 [description] Define the commercial values used for this product.
+components/products/ProductForm.jsx:881 [label] Product price
+components/products/ProductForm.jsx:900 [label] Shipping price
+components/products/ProductForm.jsx:901 [description] Default delivery/shipping amount.
+components/products/ProductForm.jsx:928 [title] Classification
+components/products/ProductForm.jsx:929 [description] Classification is managed from Families → Sub Families. Product ID never affects taxonomy.
+components/products/ProductForm.jsx:933 [jsx] Current assignment
+components/products/ProductForm.jsx:935 [jsx] Family
+components/products/ProductForm.jsx:936 [jsx] Sub Family
+components/products/ProductForm.jsx:939 [jsx] Manage assignment
+components/products/ProductForm.jsx:943 [label] Publication status
+components/products/ProductForm.jsx:944 [description] Controls the lifecycle state of the product.
+components/products/ProductForm.jsx:951 [jsx] Draft
+components/products/ProductForm.jsx:953 [jsx] Published
+components/products/ProductForm.jsx:955 [jsx] Archived
+components/products/ProductForm.jsx:960 [label] URL slug
+components/products/ProductForm.jsx:969 [placeholder] mitigeur-lavabo-sm19
+components/products/ProductForm.jsx:975 [jsx] Existing public URLs may be affected.
+components/products/ProductForm.jsx:989 [title] Product content
+components/products/ProductForm.jsx:990 [description] Write the information customers and catalog visitors will see.
+components/products/ProductForm.jsx:994 [label] Short description
+components/products/ProductForm.jsx:995 [description] Used in product listings and compact cards.
+components/products/ProductForm.jsx:1002 [placeholder] One or two sentences shown in listings.
+components/products/ProductForm.jsx:1014 [label] Full description
+components/products/ProductForm.jsx:1015 [description] Detailed description shown on the product page.
+components/products/ProductForm.jsx:1020 [placeholder] Detailed description shown on the product page.
+components/products/ProductForm.jsx:1034 [title] Technical information
+components/products/ProductForm.jsx:1035 [description] Technical attributes used to describe and document the product.
+components/products/ProductForm.jsx:1038 [label] Material
+components/products/ProductForm.jsx:1041 [placeholder] e.g. Aluminium
+components/products/ProductForm.jsx:1048 [label] Finishes
+components/products/ProductForm.jsx:1049 [description] Separate multiple finishes with commas.
+components/products/ProductForm.jsx:1053 [placeholder] Chromé, Noir mat
+components/products/ProductForm.jsx:1059 [label] Dimensions
+components/products/ProductForm.jsx:1062 [placeholder] e.g. 15 x 20 x 8 cm
+components/products/ProductForm.jsx:1068 [label] Installation
+components/products/ProductForm.jsx:1071 [placeholder] e.g. Montage mural
+components/products/ProductForm.jsx:1079 [label] Applications
+components/products/ProductForm.jsx:1080 [description] Separate multiple applications with commas.
+components/products/ProductForm.jsx:1084 [placeholder] Hôtellerie, Résidentiel, Commercial
+components/products/ProductForm.jsx:1096 [jsx] Specifications
+components/products/ProductForm.jsx:1100 [jsx] Add structured technical values such as pressure, dimensions or capacity.
+components/products/ProductForm.jsx:1122 [jsx] Add specification
+components/products/ProductForm.jsx:1129 [jsx] No specifications yet
+components/products/ProductForm.jsx:1133 [jsx] Add structured technical values when needed.
+components/products/ProductForm.jsx:1163 [placeholder] Specification
+components/products/ProductForm.jsx:1175 [placeholder] Value
+components/products/ProductForm.jsx:1194 [jsx] Remove
+components/products/ProductForm.jsx:1210 [title] Documents
+components/products/ProductForm.jsx:1211 [description] Attach catalogues, technical sheets, installation guides and other resources.
+components/products/ProductForm.jsx:1215 [jsx] Product documents
+components/products/ProductForm.jsx:1219 [jsx] Only documents with both a title and URL will be submitted.
+components/products/ProductForm.jsx:1240 [jsx] Add document
+components/products/ProductForm.jsx:1247 [jsx] No documents linked
+components/products/ProductForm.jsx:1251 [jsx] Catalogue, technical sheet, installation guide, warranty, etc.
+components/products/ProductForm.jsx:1275 [placeholder] Fiche technique SM19
+components/products/ProductForm.jsx:1315 [jsx] Remove
+components/products/ProductForm.jsx:1331 [title] Product variants
+components/products/ProductForm.jsx:1332 [description] Create reusable groups such as color, size, material or finish.
+components/products/ProductForm.jsx:1336 [jsx] Variant groups
+components/products/ProductForm.jsx:1340 [jsx] Each group can contain multiple values.
+components/products/ProductForm.jsx:1359 [jsx] Add variant group
+components/products/ProductForm.jsx:1366 [jsx] No variants added
+components/products/ProductForm.jsx:1370 [jsx] Add a variant group when this product has multiple options.
+components/products/ProductForm.jsx:1390 [jsx] Variant type
+components/products/ProductForm.jsx:1402 [placeholder] Color, Size, Material...
+components/products/ProductForm.jsx:1422 [jsx] Remove group
+components/products/ProductForm.jsx:1429 [jsx] Values
+components/products/ProductForm.jsx:1451 [jsx] Add value
+components/products/ProductForm.jsx:1476 [placeholder] Variant value
+components/products/ProductForm.jsx:1499 [jsx] Remove
+components/products/ProductForm.jsx:1518 [title] Product media
+components/products/ProductForm.jsx:1519 [description] Upload and manage the images used throughout your product experience.
+components/products/ProductForm.jsx:1536 [jsx] Gallery
+components/products/ProductForm.jsx:1589 [jsx] Remove
+components/products/ProductForm.jsx:1607 [title] Search optimization
+components/products/ProductForm.jsx:1608 [description] Control how this product is represented to search engines.
+components/products/ProductForm.jsx:1612 [label] SEO title
+components/products/ProductForm.jsx:1613 [description] Defaults to the product name when left blank.
+components/products/ProductForm.jsx:1617 [placeholder] Defaults to the product name if left blank
+components/products/ProductForm.jsx:1624 [label] SEO description
+components/products/ProductForm.jsx:1625 [description] A concise description for search engine result pages.
+components/products/ProductForm.jsx:1635 [label] Canonical URL
+components/products/ProductForm.jsx:1656 [label] Hide from search engines
+components/products/ProductForm.jsx:1657 [description] Adds the noindex directive to the product.
+components/products/ProductForm.jsx:1694 [jsx] Required fields are marked in blue.
+components/products/ProductGalleryUpload.jsx:29 [jsx] Procesing
+
+591 obvious visible JSX/attribute strings

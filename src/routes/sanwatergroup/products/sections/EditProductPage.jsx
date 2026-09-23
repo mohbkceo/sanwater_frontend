@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import ProductForm from '@/components/products/ProductForm';
 import GoBacKButton from '@/components/shared_uis/gobackbutton';
 import { getProduct } from '@/services/products/productServices';
@@ -21,6 +22,7 @@ function validateSearching(serialNumber){
 
 
 function EditProductPage() {
+  const { t } = useTranslation();
   const getQuery = useQuery()
   const serialNumber = getQuery.get(`serialNumber`);
 
@@ -60,19 +62,19 @@ function EditProductPage() {
           <div className="bg-slate-100 p-4 rounded-full mb-4">
             <Package size={32} className="text-slate-400" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900">No product found</h3>
+          <h3 className="text-lg font-semibold text-slate-900">{t("admin.products.no_product_found")}</h3>
           <p className="text-slate-500 max-w-xs text-center mt-2">
-            No Product has been found!
+            {t("admin.products.no_product_has_been_found")}
           </p>
     </div>
   )
 
   return (
     <div className='p-6 flex md:w-[60%] gap-2 flex-col mx-auto'>
-    <GoBacKButton />
+    <GoBacKButton text={t("admin.common.back")} />
     <header className="my-8">
-                    <h2 className="text-2xl font-bold text-slate-800">Update Product</h2>
-                    <p className="text-slate-500 text-sm">Fill in the details below to add update items.</p>
+                    <h2 className="text-2xl font-bold text-slate-800">{t("admin.products.update_product")}</h2>
+                    <p className="text-slate-500 text-sm">{t("admin.products.fill_in_the_details_below_to_add_update_items")}</p>
     </header>
     <ProductForm product={product} />
     </div>

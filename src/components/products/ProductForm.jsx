@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -31,12 +32,12 @@ const emptyDocument = () => ({
 });
 
 const DOCUMENT_TYPES = [
-  { value: "catalogue", label: "Catalogue" },
-  { value: "technical_sheet", label: "Technical sheet" },
-  { value: "installation_guide", label: "Installation guide" },
-  { value: "warranty", label: "Warranty" },
-  { value: "presentation", label: "Presentation" },
-  { value: "other", label: "Other" },
+  { value: "catalogue", labelKey: "admin.products.document_type_catalogue" },
+  { value: "technical_sheet", labelKey: "admin.products.document_type_technical_sheet" },
+  { value: "installation_guide", labelKey: "admin.products.document_type_installation_guide" },
+  { value: "warranty", labelKey: "admin.products.document_type_warranty" },
+  { value: "presentation", labelKey: "admin.products.document_type_presentation" },
+  { value: "other", labelKey: "admin.products.document_type_other" },
 ];
 
 /* ---------------------------------------------------------
@@ -86,7 +87,7 @@ function Field({ label, description, required = false, children }) {
         <label className="block text-sm font-medium text-slate-800">
           {label}
 
-          {required && <span className="ml-1 text-blue-600">*</span>}
+          {required && <span className="ms-1 text-blue-600">*</span>}
         </label>
 
         {description && (
@@ -203,7 +204,7 @@ function Toggle({ checked, onChange, label, description }) {
         bg-slate-50/50
         px-4
         py-3.5
-        text-left
+        text-start
         transition
         hover:border-blue-100
         hover:bg-blue-50/30
@@ -252,6 +253,7 @@ function Toggle({ checked, onChange, label, description }) {
 --------------------------------------------------------- */
 
 export default function ProductForm({ product = null, currentUserId = "" }) {
+  const { t } = useTranslation();
   const isEditMode = !!product?.serialNumber;
 
   const initialFormData = useMemo(
@@ -565,13 +567,13 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
   async function updateProductFunc(payload) {
     await updateProduct(product.serialNumber, payload);
 
-    toast.success(`Product "${payload.name}" has been updated!`);
+    toast.success(t("admin.products.product_updated", { name: payload.name }));
   }
 
   async function createProductFunc(payload) {
     await createProduct(payload);
 
-    toast.success(`Product "${payload.name}" has been created!`);
+    toast.success(t("admin.products.product_created", { name: payload.name }));
 
     setFormData(initialFormData);
     setGallery([]);
@@ -645,7 +647,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
     } catch (error) {
       console.error(error);
 
-      toast.error("Something went wrong while saving the product.");
+      toast.error(t("admin.products.something_went_wrong_while_saving_the_product"));
     } finally {
       setLoading(false);
     }
@@ -667,7 +669,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
     } catch (error) {
       console.error(error);
 
-      toast.error("Failed to delete image.");
+      toast.error(t("admin.products.failed_to_delete_image"));
     } finally {
       setLoading(false);
     }
@@ -715,13 +717,13 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             >
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-600">
-                  {isEditMode ? "Product editor" : "New product"}
+                  {isEditMode ? t("admin.products.product_editor") : t("admin.products.new_product")}
                 </p>
 
                 <h1 className="truncate text-lg font-semibold tracking-tight text-slate-950">
                   {isEditMode
-                    ? formData.name || "Edit product"
-                    : "Create product"}
+                    ? formData.name || t("admin.products.edit_product")
+                    : t("admin.products.create_product")}
                 </h1>
               </div>
 
@@ -744,10 +746,10 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                   `}
                 >
                   {formData.status === "published"
-                    ? "Published"
+                    ? t("admin.products.published")
                     : formData.status === "archived"
-                      ? "Archived"
-                      : "Draft"}
+                      ? t("admin.products.archived")
+                      : t("admin.products.draft")}
                 </span>
 
                 <Button
@@ -769,10 +771,10 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                   "
                 >
                   {loading
-                    ? "Saving..."
+                    ? t("admin.products.saving")
                     : isEditMode
-                      ? "Save changes"
-                      : "Create product"}
+                      ? t("admin.products.save_changes")
+                      : t("admin.products.create_product")}
                 </Button>
               </div>
             </div>
@@ -785,37 +787,37 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
           <div className="space-y-5">
             <Section
               eyebrow="01"
-              title="Product identity"
-              description="Core information used to identify and manage this product."
+              title={t("admin.products.product_identity")}
+              description={t("admin.products.core_information_used_to_identify_and_manage_this_product")}
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Field label="Product name" required>
+                <Field label={t("admin.products.product_name")} required>
                   <Input
                     name="name"
                     required
-                    placeholder="Douchettes D’ablution"
+                    placeholder={t("admin.products.douchettes_d_ablution")}
                     value={formData.name}
                     onChange={handleChange}
                   />
                 </Field>
 
-                <Field label="SKU / Product ID" required>
+                <Field label={t("admin.products.sku_product_id")} required>
                   <Input
                     name="productId"
                     required
-                    placeholder="SM19"
+                    placeholder={t("admin.products.sm19")}
                     value={formData.productId}
                     onChange={handleChange}
                   />
                 </Field>
 
                 <Field
-                  label="Serial number"
+                  label={t("admin.products.serial_number")}
                   required={!isEditMode}
                   description={
                     isEditMode
-                      ? "Serial number cannot be modified after creation."
-                      : "Unique identifier for this product."
+                      ? t("admin.products.serial_number_immutable")
+                      : t("admin.products.serial_number_description")
                   }
                 >
                   <Input
@@ -829,12 +831,12 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                 </Field>
 
                 <Field
-                  label="Tags"
-                  description="Separate multiple values with commas."
+                  label={t("admin.products.tags")}
+                  description={t("admin.products.separate_multiple_values_with_commas")}
                 >
                   <Input
                     name="tags"
-                    placeholder="100% ALUMINIUM, Premium, Durable"
+                    placeholder={t("admin.products.100_aluminium_premium_durable")}
                     value={formData.tags}
                     onChange={handleChange}
                   />
@@ -850,8 +852,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                       isActive: value,
                     }))
                   }
-                  label="Active product"
-                  description="Controls whether the product is available in the system."
+                  label={t("admin.products.active_product")}
+                  description={t("admin.products.controls_whether_the_product_is_available_in_the_system")}
                 />
 
                 <Toggle
@@ -862,8 +864,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                       isEcommerce: value,
                     }))
                   }
-                  label="Available for ecommerce"
-                  description="Include this product in the ecommerce catalog."
+                  label={t("admin.products.available_for_ecommerce")}
+                  description={t("admin.products.include_this_product_in_the_ecommerce_catalog")}
                 />
               </div>
             </Section>
@@ -874,11 +876,11 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="02"
-              title="Pricing"
-              description="Define the commercial values used for this product."
+              title={t("admin.products.pricing")}
+              description={t("admin.products.define_the_commercial_values_used_for_this_product")}
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Field label="Product price" required>
+                <Field label={t("admin.products.product_price")} required>
                   <div className="relative">
                     <Input
                       name="productPrice"
@@ -887,18 +889,18 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                       placeholder="1509"
                       value={formData.prices.productPrice}
                       onChange={handlePriceChange}
-                      className="pr-14"
+                      className="pe-14"
                     />
 
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
                       DA
                     </span>
                   </div>
                 </Field>
 
                 <Field
-                  label="Shipping price"
-                  description="Default delivery/shipping amount."
+                  label={t("admin.products.shipping_price")}
+                  description={t("admin.products.default_delivery_shipping_amount")}
                 >
                   <div className="relative">
                     <Input
@@ -908,10 +910,10 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                       placeholder="800"
                       value={formData.prices.shippingPrice}
                       onChange={handlePriceChange}
-                      className="pr-14"
+                      className="pe-14"
                     />
 
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                    <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
                       DA
                     </span>
                   </div>
@@ -925,55 +927,55 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="03"
-              title="Classification"
-              description="Classification is managed from Families → Sub Families. Product ID never affects taxonomy."
+              title={t("admin.products.classification")}
+              description={t("admin.products.classification_is_managed_from_families_sub_families_product_id")}
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Current assignment</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{t("admin.products.current_assignment")}</p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div><p className="text-xs text-slate-400">Family</p><p className="mt-1 font-semibold text-slate-800">{product?.family?.name || 'Unassigned'}</p></div>
-                    <div><p className="text-xs text-slate-400">Sub Family</p><p className="mt-1 font-semibold text-slate-800">{product?.subFamily?.name || 'Unassigned'}</p></div>
+                    <div><p className="text-xs text-slate-400">{t("admin.products.family")}</p><p className="mt-1 font-semibold text-slate-800">{product?.family?.name || t("admin.products.unassigned")}</p></div>
+                    <div><p className="text-xs text-slate-400">{t("admin.products.sub_family")}</p><p className="mt-1 font-semibold text-slate-800">{product?.subFamily?.name || t("admin.products.unassigned")}</p></div>
                   </div>
-                  <p className="mt-3 text-xs leading-5 text-slate-500">{isEditMode ? 'To assign or move this product, open the destination Sub Family.' : 'This product will be created unassigned. You can classify it later from a Sub Family.'}</p>
-                  <Link to={SANWATERGROUPROUTES.products.families.control.fullPath} className="mt-3 inline-flex h-9 items-center rounded-xl border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-700 hover:bg-blue-50">Manage assignment</Link>
+                  <p className="mt-3 text-xs leading-5 text-slate-500">{isEditMode ? t("admin.products.to_assign_or_move_this_product_open_the_destination") : t("admin.products.this_product_will_be_created_unassigned_you_can_classify")}</p>
+                  <Link to={SANWATERGROUPROUTES.products.families.control.fullPath} className="mt-3 inline-flex h-9 items-center rounded-xl border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-700 hover:bg-blue-50">{t("admin.products.manage_assignment")}</Link>
                 </div>
 
                 <Field
-                  label="Publication status"
-                  description="Controls the lifecycle state of the product."
+                  label={t("admin.products.publication_status")}
+                  description={t("admin.products.controls_the_lifecycle_state_of_the_product")}
                 >
                   <Select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
                   >
-                    <option value="draft">Draft</option>
+                    <option value="draft">{t("admin.products.draft")}</option>
 
-                    <option value="published">Published</option>
+                    <option value="published">{t("admin.products.published")}</option>
 
-                    <option value="archived">Archived</option>
+                    <option value="archived">{t("admin.products.archived")}</option>
                   </Select>
                 </Field>
 
                 <Field
-                  label="URL slug"
+                  label={t("admin.products.url_slug")}
                   description={
                     isEditMode
-                      ? "Changing the slug can break the existing public URL."
-                      : "Leave blank to let the backend generate it."
+                      ? t("admin.products.slug_change_warning")
+                      : t("admin.products.slug_auto_generation")
                   }
                 >
                   <Input
                     name="slug"
-                    placeholder="mitigeur-lavabo-sm19"
+                    placeholder={t("admin.products.mitigeur_lavabo_sm19")}
                     value={formData.slug}
                     onChange={handleChange}
                   />
 
                   {isEditMode && (
                     <p className="text-xs leading-5 text-amber-600">
-                      Existing public URLs may be affected.
+                      {t("admin.products.existing_public_urls_may_be_affected")}
                     </p>
                   )}
                 </Field>
@@ -986,38 +988,38 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="04"
-              title="Product content"
-              description="Write the information customers and catalog visitors will see."
+              title={t("admin.products.product_content")}
+              description={t("admin.products.write_the_information_customers_and_catalog_visitors_will_see")}
             >
               <div className="space-y-5">
                 <Field
-                  label="Short description"
-                  description="Used in product listings and compact cards."
+                  label={t("admin.products.short_description")}
+                  description={t("admin.products.used_in_product_listings_and_compact_cards")}
                 >
                   <div className="relative">
                     <Textarea
                       name="shortDescription"
                       rows={3}
                       maxLength={300}
-                      placeholder="One or two sentences shown in listings."
+                      placeholder={t("admin.products.one_or_two_sentences_shown_in_listings")}
                       value={formData.shortDescription}
                       onChange={handleChange}
                     />
 
-                    <span className="absolute bottom-2.5 right-3 text-[10px] text-slate-400">
+                    <span className="absolute bottom-2.5 end-3 text-[10px] text-slate-400">
                       {formData.shortDescription.length}/300
                     </span>
                   </div>
                 </Field>
 
                 <Field
-                  label="Full description"
-                  description="Detailed description shown on the product page."
+                  label={t("admin.products.full_description")}
+                  description={t("admin.products.detailed_description_shown_on_the_product_page")}
                 >
                   <Textarea
                     name="description"
                     rows={7}
-                    placeholder="Detailed description shown on the product page."
+                    placeholder={t("admin.products.detailed_description_shown_on_the_product_page")}
                     value={formData.description}
                     onChange={handleChange}
                   />
@@ -1031,44 +1033,44 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="05"
-              title="Technical information"
-              description="Technical attributes used to describe and document the product."
+              title={t("admin.products.technical_information")}
+              description={t("admin.products.technical_attributes_used_to_describe_and_document_the_product")}
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Field label="Material">
+                <Field label={t("admin.products.material")}>
                   <Input
                     name="material"
-                    placeholder="e.g. Aluminium"
+                    placeholder={t("admin.products.e_g_aluminium")}
                     value={formData.material}
                     onChange={handleChange}
                   />
                 </Field>
 
                 <Field
-                  label="Finishes"
-                  description="Separate multiple finishes with commas."
+                  label={t("admin.products.finishes")}
+                  description={t("admin.products.separate_multiple_finishes_with_commas")}
                 >
                   <Input
                     name="finishes"
-                    placeholder="Chromé, Noir mat"
+                    placeholder={t("admin.products.chrome_noir_mat")}
                     value={formData.finishes}
                     onChange={handleChange}
                   />
                 </Field>
 
-                <Field label="Dimensions">
+                <Field label={t("admin.products.dimensions")}>
                   <Input
                     name="dimensions"
-                    placeholder="e.g. 15 x 20 x 8 cm"
+                    placeholder={t("admin.products.e_g_15_x_20_x_8_cm")}
                     value={formData.dimensions}
                     onChange={handleChange}
                   />
                 </Field>
 
-                <Field label="Installation">
+                <Field label={t("admin.products.installation")}>
                   <Input
                     name="installation"
-                    placeholder="e.g. Montage mural"
+                    placeholder={t("admin.products.e_g_montage_mural")}
                     value={formData.installation}
                     onChange={handleChange}
                   />
@@ -1076,12 +1078,12 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
                 <div className="md:col-span-2">
                   <Field
-                    label="Applications"
-                    description="Separate multiple applications with commas."
+                    label={t("admin.products.applications")}
+                    description={t("admin.products.separate_multiple_applications_with_commas")}
                   >
                     <Input
                       name="applications"
-                      placeholder="Hôtellerie, Résidentiel, Commercial"
+                      placeholder={t("admin.products.hotellerie_residentiel_commercial")}
                       value={formData.applications}
                       onChange={handleChange}
                     />
@@ -1094,12 +1096,11 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                 <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-800">
-                      Specifications
+                      {t("admin.products.specifications")}
                     </p>
 
                     <p className="mt-0.5 text-xs text-slate-400">
-                      Add structured technical values such as pressure,
-                      dimensions or capacity.
+                      {t("admin.products.add_structured_technical_values_such_as_pressure_dimensions_or")}
                     </p>
                   </div>
 
@@ -1120,18 +1121,18 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                       hover:bg-blue-100
                     "
                   >
-                    Add specification
+                    {t("admin.products.add_specification")}
                   </Button>
                 </div>
 
                 {formData.specifications.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-center">
                     <p className="text-sm font-medium text-slate-600">
-                      No specifications yet
+                      {t("admin.products.no_specifications_yet")}
                     </p>
 
                     <p className="mt-1 text-xs text-slate-400">
-                      Add structured technical values when needed.
+                      {t("admin.products.add_structured_technical_values_when_needed")}
                     </p>
                   </div>
                 ) : (
@@ -1160,7 +1161,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                               event.target.value,
                             )
                           }
-                          placeholder="Specification"
+                          placeholder={t("admin.products.specification")}
                         />
 
                         <Input
@@ -1172,7 +1173,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                               event.target.value,
                             )
                           }
-                          placeholder="Value"
+                          placeholder={t("admin.products.value")}
                         />
 
                         <Button
@@ -1192,7 +1193,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                               hover:bg-red-100
                             "
                         >
-                          Remove
+                          {t("admin.products.remove")}
                         </Button>
                       </div>
                     ))}
@@ -1207,17 +1208,17 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="06"
-              title="Documents"
-              description="Attach catalogues, technical sheets, installation guides and other resources."
+              title={t("admin.products.documents")}
+              description={t("admin.products.attach_catalogues_technical_sheets_installation_guides_and_other_resources")}
             >
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-800">
-                    Product documents
+                    {t("admin.products.product_documents")}
                   </p>
 
                   <p className="mt-0.5 text-xs text-slate-400">
-                    Only documents with both a title and URL will be submitted.
+                    {t("admin.products.only_documents_with_both_a_title_and_url_will")}
                   </p>
                 </div>
 
@@ -1238,19 +1239,18 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                     hover:bg-blue-100
                   "
                 >
-                  Add document
+                  {t("admin.products.add_document")}
                 </Button>
               </div>
 
               {formData.documents.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-center">
                   <p className="text-sm font-medium text-slate-600">
-                    No documents linked
+                    {t("admin.products.no_documents_linked")}
                   </p>
 
                   <p className="mt-1 text-xs text-slate-400">
-                    Catalogue, technical sheet, installation guide, warranty,
-                    etc.
+                    {t("admin.products.catalogue_technical_sheet_installation_guide_warranty_etc")}
                   </p>
                 </div>
               ) : (
@@ -1272,7 +1272,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                           onChange={(event) =>
                             updateDocument(index, "title", event.target.value)
                           }
-                          placeholder="Fiche technique SM19"
+                          placeholder={t("admin.products.fiche_technique_sm19")}
                         />
 
                         <Select
@@ -1283,7 +1283,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                         >
                           {DOCUMENT_TYPES.map((type) => (
                             <option key={type.value} value={type.value}>
-                              {type.label}
+                              {t(type.labelKey)}
                             </option>
                           ))}
                         </Select>
@@ -1313,7 +1313,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                               hover:bg-red-100
                             "
                         >
-                          Remove
+                          {t("admin.products.remove")}
                         </Button>
                       </div>
                     </div>
@@ -1328,17 +1328,17 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="07"
-              title="Product variants"
-              description="Create reusable groups such as color, size, material or finish."
+              title={t("admin.products.product_variants")}
+              description={t("admin.products.create_reusable_groups_such_as_color_size_material_or")}
             >
               <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-800">
-                    Variant groups
+                    {t("admin.products.variant_groups")}
                   </p>
 
                   <p className="mt-0.5 text-xs text-slate-400">
-                    Each group can contain multiple values.
+                    {t("admin.products.each_group_can_contain_multiple_values")}
                   </p>
                 </div>
 
@@ -1357,18 +1357,18 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                     hover:bg-blue-700
                   "
                 >
-                  Add variant group
+                  {t("admin.products.add_variant_group")}
                 </Button>
               </div>
 
               {formData.productVariants.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-center">
                   <p className="text-sm font-medium text-slate-600">
-                    No variants added
+                    {t("admin.products.no_variants_added")}
                   </p>
 
                   <p className="mt-1 text-xs text-slate-400">
-                    Add a variant group when this product has multiple options.
+                    {t("admin.products.add_a_variant_group_when_this_product_has_multiple")}
                   </p>
                 </div>
               ) : (
@@ -1388,7 +1388,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                         <div className="min-w-0 flex-1">
                           <label className="mb-2 block text-xs font-medium uppercase tracking-[0.1em] text-slate-400">
-                            Variant type
+                            {t("admin.products.variant_type")}
                           </label>
 
                           <Input
@@ -1399,7 +1399,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                                 event.target.value,
                               )
                             }
-                            placeholder="Color, Size, Material..."
+                            placeholder={t("admin.products.color_size_material")}
                           />
                         </div>
 
@@ -1420,14 +1420,14 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                               hover:bg-red-100
                             "
                         >
-                          Remove group
+                          {t("admin.products.remove_group")}
                         </Button>
                       </div>
 
                       <div className="mt-5">
                         <div className="mb-3 flex items-center justify-between">
                           <p className="text-sm font-medium text-slate-700">
-                            Values
+                            {t("admin.products.values")}
                           </p>
 
                           <Button
@@ -1449,7 +1449,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                                 hover:text-blue-700
                               "
                           >
-                            Add value
+                            {t("admin.products.add_value")}
                           </Button>
                         </div>
 
@@ -1473,7 +1473,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                                     event.target.value,
                                   )
                                 }
-                                placeholder="Variant value"
+                                placeholder={t("admin.products.variant_value")}
                               />
 
                               <Button
@@ -1497,7 +1497,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                                       hover:text-red-600
                                     "
                               >
-                                Remove
+                                {t("admin.products.remove")}
                               </Button>
                             </div>
                           ))}
@@ -1515,8 +1515,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="08"
-              title="Product media"
-              description="Upload and manage the images used throughout your product experience."
+              title={t("admin.products.product_media")}
+              description={t("admin.products.upload_and_manage_the_images_used_throughout_your_product")}
             >
               <div
                 className="
@@ -1534,12 +1534,12 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                   <div className="mt-6 border-t border-slate-200 pt-6">
                     <div className="mb-3 flex items-center justify-between">
                       <p className="text-sm font-medium text-slate-700">
-                        Gallery
+                        {t("admin.products.gallery")}
                       </p>
 
                       <span className="text-xs text-slate-400">
                         {gallery.length}{" "}
-                        {gallery.length === 1 ? "image" : "images"}
+                        {gallery.length === 1 ? t("admin.products.image") : t("admin.products.images")}
                       </span>
                     </div>
 
@@ -1587,7 +1587,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                                   hover:bg-white
                                 "
                             >
-                              Remove
+                              {t("admin.products.remove")}
                             </Button>
                           </div>
                         </div>
@@ -1604,25 +1604,25 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
 
             <Section
               eyebrow="09"
-              title="Search optimization"
-              description="Control how this product is represented to search engines."
+              title={t("admin.products.search_optimization")}
+              description={t("admin.products.control_how_this_product_is_represented_to_search_engines")}
             >
               <div className="space-y-5">
                 <Field
-                  label="SEO title"
-                  description="Defaults to the product name when left blank."
+                  label={t("admin.products.seo_title")}
+                  description={t("admin.products.defaults_to_the_product_name_when_left_blank")}
                 >
                   <Input
                     name="title"
-                    placeholder="Defaults to the product name if left blank"
+                    placeholder={t("admin.products.defaults_to_the_product_name_if_left_blank")}
                     value={formData.seo.title}
                     onChange={handleSeoChange}
                   />
                 </Field>
 
                 <Field
-                  label="SEO description"
-                  description="A concise description for search engine result pages."
+                  label={t("admin.products.seo_description")}
+                  description={t("admin.products.a_concise_description_for_search_engine_result_pages")}
                 >
                   <Textarea
                     name="description"
@@ -1632,7 +1632,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                   />
                 </Field>
 
-                <Field label="Canonical URL">
+                <Field label={t("admin.products.canonical_url")}>
                   <Input
                     name="canonicalUrl"
                     placeholder="https://sanwater.official/produits/..."
@@ -1653,8 +1653,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                       },
                     }))
                   }
-                  label="Hide from search engines"
-                  description="Adds the noindex directive to the product."
+                  label={t("admin.products.hide_from_search_engines")}
+                  description={t("admin.products.adds_the_noindex_directive_to_the_product")}
                 />
               </div>
             </Section>
@@ -1687,12 +1687,12 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
           <div className="hidden min-w-0 sm:block">
             <p className="truncate text-xs font-medium text-slate-700">
               {isEditMode
-                ? "Changes are ready to be saved."
-                : "Complete the product information before publishing."}
+                ? t("admin.products.changes_are_ready_to_be_saved")
+                : t("admin.products.complete_the_product_information_before_publishing")}
             </p>
 
             <p className="mt-0.5 text-[11px] text-slate-400">
-              Required fields are marked in blue.
+              {t("admin.products.required_fields_are_marked_in_blue")}
             </p>
           </div>
 
@@ -1701,7 +1701,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             onClick={() => document.querySelector("form")?.requestSubmit()}
             disabled={loading}
             className="
-              ml-auto
+              ms-auto
               h-10
               rounded-xl
               bg-blue-600
@@ -1717,13 +1717,14 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             "
           >
             {loading
-              ? "Saving..."
+              ? t("admin.products.saving")
               : isEditMode
-                ? "Save changes"
-                : "Create product"}
+                ? t("admin.products.save_changes")
+                : t("admin.products.create_product")}
           </Button>
         </div>
       </div>
     </div>
   );
 }
+

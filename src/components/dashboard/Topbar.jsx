@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { logout_API } from "@/services/auth/sanwater_group.auth";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 import { SUPPORTED_LANGUAGES, useTranslation } from "@/lib/i18n";
+import { SAN_WATER_GROUP_NAME } from "@/configs/brand";
 
 const languageLabels = {
   fr: "Français",
   ar: "العربية",
   en: "English",
 };
+const SEARCH_SHORTCUT = "⌘ K";
 
 function LanguageSelector() {
   const { lang, setLang, t } = useTranslation();
@@ -86,7 +88,7 @@ export default function Topbar({ onMenu }) {
         <div className="hidden w-64 shrink-0 items-center px-2 sm:flex lg:px-3">
           <img
             src="/logo.svg"
-            alt="San Water Group"
+            alt={SAN_WATER_GROUP_NAME}
             className="h-7 w-auto object-contain"
           />
         </div>
@@ -127,7 +129,7 @@ export default function Topbar({ onMenu }) {
                 sm:inline-flex
               "
             >
-              ⌘ K
+              {SEARCH_SHORTCUT}
             </span>
           </button>
         </div>
@@ -181,7 +183,7 @@ export default function Topbar({ onMenu }) {
             <div className="hidden text-start md:block">
               <p className="text-xs font-semibold text-slate-800">{t("admin.shell.admin")}</p>
 
-              <p className="text-[11px] text-slate-400">San Water Group</p>
+              <p className="text-[11px] text-slate-400">{SAN_WATER_GROUP_NAME}</p>
             </div>
 
             <ChevronDown className="hidden h-4 w-4 text-slate-400 md:block" />

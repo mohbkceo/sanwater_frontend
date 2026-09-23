@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
@@ -162,6 +163,7 @@ function ActionButton({ children, variant = 'primary', className = '', ...props 
 }
 
 export default function EditSalesPage() {
+  const { t } = useTranslation();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.CONTENT.MANAGE);
   const [formData, setFormData] = useState(EMPTY_FORM);
@@ -183,7 +185,7 @@ export default function EditSalesPage() {
       setFormData(normalized);
       setInitialData(deepClone(normalized));
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to load page content.');
+      setError(err?.response?.data?.message || err?.message || t("admin.sales.failed_to_load_page_content"));
     } finally {
       setLoading(false);
     }
@@ -227,9 +229,9 @@ export default function EditSalesPage() {
       const normalized = normalizeForm(saved || payload);
       setFormData(normalized);
       setInitialData(deepClone(normalized));
-      setSuccess('Page updated successfully.');
+      setSuccess(t("admin.sales.page_updated_successfully"));
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to save page content.');
+      setError(err?.response?.data?.message || err?.message || t("admin.sales.failed_to_save_page_content"));
     } finally {
       setSaving(false);
     }
@@ -246,7 +248,7 @@ export default function EditSalesPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-6 text-gray-900">
         <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm">
           <Loader2 className="h-5 w-5 animate-spin text-cyan-500" />
-          <span className="text-sm font-medium text-gray-600">Loading editor...</span>
+          <span className="text-sm font-medium text-gray-600">{t("admin.sales.loading_editor")}</span>
         </div>
       </div>
     );
@@ -259,39 +261,39 @@ export default function EditSalesPage() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold tracking-[0.2em] text-cyan-700 uppercase">
-                CMS Editor
+                {t("admin.sales.cms_editor")}
               </div>
-              <h1 className="text-2xl font-semibold tracking-tight text-gray-900 md:text-4xl">Edit Sales Contact Page</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-gray-900 md:text-4xl">{t("admin.sales.edit_sales_contact_page")}</h1>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-gray-500 md:text-base">
-                Manage the public page content, add or reorder sections, and save directly to MongoDB.
+                {t("admin.sales.manage_the_public_page_content_add_or_reorder_sections")}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <ActionButton variant="subtle" onClick={() => setPreview((v) => !v)}>
                 {preview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                {preview ? 'Hide Preview' : 'Show Preview'}
+                {preview ? t("admin.sales.hide_preview") : t("admin.sales.show_preview")}
               </ActionButton>
               <ActionButton variant="subtle" onClick={handleReset} disabled={!isDirty || saving}>
                 <RotateCcw className="h-4 w-4" />
-                Reset
+                {t("admin.sales.reset")}
               </ActionButton>
               <ActionButton
                 onClick={handleSave}
                 disabled={saving || !canManage}
-                title={!canManage ? 'You do not have permission' : 'Save Changes'}
+                title={!canManage ? t("admin.common.permission_denied") : t("admin.sales.save_changes")}
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? t("admin.sales.saving") : t("admin.sales.save_changes")}
               </ActionButton>
             </div>
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
             <span className={`rounded-full px-3 py-1 ${isDirty ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-              {isDirty ? 'Unsaved changes' : 'Synced'}
+              {isDirty ? t("admin.sales.unsaved_changes") : t("admin.sales.synced")}
             </span>
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">Slug: {SLUG}</span>
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{t("admin.sales.slug")} {SLUG}</span>
           </div>
 
           {error ? (
@@ -308,18 +310,18 @@ export default function EditSalesPage() {
 
         <div className={`grid gap-6 ${preview ? 'xl:grid-cols-[1.15fr_0.85fr]' : 'grid-cols-1'}`}>
           <div className="space-y-6">
-            <SectionShell title="Page Identity" subtitle="These fields appear at the top of the public page.">
+            <SectionShell title={t("admin.sales.page_identity")} subtitle={t("admin.sales.page_identity_description")}>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <FieldLabel>Main title</FieldLabel>
+                  <FieldLabel>{t("admin.sales.main_title")}</FieldLabel>
                   <TextInput
                     value={formData.mainTitle}
                     onChange={(e) => updateTopLevel('mainTitle', e.target.value)}
-                    placeholder="Contactez notre équipe"
+                    placeholder={t("admin.sales.contactez_notre_equipe")}
                   />
                 </div>
                 <div>
-                  <FieldLabel>Logo path</FieldLabel>
+                  <FieldLabel>{t("admin.sales.logo_path")}</FieldLabel>
                   <TextInput
                     value={formData.logo}
                     onChange={(e) => updateTopLevel('logo', e.target.value)}
@@ -327,19 +329,19 @@ export default function EditSalesPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <FieldLabel>Subtitle</FieldLabel>
+                  <FieldLabel>{t("admin.sales.subtitle")}</FieldLabel>
                   <TextArea
                     value={formData.subTitle}
                     onChange={(e) => updateTopLevel('subTitle', e.target.value)}
-                    placeholder="Nos bureaux et équipes commerciales sont disponibles..."
+                    placeholder={t("admin.sales.nos_bureaux_et_equipes_commerciales_sont_disponibles")}
                   />
                 </div>
               </div>
             </SectionShell>
 
             <SectionShell
-              title="Office Sections"
-              subtitle="Each block represents one regional office card on the public page."
+              title={t("admin.sales.office_sections")}
+              subtitle={t("admin.sales.office_sections_description")}
               action={
                 <ActionButton
                   onClick={() =>
@@ -350,14 +352,14 @@ export default function EditSalesPage() {
                   }
                 >
                   <Plus className="h-4 w-4" />
-                  Add office
+                  {t("admin.sales.add_office")}
                 </ActionButton>
               }
             >
               <div className="space-y-5">
                 {formData.contactSections.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm text-gray-500">
-                    No office sections yet. Add one to start building the page.
+                    {t("admin.sales.no_office_sections_yet_add_one_to_start_building")}
                   </div>
                 ) : null}
 
@@ -369,8 +371,8 @@ export default function EditSalesPage() {
                           <Building2 className="h-5 w-5" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">Office #{sectionIndex + 1}</h3>
-                          <p className="text-xs text-gray-500">Reorder, edit, or remove this block.</p>
+                          <h3 className="text-lg font-semibold text-gray-900">{t("admin.sales.office")}{sectionIndex + 1}</h3>
+                          <p className="text-xs text-gray-500">{t("admin.sales.reorder_edit_or_remove_this_block")}</p>
                         </div>
                       </div>
 
@@ -409,25 +411,25 @@ export default function EditSalesPage() {
                           }
                         >
                           <Trash2 className="h-4 w-4" />
-                          Remove
+                          {t("admin.sales.remove")}
                         </ActionButton>
                       </div>
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <FieldLabel>Region</FieldLabel>
+                        <FieldLabel>{t("admin.sales.region")}</FieldLabel>
                         <TextInput
                           value={section.region}
                           onChange={(e) =>
                             updateContactSection(sectionIndex, (current) => ({ ...current, region: e.target.value }))
                           }
-                          placeholder="Algiers (Central)"
+                          placeholder={t("admin.sales.algiers_central")}
                         />
                       </div>
 
                       <div>
-                        <FieldLabel>Gradient class</FieldLabel>
+                        <FieldLabel>{t("admin.sales.gradient_class")}</FieldLabel>
                         <TextInput
                           value={section.gradient}
                           onChange={(e) =>
@@ -438,18 +440,18 @@ export default function EditSalesPage() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <FieldLabel>Address</FieldLabel>
+                        <FieldLabel>{t("admin.sales.address")}</FieldLabel>
                         <TextArea
                           value={section.address}
                           onChange={(e) =>
                             updateContactSection(sectionIndex, (current) => ({ ...current, address: e.target.value }))
                           }
-                          placeholder="Cité Freri 02 El - Hamiz D.E.B, Algiers"
+                          placeholder={t("admin.sales.cite_freri_02_el_hamiz_d_e_b_algiers")}
                         />
                       </div>
 
                       <div className="md:col-span-2">
-                        <FieldLabel>Google Maps URL</FieldLabel>
+                        <FieldLabel>{t("admin.sales.google_maps_url")}</FieldLabel>
                         <TextInput
                           value={section.maps}
                           onChange={(e) =>
@@ -463,7 +465,7 @@ export default function EditSalesPage() {
                     <div className="mt-5 grid gap-5 lg:grid-cols-2">
                       <div className="rounded-2xl border border-gray-200 bg-white p-4">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                          <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">Companies</h4>
+                          <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">{t("admin.sales.companies")}</h4>
                           <ActionButton
                             variant="subtle"
                             className="px-3 py-2 text-xs"
@@ -475,7 +477,7 @@ export default function EditSalesPage() {
                             }
                           >
                             <Plus className="h-3.5 w-3.5" />
-                            Add
+                            {t("admin.sales.add")}
                           </ActionButton>
                         </div>
 
@@ -492,7 +494,7 @@ export default function EditSalesPage() {
                                     return { ...current, companies: next };
                                   })
                                 }
-                                placeholder="Company name"
+                                placeholder={t("admin.sales.company_name")}
                               />
                               <ActionButton
                                 variant="ghost"
@@ -514,7 +516,7 @@ export default function EditSalesPage() {
 
                       <div className="rounded-2xl border border-gray-200 bg-white p-4">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                          <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">Phones</h4>
+                          <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">{t("admin.sales.phones")}</h4>
                           <ActionButton
                             variant="subtle"
                             className="px-3 py-2 text-xs"
@@ -526,7 +528,7 @@ export default function EditSalesPage() {
                             }
                           >
                             <Plus className="h-3.5 w-3.5" />
-                            Add
+                            {t("admin.sales.add")}
                           </ActionButton>
                         </div>
 
@@ -542,7 +544,7 @@ export default function EditSalesPage() {
                                     return { ...current, phones: next };
                                   })
                                 }
-                                placeholder="Label"
+                                placeholder={t("admin.sales.label")}
                               />
                               <TextInput
                                 value={phone.number}
@@ -553,7 +555,7 @@ export default function EditSalesPage() {
                                     return { ...current, phones: next };
                                   })
                                 }
-                                placeholder="Phone number"
+                                placeholder={t("admin.sales.phone_number")}
                               />
                               <ActionButton
                                 variant="ghost"
@@ -579,8 +581,8 @@ export default function EditSalesPage() {
             </SectionShell>
 
             <SectionShell
-              title="Sales Blocks"
-              subtitle="These blocks show commercial contact numbers for wholesale and retail."
+              title={t("admin.sales.sales_blocks")}
+              subtitle={t("admin.sales.sales_blocks_description")}
               action={
                 <ActionButton
                   onClick={() =>
@@ -591,14 +593,14 @@ export default function EditSalesPage() {
                   }
                 >
                   <Plus className="h-4 w-4" />
-                  Add sales block
+                  {t("admin.sales.add_sales_block")}
                 </ActionButton>
               }
             >
               <div className="space-y-5">
                 {formData.salesData.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm text-gray-500">
-                    No sales blocks yet.
+                    {t("admin.sales.no_sales_blocks_yet")}
                   </div>
                 ) : null}
 
@@ -610,8 +612,8 @@ export default function EditSalesPage() {
                           <Phone className="h-5 w-5" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">Sales Block #{itemIndex + 1}</h3>
-                          <p className="text-xs text-gray-500">Move or remove this card.</p>
+                          <h3 className="text-lg font-semibold text-gray-900">{t("admin.sales.sales_block")}{itemIndex + 1}</h3>
+                          <p className="text-xs text-gray-500">{t("admin.sales.move_or_remove_this_card")}</p>
                         </div>
                       </div>
 
@@ -650,26 +652,26 @@ export default function EditSalesPage() {
                           }
                         >
                           <Trash2 className="h-4 w-4" />
-                          Remove
+                          {t("admin.sales.remove")}
                         </ActionButton>
                       </div>
                     </div>
 
                     <div className="grid gap-4">
                       <div>
-                        <FieldLabel>Title</FieldLabel>
+                        <FieldLabel>{t("admin.sales.title")}</FieldLabel>
                         <TextInput
                           value={item.title}
                           onChange={(e) =>
                             updateSalesItem(itemIndex, (current) => ({ ...current, title: e.target.value }))
                           }
-                          placeholder="Commercialisation en gros"
+                          placeholder={t("admin.sales.commercialisation_en_gros")}
                         />
                       </div>
 
                       <div>
                         <div className="mb-3 flex items-center justify-between gap-3">
-                          <FieldLabel>Phone numbers</FieldLabel>
+                          <FieldLabel>{t("admin.sales.phone_numbers")}</FieldLabel>
                           <ActionButton
                             variant="subtle"
                             className="px-3 py-2 text-xs"
@@ -681,7 +683,7 @@ export default function EditSalesPage() {
                             }
                           >
                             <Plus className="h-3.5 w-3.5" />
-                            Add phone
+                            {t("admin.sales.add_phone")}
                           </ActionButton>
                         </div>
 
@@ -725,14 +727,14 @@ export default function EditSalesPage() {
 
           {preview ? (
             <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-              <SectionShell title="Live Preview" subtitle="A simplified preview of the public page using current draft data.">
+              <SectionShell title={t("admin.sales.live_preview")} subtitle={t("admin.sales.live_preview_description")}>
                 <div className="rounded-3xl border border-gray-200 bg-white p-5">
                   <div className="mb-6 text-center">
                     <div className="mx-auto mb-4 w-28 opacity-90">
-                      <img src={formData.logo} alt="Logo" className="w-full object-contain" />
+                      <img src={formData.logo} alt={t("admin.sales.logo")} className="w-full object-contain" />
                     </div>
-                    <h3 className="text-2xl font-semibold tracking-tight text-gray-900">{formData.mainTitle || 'Untitled page'}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-500">{formData.subTitle || 'Subtitle not set.'}</p>
+                    <h3 className="text-2xl font-semibold tracking-tight text-gray-900">{formData.mainTitle || t("admin.sales.untitled_page")}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-500">{formData.subTitle || t("admin.sales.subtitle_not_set")}</p>
                   </div>
 
                   <div className="space-y-4">
@@ -744,8 +746,8 @@ export default function EditSalesPage() {
                               <Building2 className="h-4 w-4" />
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-gray-900">{item.region || `Region ${idx + 1}`}</p>
-                              <p className="text-xs text-gray-500">Office card</p>
+                              <p className="text-sm font-semibold text-gray-900">{item.region || t("admin.sales.region_number", { number: idx + 1 })}</p>
+                              <p className="text-xs text-gray-500">{t("admin.sales.office_card")}</p>
                             </div>
                           </div>
                         </div>
@@ -753,7 +755,7 @@ export default function EditSalesPage() {
                         <div className="space-y-2 text-sm text-gray-600">
                           <div className="flex items-start gap-2">
                             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-cyan-600" />
-                            <span>{item.address || 'Address not set'}</span>
+                            <span>{item.address || t("admin.sales.address_not_set")}</span>
                           </div>
                           {item.phones[0]?.number ? (
                             <div className="flex items-start gap-2">
@@ -764,7 +766,7 @@ export default function EditSalesPage() {
                           {item.maps ? (
                             <div className="flex items-start gap-2 text-cyan-600">
                               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0" />
-                              <span>Google Maps link set</span>
+                              <span>{t("admin.sales.google_maps_link_set")}</span>
                             </div>
                           ) : null}
                         </div>
@@ -773,10 +775,10 @@ export default function EditSalesPage() {
 
                     {formData.salesData.map((item, idx) => (
                       <div key={idx} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                        <p className="mb-2 text-sm font-semibold text-gray-900">{item.title || `Sales block ${idx + 1}`}</p>
+                        <p className="mb-2 text-sm font-semibold text-gray-900">{item.title || t("admin.sales.sales_block_number", { number: idx + 1 })}</p>
                         <div className="space-y-1 text-sm text-gray-600">
                           {item.phones.map((phone, phoneIdx) => (
-                            <p key={phoneIdx}>{phone || 'Phone not set'}</p>
+                            <p key={phoneIdx}>{phone || t("admin.sales.phone_not_set")}</p>
                           ))}
                         </div>
                       </div>
