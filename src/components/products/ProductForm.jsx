@@ -1,4 +1,5 @@
 import { useTranslation } from "@/lib/i18n";
+import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -254,6 +255,7 @@ function Toggle({ checked, onChange, label, description }) {
 
 export default function ProductForm({ product = null, currentUserId = "" }) {
   const { t } = useTranslation();
+  const tx = useIntelligenceCopy();
   const isEditMode = !!product?.serialNumber;
 
   const initialFormData = useMemo(
@@ -1560,7 +1562,7 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
                           <div className="aspect-square">
                             <img
                               src={image}
-                              alt={`Product image ${index + 1}`}
+                              alt={[tx('Product image'), index + 1].join(' ')}
                               className="
                                   h-full
                                   w-full

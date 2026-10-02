@@ -1,4 +1,5 @@
 import { useTranslation } from "@/lib/i18n";
+import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
 import React, { useEffect, useState } from 'react';
 import { userAPI } from '@/services/baseAPIs';
 import { Header } from '@/components';
@@ -13,6 +14,7 @@ const PERMISSION_GROUPS = [
     permissions: [
       { value: PERMISSIONS.ANALYTICS.VIEW, labelKey: 'admin.users.permission_view_analytics' },
       { value: PERMISSIONS.ANALYTICS.MANAGE, labelKey: 'admin.users.permission_manage_analytics' },
+      ...['OVERVIEW', 'MARKETING', 'PRODUCTS', 'SALES', 'HIRING', 'CONTENT', 'EXPLORE', 'EXPORT', 'CONFIGURE'].map(key => ({ value: PERMISSIONS.ANALYTICS[key], labelKey: PERMISSIONS.ANALYTICS[key] })),
     ],
   },
   {
@@ -76,7 +78,9 @@ const PERMISSION_GROUPS = [
 
 function PermissionEditorModal({ user, onClose, onSave, saving }) {
   const { t } = useTranslation();
+  const tx = useIntelligenceCopy();
   const [selected, setSelected] = useState(user.permissions || []);
+  const [persona, setPersona] = useState(user.persona || 'general_admin');
 
   const togglePermission = (perm) => {
     setSelected((prev) =>
@@ -110,13 +114,18 @@ function PermissionEditorModal({ user, onClose, onSave, saving }) {
                       onChange={() => togglePermission(perm.value)}
                       className="rounded border-gray-300"
                     />
-                    {t(perm.labelKey)}
+                    {perm.labelKey.startsWith('admin.') ? t(perm.labelKey) : perm.value}
                   </label>
                 ))}
               </div>
             </div>
           ))}
         </div>
+        <label className="mx-6 mb-4 block text-sm font-medium text-gray-700">{tx('Dashboard persona')}
+          <select value={persona} onChange={event => setPersona(event.target.value)} className="mt-2 block w-full rounded-lg border p-2">
+            {['executive', 'product_manager', 'marketing_manager', 'sales_manager', 'hiring_manager', 'content_manager', 'operations_manager', 'general_admin'].map(value => <option key={value} value={value}>{tx(value.replace(/_/g, ' '))}</option>)}
+          </select>
+        </label>
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white">
           <button
@@ -126,7 +135,7 @@ function PermissionEditorModal({ user, onClose, onSave, saving }) {
             {t("admin.users.cancel")}
           </button>
           <button
-            onClick={() => onSave(selected)}
+            onClick={() => onSave(selected, persona)}
             disabled={saving}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white text-sm hover:bg-gray-800 disabled:opacity-60"
           >
@@ -170,13 +179,13 @@ function UserManagement() {
     fetchUsers();
   }, []);
 
-  const handleSavePermissions = async (permissions) => {
+  const handleSavePermissions = async (permissions, persona) => {
     if (!editingUser) return;
     try {
       setSavingPermissions(true);
-      await userAPI.put(`/${editingUser._id}/permissions`, { permissions });
+      await userAPI.put(`/${editingUser._id}/permissions`, { permissions, persona });
       setUsers((prev) =>
-        prev.map((u) => (u._id === editingUser._id ? { ...u, permissions } : u))
+        prev.map((u) => (u._id === editingUser._id ? { ...u, permissions, persona } : u))
       );
       setEditingUser(null);
     } catch (error) {

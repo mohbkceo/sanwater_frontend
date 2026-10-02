@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { trackCustomEvent } from '@/services/analytics/analytics';
 import { contentAPI } from "@/services/baseAPIs";
 import MainLayout from "@/layouts/MainLayout";
 import {
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n";
+import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { SPRING_DEFAULT, REDUCED_MOTION_TRANSITION } from "@/lib/springs";
 
@@ -665,8 +667,35 @@ function JobCard({
   spring,
   prefersReducedMotion,
 }) {
+  const tx = useIntelligenceCopy();
+  const [applying, setApplying] = useState(false);
+  const [application, setApplication] = useState({ fullName: '', email: '', phone: '', message: '' });
+  const [applicationState, setApplicationState] = useState('');
+  const cardRef = useRef(null);
+  useEffect(() => {
+    const node = cardRef.current;
+    if (!node || !window.IntersectionObserver) return;
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        trackCustomEvent('job_viewed', { hiring_id: job._id });
+        observer.disconnect();
+      }
+    }, { threshold: 0.5 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [job._id]);
+  const submitApplication = async event => {
+    event.preventDefault();
+    setApplicationState('sending');
+    try {
+      await contentAPI.post(`/hiring/${job._id}/applications`, application);
+      setApplicationState('success');
+      setApplying(false);
+    } catch { setApplicationState('error'); }
+  };
   return (
     <motion.article
+      ref={cardRef}
       initial={{
         opacity: 0,
         y: 10,
@@ -882,10 +911,9 @@ function JobCard({
               md:pt-1
             "
           >
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://forms.gle/4X5SmWTqAqhQCWRH6"
+            <button
+              type="button"
+              onClick={() => { trackCustomEvent('job_apply_clicked', { hiring_id: job._id }); setApplying(true); }}
               className="
                 inline-flex
                 h-10
@@ -913,10 +941,19 @@ function JobCard({
               {t("hiring.apply_now")}
 
               <ArrowRight size={13} strokeWidth={1.8} />
-            </a>
+            </button>
           </div>
         </div>
 
+        {applicationState === 'success' && <p role="status" className="px-4 pb-4 text-sm text-emerald-700">{tx('Application submitted. Thank you.')}</p>}
+        {applying && <form onSubmit={submitApplication} className="grid gap-3 border-t border-zinc-100 p-4 sm:grid-cols-2">
+          <input required minLength={2} maxLength={120} value={application.fullName} onChange={e => setApplication(a => ({ ...a, fullName: e.target.value }))} placeholder={tx('Full name')} aria-label={tx('Full name')} className="rounded-xl border p-3 text-sm" />
+          <input required type="email" maxLength={254} value={application.email} onChange={e => setApplication(a => ({ ...a, email: e.target.value }))} placeholder={tx('Email')} aria-label={tx('Email')} className="rounded-xl border p-3 text-sm" />
+          <input value={application.phone} onChange={e => setApplication(a => ({ ...a, phone: e.target.value }))} placeholder={tx('Phone')} aria-label={tx('Phone')} className="rounded-xl border p-3 text-sm" />
+          <textarea maxLength={3000} value={application.message} onChange={e => setApplication(a => ({ ...a, message: e.target.value }))} placeholder={tx('Short introduction')} aria-label={tx('Short introduction')} className="rounded-xl border p-3 text-sm" />
+          {applicationState === 'error' && <p role="alert" className="text-sm text-rose-700">{tx('Application could not be submitted. Please retry.')}</p>}
+          <div className="flex gap-2"><button type="submit" disabled={applicationState === 'sending'} className="rounded-xl bg-zinc-950 px-4 py-2 text-sm text-white">{tx(applicationState === 'sending' ? 'Sending…' : 'Submit application')}</button><button type="button" onClick={() => setApplying(false)} className="rounded-xl border px-4 py-2 text-sm">{tx('Cancel')}</button></div>
+        </form>}
         {/* Full details */}
         <AnimatePresence initial={false}>
           {expanded && job.description && (

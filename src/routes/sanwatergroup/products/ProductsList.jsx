@@ -1,6 +1,8 @@
 import { useTranslation } from "@/lib/i18n";
+import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
 import { toast } from "sonner";
 import { Plus, Package, RefreshCw, ShoppingBag } from "lucide-react";
 import useProducts from "@/services/products/useProducts";
@@ -15,6 +17,7 @@ import { PERMISSIONS } from "@/configs/permissions";
 import { getFamilies } from "@/services/products/familyServices";
 export default function ProductsPage() {
   const { t } = useTranslation();
+  const tx = useIntelligenceCopy();
   const { products, loading, refetch, totalPages, totalCount } = useProducts();
   const [isEcommerce, setIsEcommerce] = useState(false);
   const [families, setFamilies] = useState([]);
@@ -234,6 +237,7 @@ export default function ProductsPage() {
                   onToggleActive={handleToggleActive}
                   canManage={canManage}
                 />{" "}
+                {can(PERMISSIONS.ANALYTICS.PRODUCTS) && product._id && <Link to={`${SANWATERGROUPROUTES.subjects.fullPath}/product/${product._id}`} className="mt-2 block rounded-xl border border-blue-100 bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-700">{tx('Performance & activity')}</Link>}
               </div>
             ))}{" "}
           </div>

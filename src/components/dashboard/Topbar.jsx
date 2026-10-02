@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Search, ChevronDown, LogOut, Menu, Globe } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { logout_API } from "@/services/auth/sanwater_group.auth";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
@@ -11,7 +11,6 @@ const languageLabels = {
   ar: "العربية",
   en: "English",
 };
-const SEARCH_SHORTCUT = "⌘ K";
 
 function LanguageSelector() {
   const { lang, setLang, t } = useTranslation();
@@ -49,19 +48,28 @@ function LanguageSelector() {
 
 export default function Topbar({ onMenu }) {
   const navigate = useNavigate();
-  const [loggingOut, setLoggingOut] = useState(false);
   const { t } = useTranslation();
+
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     if (loggingOut) return;
 
     setLoggingOut(true);
+
     try {
       await logout_API();
+
       ["role", "permissions", "authKey", "public_id"].forEach((key) =>
         localStorage.removeItem(key),
       );
-      navigate(SANWATERGROUPROUTES.auth.login.fullPath, { replace: true });
+
+      setUserMenuOpen(false);
+
+      navigate(SANWATERGROUPROUTES.auth.login.fullPath, {
+        replace: true,
+      });
     } catch {
       // The shared API interceptor already shows the server/network error.
     } finally {
@@ -83,8 +91,27 @@ export default function Topbar({ onMenu }) {
           shadow-xs
         "
       >
+        {/* Mobile menu */}
+        <button
+          type="button"
+          onClick={onMenu}
+          aria-label={t("admin.shell.open_navigation")}
+          className="
+            me-2
+            grid h-10 w-10
+            shrink-0
+            place-items-center
+            rounded-xl
+            text-slate-600
+            transition
+            hover:bg-blue-50
+            lg:hidden
+          "
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
         {/* Brand */}
-        <button type="button" onClick={onMenu} aria-label={t("admin.shell.open_navigation")} className="me-2 grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-600 hover:bg-blue-50 lg:hidden"><Menu className="h-5 w-5" /></button>
         <div className="hidden w-64 shrink-0 items-center px-2 sm:flex lg:px-3">
           <img
             src="/logo.svg"
@@ -93,116 +120,124 @@ export default function Topbar({ onMenu }) {
           />
         </div>
 
-        {/* Search */}
-        <div className="flex min-w-0 flex-1">
-          <button
-            className="
-              flex h-10 w-full max-w-xl items-center
-              gap-2.5
-              rounded-xl
-              border border-transparent
-              bg-blue-50/70
-              px-3.5
-              text-sm
-              text-slate-400
-              transition
-              hover:border-blue-100
-              hover:bg-blue-50
-            "
-          >
-            <Search className="h-4 w-4 shrink-0 text-blue-500" />
-
-            <span className="truncate">
-              {t("admin.shell.search_placeholder")}
-            </span>
-
-            <span
-              className="
-                ms-auto hidden
-                rounded-md
-                border border-blue-100
-                bg-white/80
-                px-1.5 py-0.5
-                text-[10px]
-                font-medium
-                text-slate-400
-                sm:inline-flex
-              "
-            >
-              {SEARCH_SHORTCUT}
-            </span>
-          </button>
-        </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
         {/* Right actions */}
-        <div className="ms-3 flex items-center gap-2">
-          <button
-            className="
-              relative
-              grid h-10 w-10 place-items-center
-              rounded-xl
-              text-slate-500
-              transition
-              hover:bg-blue-50
-              hover:text-blue-600
-            "
-          >
-            <Bell className="h-4.5 w-4.5" />
-
-            <span
-              className="
-                absolute end-2 top-2
-                h-1.5 w-1.5
-                rounded-full
-                bg-blue-600
-              "
-            />
-          </button>
-
-          <button
-            className="
-              flex h-10 items-center gap-2
-              rounded-xl
-              px-2
-              transition
-              hover:bg-blue-50
-            "
-          >
-            <div
-              className="
-                grid h-8 w-8 place-items-center
-                rounded-lg
-                bg-blue-600
-                text-xs font-semibold
-                text-white
-              "
-            >
-              SW
-            </div>
-
-            <div className="hidden text-start md:block">
-              <p className="text-xs font-semibold text-slate-800">{t("admin.shell.admin")}</p>
-
-              <p className="text-[11px] text-slate-400">{SAN_WATER_GROUP_NAME}</p>
-            </div>
-
-            <ChevronDown className="hidden h-4 w-4 text-slate-400 md:block" />
-          </button>
-
+        <div className="flex items-center gap-2">
           <LanguageSelector />
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            disabled={loggingOut}
-            aria-label={t("admin.shell.logout")}
-            className="flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">
-              {loggingOut ? t("admin.shell.logging_out") : t("admin.shell.logout")}
-            </span>
-          </button>
+          {/* User dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen((current) => !current)}
+              aria-expanded={userMenuOpen}
+              aria-haspopup="menu"
+              className="
+                flex h-10 items-center gap-2
+                rounded-xl
+                px-2
+                transition
+                hover:bg-blue-50
+              "
+            >
+              <div
+                className="
+                  grid h-8 w-8
+                  place-items-center
+                  rounded-lg
+                  bg-blue-600
+                  text-xs
+                  font-semibold
+                  text-white
+                "
+              >
+                SW
+              </div>
+
+              <div className="hidden text-start md:block">
+                <p className="text-xs font-semibold text-slate-800">
+                  {t("admin.shell.admin")}
+                </p>
+
+                <p className="text-[11px] text-slate-400">
+                  {SAN_WATER_GROUP_NAME}
+                </p>
+              </div>
+
+              <ChevronDown
+                className={`
+                  hidden h-4 w-4
+                  text-slate-400
+                  transition-transform
+                  duration-200
+                  md:block
+                  ${userMenuOpen ? "rotate-180" : ""}
+                `}
+              />
+            </button>
+
+            {/* Dropdown */}
+            {userMenuOpen && (
+              <div
+                role="menu"
+                className="
+                  absolute end-0 top-[calc(100%+8px)]
+                  z-50
+                  w-56
+                  overflow-hidden
+                  rounded-2xl
+                  border border-slate-200/80
+                  bg-white
+                  p-1.5
+                  shadow-lg
+                "
+              >
+                {/* User info */}
+                <div className="px-3 py-2.5">
+                  <p className="text-sm font-semibold text-slate-800">
+                    {t("admin.shell.admin")}
+                  </p>
+
+                  <p className="mt-0.5 truncate text-xs text-slate-400">
+                    {SAN_WATER_GROUP_NAME}
+                  </p>
+                </div>
+
+                <div className="my-1 border-t border-slate-100" />
+
+                {/* Logout */}
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="
+                    flex w-full
+                    items-center gap-2.5
+                    rounded-xl
+                    px-3 py-2.5
+                    text-start
+                    text-sm font-medium
+                    text-red-600
+                    transition
+                    hover:bg-red-50
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
+                  "
+                >
+                  <LogOut className="h-4 w-4 shrink-0" />
+
+                  <span>
+                    {loggingOut
+                      ? t("admin.shell.logging_out")
+                      : t("admin.shell.logout")}
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

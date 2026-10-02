@@ -11,6 +11,8 @@ import {
   Settings,
   ChevronRight,
   ContactRound,
+  Lightbulb,
+  Compass,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -19,21 +21,41 @@ import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
 import { PERMISSIONS } from "@/configs/permissions";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useTranslation } from "@/lib/i18n";
+import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
 import { SAN_WATER_GROUP_NAME } from "@/configs/brand";
+import { orderSections } from '@/components/dashboard/intelligence/routing';
 
 const navSections = [
   {
     label: "admin.nav.overview",
     items: [
       {
-        name: "admin.nav.analytics",
+        name: "My Dashboard",
         icon: ChartColumnBig,
-        path: SANWATERGROUPROUTES.analystics.fullPath,
-        permission: PERMISSIONS.ANALYTICS.VIEW,
+        path: SANWATERGROUPROUTES.home.fullPath,
+        permission: null,
       },
+      { name: 'Attention Center', icon: Lightbulb, path: SANWATERGROUPROUTES.attention.fullPath, permission: [PERMISSIONS.ANALYTICS.PRODUCTS, PERMISSIONS.ANALYTICS.SALES, PERMISSIONS.ANALYTICS.MARKETING, PERMISSIONS.ANALYTICS.HIRING, PERMISSIONS.ANALYTICS.CONTENT] },
     ],
   },
 
+  {
+    label: 'Marketing',
+    items: [
+      { name: 'Acquisition', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/marketing`, permission: PERMISSIONS.ANALYTICS.MARKETING },
+    ],
+  },
+  {
+    label: 'Intelligence',
+    items: [
+      { name: 'Sales Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/sales`, permission: PERMISSIONS.ANALYTICS.SALES },
+      { name: 'Product Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/products`, permission: PERMISSIONS.ANALYTICS.PRODUCTS },
+      { name: 'Hiring Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/hiring`, permission: PERMISSIONS.ANALYTICS.HIRING },
+      { name: 'Content Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/content`, permission: PERMISSIONS.ANALYTICS.CONTENT },
+      { name: 'Operations Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/operations`, permission: PERMISSIONS.ANALYTICS.SALES },
+      { name: 'Explorer', icon: Compass, path: SANWATERGROUPROUTES.explore.fullPath, permission: PERMISSIONS.ANALYTICS.EXPLORE },
+    ],
+  },
   {
     label: "admin.nav.catalog",
     items: [
@@ -73,6 +95,7 @@ const navSections = [
         path: SANWATERGROUPROUTES.hiring.list.fullPath,
         permission: PERMISSIONS.HIRING.VIEW,
       },
+      { name: 'Applications', icon: Briefcase, path: SANWATERGROUPROUTES.applications.fullPath, permission: PERMISSIONS.HIRING.VIEW },
       {
         name: "admin.nav.submissions",
         icon: MessageSquare,
@@ -114,8 +137,11 @@ const navSections = [
 ];
 
 export default function Sidebar({ mobile = false, onNavigate }) {
-  const { can } = usePermissions();
+  const { can, persona } = usePermissions();
   const { t } = useTranslation();
+  const tx = useIntelligenceCopy();
+  const orderedSections = orderSections(navSections, persona);
+  const label = key => key.startsWith('admin.') ? t(key) : tx(key);
 
   return (
     <aside className={mobile ? "block w-full" : "hidden w-64 shrink-0 lg:block"}>
@@ -167,7 +193,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
 
           {/* Navigation */}
           <nav className="space-y-4">
-            {navSections.map((section) => {
+            {orderedSections.map((section) => {
               const visibleItems = section.items.filter(
                 (item) => !item.permission || can(item.permission),
               );
@@ -189,7 +215,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                       text-slate-400
                     "
                   >
-                    {t(section.label)}
+                    {label(section.label)}
                   </p>
 
                   <div className="space-y-0.5">
@@ -200,6 +226,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                         <NavLink
                           key={item.name}
                           to={item.path}
+                          end={item.path === SANWATERGROUPROUTES.home.fullPath}
                           onClick={onNavigate}
                           className={({ isActive }) =>
                             `
@@ -265,7 +292,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                                 <Icon className="h-4 w-4" />
                               </span>
 
-                              <span className="truncate">{t(item.name)}</span>
+                              <span className="truncate">{label(item.name)}</span>
 
                               {isActive && (
                                 <ChevronRight

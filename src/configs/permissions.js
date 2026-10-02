@@ -2,6 +2,10 @@ export const PERMISSIONS = {
   ANALYTICS: {
     VIEW: 'analytics.view',
     MANAGE: 'analytics.manage',
+    OVERVIEW: 'analytics.overview.view', MARKETING: 'analytics.marketing.view',
+    PRODUCTS: 'analytics.products.view', SALES: 'analytics.sales.view',
+    HIRING: 'analytics.hiring.view', CONTENT: 'analytics.content.view',
+    EXPLORE: 'analytics.explore', EXPORT: 'analytics.export', CONFIGURE: 'analytics.configure',
   },
   PRODUCTS: {
     VIEW: 'products.view',

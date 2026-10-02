@@ -76,6 +76,7 @@ const algiersDateTimeToIso = (value) =>
 
 export default function CreateEditNewsPage() {
   const { lang, t } = useTranslation();
+  const sampleCanonicalUrl = `${window.location.origin}/news/generated-slug`;
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -482,7 +483,7 @@ export default function CreateEditNewsPage() {
                   type="url"
                   value={form.canonicalUrl || ""}
                   onChange={(e) => setField("canonicalUrl", e.target.value)}
-                  placeholder={`${window.location.origin}/news/generated-slug`}
+                  placeholder={sampleCanonicalUrl}
                 />
               </Input>
               <div className="rounded-2xl border bg-white p-4">

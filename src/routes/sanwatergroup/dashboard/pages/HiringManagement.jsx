@@ -681,7 +681,7 @@ function HiringManagement() {
         setLoading(true);
       }
 
-      const response = await contentAPI.get("/hiring");
+      const response = await contentAPI.get("/hiring/admin");
 
       setHiring(response?.data?.data || []);
     } catch (error) {

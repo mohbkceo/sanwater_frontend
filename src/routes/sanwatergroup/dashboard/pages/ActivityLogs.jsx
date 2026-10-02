@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { analyticsAPI } from '@/services/baseAPIs';
 import { Header } from '@/components';
 import { useTranslation } from '@/lib/i18n';
+import { useIntelligenceCopy } from '@/lib/intelligenceCopy';
 
 const ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'MOVE', 'LOGIN', 'SECURITY'];
 const actionTone = {
@@ -62,6 +63,7 @@ function entityName(log) {
 
 function ActivityLogs() {
   const { lang, t } = useTranslation();
+  const tx = useIntelligenceCopy();
   const [logs, setLogs] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [resources, setResources] = useState([]);
@@ -70,7 +72,7 @@ function ActivityLogs() {
   const [selected, setSelected] = useState(null);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ totalPages: 1, totalItems: 0 });
-  const [filters, setFilters] = useState({ userId: '', action: '', target: '', from: '', to: '', search: '' });
+  const [filters, setFilters] = useState({ userId: '', action: '', target: '', targetId: '', eventName: '', from: '', to: '', search: '' });
 
   const params = useMemo(() => Object.fromEntries(Object.entries({ page, limit: 20, ...filters }).filter(([, value]) => value !== '')), [page, filters]);
   const fetchLogs = useCallback(async () => {
@@ -123,6 +125,7 @@ function ActivityLogs() {
         <label className="mt-3 block text-xs font-medium text-gray-600">{t('admin.common.search')}
           <input type="search" value={filters.search} onChange={(event) => updateFilter('search', event.target.value)} placeholder={t('admin.activity.description')} className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
         </label>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="text-xs font-medium text-gray-600">{tx('Subject ID')}<input value={filters.targetId} onChange={event => updateFilter('targetId', event.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" /></label><label className="text-xs font-medium text-gray-600">{tx('Event name')}<input value={filters.eventName} onChange={event => updateFilter('eventName', event.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" /></label></div>
       </section>
 
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">

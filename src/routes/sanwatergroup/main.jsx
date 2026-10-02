@@ -13,6 +13,11 @@ import { Navigate } from 'react-router-dom'
 import LoginPage from './auth/login/login'
 import CreateAdminPage from './auth/register/register'
 import Analytics from './dashboard/pages/Analytics'
+import IntelligenceDomain from './dashboard/pages/IntelligenceDomain'
+import AttentionCenter from './dashboard/pages/AttentionCenter'
+import SubjectIntelligence from './dashboard/pages/SubjectIntelligence'
+import SubjectExplorer from './dashboard/pages/SubjectExplorer'
+import ApplicationsPage from './dashboard/pages/ApplicationsPage'
 import Content from './dashboard/pages/Content'
 import Settings from './dashboard/pages/Settings'
 import UserManagement from './dashboard/pages/UserManagement'
@@ -32,13 +37,20 @@ function SanWaterGroupMain() {
   return (
     <Routes>
         <Route path='/*' element={<DashboardLayout />}>
+        <Route index element={<Analytics />} />
         <Route path={SANWATERGROUPROUTES.products.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><ProductsListPage /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.products.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateProductPage /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.products.edit.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><EditProductPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.products.families.control.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><FamiliesControlPage /></PermissionGuard>} />
 
-        <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<PermissionGuard permission={PERMISSIONS.ANALYTICS.VIEW}><Analytics /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.analystics.subPath} element={<Navigate to={SANWATERGROUPROUTES.home.fullPath} replace />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="analytics/:domain" element={<IntelligenceDomain />} />
+        <Route path="attention" element={<AttentionCenter />} />
+        <Route path="explore" element={<PermissionGuard permission={PERMISSIONS.ANALYTICS.EXPLORE}><SubjectExplorer /></PermissionGuard>} />
+        <Route path="subjects/:type/:id" element={<SubjectIntelligence />} />
+        <Route path="applications" element={<PermissionGuard permission={PERMISSIONS.HIRING.VIEW}><ApplicationsPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.content.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.VIEW}><Content /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.content.children.news.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.VIEW}><NewsManagementPage /></PermissionGuard>} />
@@ -64,7 +76,6 @@ function SanWaterGroupMain() {
 
         </Route>
         <Route path={SANWATERGROUPROUTES.auth.login.subPath} element={<LoginPage />} />
-        <Route index element={<Navigate to={SANWATERGROUPROUTES.analystics.fullPath} replace/>}/>
     </Routes>
   )
 }

@@ -12,6 +12,12 @@ export const FAVORITES = `/favorites`;
 export const AUTH = `${mainSanWaterRoute}/auth`
 
 export const SANWATERGROUPROUTES = {
+    home: { subPath: '', fullPath: mainSanWaterRoute },
+    analytics: { subPath: 'analytics', fullPath: `${mainSanWaterRoute}/analytics` },
+    attention: { subPath: 'attention', fullPath: `${mainSanWaterRoute}/attention` },
+    explore: { subPath: 'explore', fullPath: `${mainSanWaterRoute}/explore` },
+    subjects: { subPath: 'subjects', fullPath: `${mainSanWaterRoute}/subjects` },
+    applications: { subPath: 'applications', fullPath: `${mainSanWaterRoute}/applications` },
     users: {
         list: {
             subPath: `users`,

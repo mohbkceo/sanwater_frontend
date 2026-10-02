@@ -1,87 +1,28 @@
-import { useTranslation } from "@/lib/i18n";
-import { useMemo, useState } from "react";
-import { Activity, RefreshCw } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useBusinessAnalytics, useFetchAnalytics, useFunnelBreakdown } from "@/hooks/useAnalytics";
-import DateFilter from "@/components/dashboard/analytics/DateFilter";
-import BusinessKpiCard from "@/components/dashboard/analytics/BusinessKpiCard";
-import KpiTrendChart from "@/components/dashboard/analytics/KpiTrendChart";
-import BusinessInsightCard from "@/components/dashboard/analytics/BusinessInsightCard";
-import CommercialFunnel from "@/components/dashboard/analytics/CommercialFunnel";
-import ProductPerformanceTable from "@/components/dashboard/analytics/ProductPerformanceTable";
-import SourceQualityTable from "@/components/dashboard/analytics/SourceQualityTable";
-import { formatDZD, formatNumber, formatRate } from "@/components/dashboard/analytics/analyticsFormatters";
-
-const TABS = [["overview", "admin.analytics.tab_overview"], ["conversion", "admin.analytics.tab_conversion"], ["products", "admin.analytics.tab_products"], ["acquisition", "admin.analytics.tab_acquisition"], ["behavior", "admin.analytics.tab_behavior"], ["crm", "admin.analytics.tab_crm"]];
-
-function defaultRange() {
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - 29);
-  const iso = (date) => new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-  return { from: iso(from), to: iso(to) };
-}
-
-function Section({ title, description, children, action }) {
-  return <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><h2 className="text-lg font-bold tracking-tight text-slate-950">{title}</h2>{description && <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>}</div>{action}</div><div className="mt-5">{children}</div></section>;
-}
-
-function ErrorPanel({ title, onRetry }) {
-  const { t } = useTranslation();
-  return <div className="rounded-3xl border border-rose-200 bg-rose-50 p-6"><p className="font-bold text-rose-900">{title}</p><p className="mt-1 text-sm text-rose-700">{t("admin.analytics.other_analytics_remain_available_retry_this_section_when_ready")}</p><button type="button" onClick={onRetry} className="mt-4 rounded-xl bg-rose-700 px-4 py-2 text-xs font-bold text-white">{t("admin.analytics.retry")}</button></div>;
-}
-
-function SkeletonCards() {
-  return <div className="grid animate-pulse gap-4 sm:grid-cols-2 xl:grid-cols-5">{Array.from({ length: 5 }).map((_, index) => <div key={index} className="h-36 rounded-3xl bg-slate-200" />)}</div>;
-}
-
-function BehaviorChart({ data = [] }) {
-  const { t } = useTranslation();
-  if (!data.length) return <p className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">{t("admin.analytics.no_behavioral_trend_data_for_this_period")}</p>;
-  return <div className="h-72"><ResponsiveContainer width="100%" height="100%"><AreaChart data={data} margin={{ left: -16, right: 8, top: 8 }}><CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} /><XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#64748b" }} /><YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#64748b" }} /><Tooltip /><Area type="monotone" dataKey="traffic" name={t("admin.analytics.page_views")} stroke="#2563eb" fill="#dbeafe" strokeWidth={2.5} /><Area type="monotone" dataKey="conversions" name={t("admin.analytics.generic_conversions")} stroke="#0f766e" fill="transparent" strokeWidth={2} /></AreaChart></ResponsiveContainer></div>;
-}
-
-function BreakdownBars({ items = [], labelKey = "name", valueKey = "value" }) {
-  const { t } = useTranslation();
-  const normalized = items.map((item) => ({ name: item[labelKey] || t("admin.common.unknown"), value: Number(item[valueKey] || 0) })).slice(0, 10);
-  if (!normalized.length) return <p className="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">{t("admin.analytics.no_data_for_this_breakdown")}</p>;
-  return <div className="h-72"><ResponsiveContainer width="100%" height="100%"><BarChart data={normalized} layout="vertical" margin={{ left: 8, right: 8 }}><CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" horizontal={false} /><XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} /><YAxis type="category" dataKey="name" width={90} axisLine={false} tickLine={false} tick={{ fontSize: 10 }} /><Tooltip /><Bar dataKey="value" fill="#2563eb" radius={[0, 8, 8, 0]} /></BarChart></ResponsiveContainer></div>;
-}
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { fetchDashboard } from '@/services/analytics/analytics';
+import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
+import { useAnalyticsRange, useReport } from '@/components/dashboard/intelligence/useReport';
+import { ActivityTimeline, DateRange, EmptyState, ErrorState, InsightList, KpiGrid, LoadingState, Panel } from '@/components/dashboard/intelligence/ui';
+import { domainNames } from '@/components/dashboard/intelligence/labels';
+import { useIntelligenceCopy } from '@/lib/intelligenceCopy';
 
 export default function Analytics() {
-  const { lang, t } = useTranslation();
-  const [filters, setFilters] = useState(defaultRange);
-  const [activeView, setActiveView] = useState("overview");
-  const [selectedStage, setSelectedStage] = useState("product_view");
-  const [dimension, setDimension] = useState("source");
-  const business = useBusinessAnalytics(filters);
-  const diagnostics = useFetchAnalytics(filters);
-  const breakdown = useFunnelBreakdown(filters, activeView === "conversion" ? selectedStage : null, dimension);
-  const periodLabel = useMemo(() => {
-    if (!business.data?.period) return t("admin.analytics.last_30_days");
-    const format = (value) => new Intl.DateTimeFormat(lang, { dateStyle: "medium" }).format(new Date(value));
-    return `${format(business.data.period.from)} – ${format(business.data.period.to)}`;
-  }, [business.data, lang, t]);
-  const refresh = () => Promise.allSettled([business.load(), diagnostics.load()]);
-  const kpis = business.data?.kpis;
-
-  return <main className="min-h-screen bg-slate-50 px-4 py-5 text-slate-900 sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl space-y-5">
-    <header className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl sm:p-8"><div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"><div><div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-blue-300"><Activity className="h-4 w-4" />{t("admin.analytics.decision_analytics")}</div><h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{t("admin.analytics.business_performance")}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{t("admin.analytics.revenue_commercial_conversion_product_opportunity_and_acquisition_quality_first")}</p><p className="mt-3 text-xs font-semibold text-blue-200">{periodLabel}</p></div><button type="button" onClick={refresh} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-xs font-bold text-slate-900 hover:bg-blue-50"><RefreshCw className="h-4 w-4" />{t("admin.analytics.refresh_all")}</button></div></header>
-    <div className="rounded-3xl border border-slate-200 bg-white p-4"><DateFilter filters={filters} setFilters={setFilters} /></div>
-    <nav className="flex overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1.5">{TABS.map(([id, labelKey]) => <button key={id} type="button" onClick={() => setActiveView(id)} className={`min-w-fit rounded-xl px-4 py-2.5 text-xs font-bold transition ${activeView === id ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"}`}>{t(labelKey)}</button>)}</nav>
-
-    {activeView === "overview" && <div className="space-y-5">{business.error && !business.data ? <ErrorPanel title={t("admin.analytics.business_analytics_unavailable")} onRetry={business.load} /> : business.loading && !business.data ? <SkeletonCards /> : kpis && <>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"><BusinessKpiCard label={t("admin.analytics.revenue")} metric={kpis.revenue} format={formatDZD} /><BusinessKpiCard label={t("admin.analytics.orders")} metric={kpis.orders} format={formatNumber} /><BusinessKpiCard label={t("admin.analytics.qualified_leads")} metric={kpis.qualifiedLeads} format={formatNumber} /><BusinessKpiCard label={t("admin.analytics.visitor_lead")} metric={kpis.visitorToLead} format={formatRate} /><BusinessKpiCard label={t("admin.analytics.lead_order")} metric={kpis.leadToOrder} format={formatRate} /></div>
-      <div className="max-w-sm"><BusinessKpiCard secondary label={t("admin.analytics.average_order_value")} metric={kpis.averageOrderValue} format={formatDZD} /></div>
-      <KpiTrendChart data={business.data.trend} />
-      <Section title={t("admin.analytics.what_needs_attention")} description={t("admin.analytics.up_to_five_material_high_confidence_business_signals_minor")}>{business.data.insights?.length ? <div className="grid gap-3 lg:grid-cols-2">{business.data.insights.map((insight) => <BusinessInsightCard key={insight.id} insight={insight} onAction={setActiveView} />)}</div> : <p className="rounded-2xl bg-emerald-50 p-6 text-sm text-emerald-800">{t("admin.analytics.no_material_business_anomalies_meet_the_current_confidence_and")}</p>}</Section>
-      <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs leading-5 text-blue-900">{t("admin.analytics.commercial_definition_sentence", { orders: business.data.definitions.orderDefinition, revenue: business.data.definitions.revenueDefinition, attribution: business.data.definitions.attribution })}</div>
-    </>}</div>}
-
-    {activeView === "conversion" && <div className="space-y-5">{business.error && !business.data ? <ErrorPanel title={t("admin.analytics.conversion_analytics_unavailable")} onRetry={business.load} /> : business.data && <><Section title={t("admin.analytics.commercial_funnel")} description={t("admin.analytics.unique_visitors_or_commercial_entities_at_every_stage_click")}><CommercialFunnel funnel={business.data.funnel} selectedStage={selectedStage} onSelectStage={setSelectedStage} /></Section><Section title={t("admin.analytics.stage_diagnostics")} description={t("admin.analytics.progressive_breakdown_for_the_selected_funnel_stage")} action={<select value={dimension} onChange={(event) => setDimension(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold"><option value="product">{t("admin.analytics.product")}</option><option value="device">{t("admin.analytics.device")}</option><option value="source">{t("admin.analytics.source")}</option><option value="campaign">{t("admin.analytics.campaign")}</option><option value="landingPage">{t("admin.analytics.landing_page")}</option></select>}>{breakdown.loading ? <div className="h-72 animate-pulse rounded-2xl bg-slate-100" /> : breakdown.error ? <ErrorPanel title={t("admin.analytics.funnel_breakdown_unavailable")} onRetry={() => setDimension((current) => current)} /> : breakdown.data?.available === false ? <p className="rounded-2xl bg-amber-50 p-6 text-sm text-amber-800">{breakdown.data.reason}</p> : <BreakdownBars items={breakdown.data?.rows} />}</Section></>}</div>}
-    {activeView === "products" && <Section title={t("admin.analytics.product_performance")} description={t("admin.analytics.demand_uses_unique_viewers_classifications_compare_eligible_products_with")}>{business.error && !business.data ? <ErrorPanel title={t("admin.analytics.product_analytics_unavailable")} onRetry={business.load} /> : <ProductPerformanceTable products={business.data?.products} />}</Section>}
-    {activeView === "acquisition" && <Section title={t("admin.analytics.source_quality")} description={t("admin.analytics.sources_are_ranked_by_commercial_quality_and_revenue_with")}>{business.error && !business.data ? <ErrorPanel title={t("admin.analytics.acquisition_analytics_unavailable")} onRetry={business.load} /> : <SourceQualityTable sources={business.data?.acquisition?.sources} />}</Section>}
-    {activeView === "behavior" && <div className="space-y-5">{diagnostics.error && !diagnostics.data ? <ErrorPanel title={t("admin.analytics.website_behavior_unavailable")} onRetry={diagnostics.load} /> : diagnostics.loading && !diagnostics.data ? <SkeletonCards /> : diagnostics.data && <><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><BusinessKpiCard label={t("admin.analytics.page_views")} metric={{ current: diagnostics.data.traffic, previous: 0 }} format={formatNumber} secondary /><BusinessKpiCard label={t("admin.analytics.sessions")} metric={{ current: diagnostics.data.uniqueSessions, previous: 0 }} format={formatNumber} secondary /><BusinessKpiCard label={t("admin.analytics.generic_conversions")} metric={{ current: diagnostics.data.conversions, previous: 0 }} format={formatNumber} secondary /><BusinessKpiCard label={t("admin.analytics.event_conversion_rate")} metric={{ current: Number(diagnostics.data.conversionRate || 0) * 100, previous: 0 }} format={formatRate} secondary /></div><Section title={t("admin.analytics.website_activity")} description={t("admin.analytics.behavioral_diagnostics_that_help_explain_commercial_movement")}><BehaviorChart data={diagnostics.data.trend} /></Section><div className="grid gap-5 lg:grid-cols-3"><Section title={t("admin.analytics.traffic_sources")}><BreakdownBars items={diagnostics.data.sources} labelKey="source" valueKey="count" /></Section><Section title={t("admin.analytics.devices")}><BreakdownBars items={diagnostics.data.devices} labelKey="name" valueKey="count" /></Section><Section title={t("admin.analytics.top_pages")}><BreakdownBars items={diagnostics.data.topPages} labelKey="path" valueKey="count" /></Section></div><Section title={t("admin.analytics.recent_activity")} description={t("admin.analytics.latest_raw_events_for_debugging_tracking_and_legacy_behavior")}>{diagnostics.data.recentEvents?.length ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{diagnostics.data.recentEvents.map((event) => <article key={event._id} className="rounded-2xl border border-slate-200 p-4"><p className="text-xs font-bold text-slate-900">{event.type}</p><p className="mt-1 truncate text-[11px] text-slate-500">{event.path || event.conversion_name || t("admin.analytics.no_path")}</p><p className="mt-2 text-[10px] font-semibold capitalize text-blue-700">{event.source || t("admin.analytics.direct")}</p></article>)}</div> : <p className="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">{t("admin.analytics.no_recent_events_in_this_period")}</p>}</Section></>}</div>}
-    {activeView === "crm" && <Section title={t("admin.analytics.crm_diagnostic")} description={t("admin.analytics.existing_lead_records_remain_available_for_operational_follow_up")}>{diagnostics.error && !diagnostics.data ? <ErrorPanel title={t("admin.analytics.crm_analytics_unavailable")} onRetry={diagnostics.load} /> : diagnostics.data?.crmLeads?.length ? <div className="overflow-x-auto rounded-2xl border border-slate-200"><table className="min-w-[700px] w-full text-start text-xs"><thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500"><tr><th className="p-4">{t("admin.analytics.lead")}</th><th className="p-4">{t("admin.analytics.stage")}</th><th className="p-4">{t("admin.analytics.source")}</th><th className="p-4">{t("admin.analytics.value")}</th><th className="p-4">{t("admin.analytics.owner")}</th></tr></thead><tbody className="divide-y divide-slate-100">{diagnostics.data.crmLeads.map((lead) => <tr key={lead.id}><td className="p-4 font-bold text-slate-900">{lead.name}</td><td className="p-4 capitalize">{lead.stage}</td><td className="p-4 capitalize">{lead.source}</td><td className="p-4">{formatDZD(lead.value)}</td><td className="p-4">{lead.owner}</td></tr>)}</tbody></table></div> : <p className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">{t("admin.analytics.no_crm_records_in_this_period")}</p>}</Section>}
-  </div></main>;
+  const tx = useIntelligenceCopy();
+  const { from, to, setRange } = useAnalyticsRange();
+  const report = useReport(() => fetchDashboard({ from, to }), `${from}:${to}`);
+  const data = report.data;
+  const filters = new URLSearchParams({ ...(from ? { from } : {}), ...(to ? { to } : {}) });
+  const filterSearch = filters.size ? `?${filters}` : '';
+  return <main className="min-w-0 space-y-5 p-4 sm:p-6">
+    <header><p className="text-xs font-semibold uppercase tracking-wider text-blue-700">{tx('Decision intelligence')}</p><h1 className="mt-1 text-3xl font-semibold text-slate-950">{tx('My dashboard')}</h1><p className="mt-2 text-sm text-slate-500">{tx('Business performance and work needing attention · UTC reporting')}</p></header>
+    <DateRange from={from} to={to} setRange={setRange} />
+    {report.loading && !data ? <LoadingState /> : report.error && !data ? <ErrorState retry={report.retry} /> : data && <>
+      <Panel title={tx('Needs attention')} action={<Link className="text-sm font-semibold text-blue-700" to={`${SANWATERGROUPROUTES.attention.fullPath}${filterSearch}`}>{tx('View all')}</Link>}><InsightList insights={data.attention} /></Panel>
+      {data.visibleDomains?.length ? data.visibleDomains.map(domain => <Panel key={domain} title={tx(domainNames[domain] || domain)} action={<Link className="text-sm font-semibold text-blue-700" to={`${SANWATERGROUPROUTES.analytics.fullPath}/${domain}${filterSearch}`}>{tx('Open report')}</Link>}>
+        {data.sections[domain]?.available === false ? <EmptyState>{data.sections[domain].reason}</EmptyState> : <KpiGrid data={data.sections[domain]?.kpis} />}
+      </Panel>) : <EmptyState>{tx('No analytics domains are assigned to this account.')}</EmptyState>}
+      {data.importantChanges?.length > 0 && <Panel title={tx('Important changes')}><ActivityTimeline rows={data.importantChanges} /></Panel>}
+    </>}
+  </main>;
 }
