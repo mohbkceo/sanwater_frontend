@@ -1,0 +1,64 @@
+.news-article-body, .news-editor-content { overflow-wrap: anywhere; min-width: 0; }
+.news-rich-fragment > p, .news-editor-content p { margin: 0 0 1.2em; line-height: 1.8; }
+.news-rich-fragment > h2, .news-editor-content h2 { margin: 2em 0 .7em; font-size: 1.7rem; font-weight: 750; line-height: 1.25; color: #0f172a; }
+.news-rich-fragment > h3, .news-editor-content h3 { margin: 1.7em 0 .6em; font-size: 1.4rem; font-weight: 700; color: #0f172a; }
+.news-rich-fragment > h4, .news-editor-content h4 { margin: 1.5em 0 .5em; font-size: 1.15rem; font-weight: 700; color: #0f172a; }
+.news-rich-fragment a, .news-editor-content a { color: #1d4ed8; text-decoration: underline; }
+.news-rich-fragment ul, .news-rich-fragment ol, .news-editor-content ul, .news-editor-content ol { margin: 1em 0; padding-inline-start: 1.5em; }
+.news-rich-fragment li, .news-editor-content li { margin: .3em 0; }
+.news-rich-fragment blockquote, .news-editor-content blockquote { border-inline-start: 4px solid #bfdbfe; padding-inline-start: 1rem; margin: 1.5em 0; color: #334155; }
+.news-rich-fragment pre, .news-editor-content pre { overflow-x: auto; border-radius: .75rem; background: #0f172a; color: #f8fafc; padding: 1rem; }
+.news-rich-fragment code, .news-editor-content code { background: #f1f5f9; border-radius: .25rem; padding: .1em .25em; }
+.news-rich-fragment pre code, .news-editor-content pre code { background: none; padding: 0; }
+.news-rich-fragment img { max-width: 100%; height: auto; border-radius: 1rem; }
+.news-rich-fragment figure { margin: 2rem 0; }
+.news-rich-fragment figcaption { margin-top: .5rem; color: #64748b; font-size: .875rem; }
+.news-rich-fragment hr, .news-editor-content hr { border: 0; border-top: 1px solid #cbd5e1; margin: 2rem 0; }
+.news-rich-fragment [data-align="center"], .news-editor-content [data-align="center"] { text-align: center; }
+.news-rich-fragment [data-align="right"], .news-editor-content [data-align="right"] { text-align: right; }
+.news-rich-fragment [data-align="left"], .news-editor-content [data-align="left"] { text-align: left; }
+.news-rich-fragment [data-align="justify"], .news-editor-content [data-align="justify"] { text-align: justify; }
+.news-table-scroll [data-align="center"] { text-align: center; }
+.news-table-scroll [data-align="right"] { text-align: right; }
+.news-table-scroll [data-align="justify"] { text-align: justify; }
+.news-rich-fragment [dir="rtl"], .news-editor-content [dir="rtl"] { direction: rtl; text-align: start; }
+.news-rich-fragment [dir="ltr"], .news-editor-content [dir="ltr"] { direction: ltr; text-align: start; }
+.news-article-body [data-color="blue"], .news-editor-content [data-color="blue"] { color: #1d4ed8; }
+.news-article-body [data-color="slate"], .news-editor-content [data-color="slate"] { color: #334155; }
+.news-article-body [data-color="green"], .news-editor-content [data-color="green"] { color: #047857; }
+.news-article-body [data-color="amber"], .news-editor-content [data-color="amber"] { color: #92400e; }
+.news-article-body [data-color="red"], .news-editor-content [data-color="red"] { color: #b91c1c; }
+.news-article-body [data-highlight="blue"], .news-editor-content [data-highlight="blue"] { background: #dbeafe; }
+.news-article-body [data-highlight="slate"], .news-editor-content [data-highlight="slate"] { background: #e2e8f0; }
+.news-article-body [data-highlight="green"], .news-editor-content [data-highlight="green"] { background: #d1fae5; }
+.news-article-body [data-highlight="amber"], .news-editor-content [data-highlight="amber"] { background: #fef3c7; }
+.news-article-body [data-highlight="red"], .news-editor-content [data-highlight="red"] { background: #fee2e2; }
+.news-table-scroll { max-width: 100%; overflow-x: auto; margin: 2rem 0; }
+.news-table-scroll table, .news-editor-content table { border-collapse: collapse; min-width: 100%; width: max-content; }
+.news-table-scroll th, .news-table-scroll td, .news-editor-content th, .news-editor-content td { border: 1px solid #cbd5e1; padding: .65rem .85rem; min-width: 7rem; vertical-align: top; }
+.news-table-scroll th, .news-editor-content th { background: #eff6ff; font-weight: 700; }
+.news-editor-content .tableWrapper { max-width: 100%; overflow-x: auto; }
+.news-image { margin-block: 2rem; }
+.news-image-normal { max-width: 42rem; }
+.news-image-wide { max-width: 56rem; }
+.news-image-full { max-width: none; }
+.news-image-center { margin-inline: auto; text-align: center; }
+.news-image-left { margin-inline-end: auto; text-align: left; }
+.news-image-right { margin-inline-start: auto; text-align: right; }
+.news-image img { max-width: 100%; height: auto; border-radius: 1rem; }
+.news-image figcaption { color: #64748b; font-size: .875rem; margin-top: .5rem; }
+.news-editor-content img { max-width: 100%; height: auto; border-radius: 1rem; }
+.news-editor-content img[data-width="normal"] { max-width: min(100%, 42rem); }
+.news-editor-content img[data-width="wide"] { max-width: min(100%, 56rem); }
+.news-editor-content img[data-width="full"] { width: 100%; }
+.news-editor-content img[data-align="center"] { display: block; margin-inline: auto; }
+.news-editor-content img[data-align="right"] { display: block; margin-inline-start: auto; }
+.news-editor-content [data-content-type="callout"] { border: 1px solid #bfdbfe; border-radius: 1rem; background: #eff6ff; padding: 1rem; margin: 1.5rem 0; }
+.news-editor-content [data-callout-type="warning"] { border-color: #fcd34d; background: #fffbeb; }
+.news-editor-content [data-callout-type="success"] { border-color: #a7f3d0; background: #ecfdf5; }
+.news-editor-content [data-callout-type="tip"] { border-color: #cbd5e1; background: #f8fafc; }
+.news-article-body ul[data-type="taskList"], .news-editor-content ul[data-type="taskList"] { list-style: none; padding-inline-start: 0; }
+.news-article-body li[data-type="taskItem"], .news-editor-content li[data-type="taskItem"] { display: flex; gap: .5rem; align-items: flex-start; }
+.news-article-body li[data-type="taskItem"] > label, .news-editor-content li[data-type="taskItem"] > label { flex: none; }
+.news-article-body li[data-type="taskItem"] > div, .news-editor-content li[data-type="taskItem"] > div { flex: 1; min-width: 0; }
+.news-editor-content .ProseMirror-selectednode { outline: 2px solid #2563eb; border-radius: .75rem; }

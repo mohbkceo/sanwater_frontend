@@ -27,11 +27,13 @@ import ContactSubmissions from './dashboard/pages/ContactSubmissions'
 import DashboardLayout from '@/layouts/DashboardLayout'
 import EditSalesPage from './dashboard/pages/EditSales'
 import NewsManagementPage from './dashboard/pages/News/NewsManagementPage'
-import CreateEditNewsPage from './dashboard/pages/News/CreateEditNewsPage'
 import UserProfile from './dashboard/pages/UserProfile'
 import QuotationsManagementPage from './dashboard/pages/QuotationsManagementPage'
 import LeadsManagementPage from './dashboard/pages/LeadsManagementPage'
 import PermissionGuard from '@/components/shared_uis/PermissionGuard'
+
+const CreateEditNewsPage = React.lazy(() => import('./dashboard/pages/News/CreateEditNewsPage'))
+const newsEditorFallback = <div className="m-6 h-96 animate-pulse rounded-2xl bg-slate-100" aria-busy="true" />
 
 function SanWaterGroupMain() {
   return (
@@ -54,8 +56,8 @@ function SanWaterGroupMain() {
 
         <Route path={SANWATERGROUPROUTES.content.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.VIEW}><Content /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.content.children.news.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.VIEW}><NewsManagementPage /></PermissionGuard>} />
-        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/create'} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><CreateEditNewsPage /></PermissionGuard>} />
-        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/edit/:id'} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><CreateEditNewsPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/create'} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><React.Suspense fallback={newsEditorFallback}><CreateEditNewsPage /></React.Suspense></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.content.children.news.subPath + '/edit/:id'} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><React.Suspense fallback={newsEditorFallback}><CreateEditNewsPage /></React.Suspense></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.content.children.sales.subPath} element={<PermissionGuard permission={PERMISSIONS.CONTENT.MANAGE}><EditSalesPage /></PermissionGuard>} />
 
         <Route path={SANWATERGROUPROUTES.settings.subPath} element={<Settings />} />

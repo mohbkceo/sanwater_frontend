@@ -19,6 +19,7 @@ import DOMPurify from "dompurify";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/news/RichTextEditor";
 import ArticleContent from "@/components/news/ArticleContent";
+import ArticleBody from "@/components/news/blocks/ArticleBody";
 import {
   autosaveNewsArticle,
   createNewsArticle,
@@ -38,6 +39,7 @@ const REVISION_REASON_KEYS = {
   substantial_update: "admin.news.revision_substantial_update",
   restore: "admin.news.revision_restore",
 };
+const AUTOSAVE_FIELDS = new Set(["title", "excerpt", "content", "coverImage", "category", "tags", "seoTitle", "seoDescription", "canonicalUrl", "isFeatured", "relatedProducts"]);
 
 const EMPTY = {
   title: "",
@@ -92,10 +94,12 @@ export default function CreateEditNewsPage() {
   const [dirty, setDirty] = useState(false);
   const [publicationDirty, setPublicationDirty] = useState(false);
   const [saveState, setSaveState] = useState("saved");
+  const [autosaveTick, setAutosaveTick] = useState(0);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const [preview, setPreview] = useState(false);
   const [previewSize, setPreviewSize] = useState("desktop");
   const [products, setProducts] = useState([]);
+  const [inlineProducts, setInlineProducts] = useState([]);
   const [productSearch, setProductSearch] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -103,6 +107,11 @@ export default function CreateEditNewsPage() {
   const [revisions, setRevisions] = useState([]);
   const [revision, setRevision] = useState(null);
   const savingRef = useRef(false);
+  const autosavePromiseRef = useRef(null);
+  const editVersionRef = useRef(0);
+  const contentVersionRef = useRef(0);
+  const savedContentVersionRef = useRef(0);
+  const recordIdRef = useRef(id || null);
   const listPath = SANWATERGROUPROUTES.content.children.news.fullPath;
 
   useEffect(() => {
@@ -113,7 +122,12 @@ export default function CreateEditNewsPage() {
       .then((response) => {
         if (!active) return;
         const article = response?.data;
+        editVersionRef.current = 0;
+        contentVersionRef.current = 0;
+        savedContentVersionRef.current = 0;
         setRecordId(article._id);
+        recordIdRef.current = article._id;
+        setInlineProducts(article.inlineProducts || []);
         setForm({
           ...EMPTY,
           ...article,
@@ -130,7 +144,7 @@ export default function CreateEditNewsPage() {
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, t]);
   useEffect(() => {
     getProducts({ max: 100, sortBy: "name", sortOrder: "asc" })
       .then((result) => setProducts(result?.data?.products || []))
@@ -156,71 +170,81 @@ export default function CreateEditNewsPage() {
   const autosavePayload = useMemo(
     () =>
       Object.fromEntries(
-        Object.entries(form).filter(
-          ([key]) =>
-            ![
-              "status",
-              "publishedAt",
-              "author",
-              "authorUser",
-              "slug",
-              "_id",
-              "createdAt",
-              "updatedAt",
-            ].includes(key),
-        ),
+        Object.entries(form).filter(([key]) => AUTOSAVE_FIELDS.has(key)),
       ),
     [form],
   );
   useEffect(() => {
     if (
       !dirty ||
+      contentVersionRef.current <= savedContentVersionRef.current ||
       loading ||
+      saving ||
       form.title.trim().length < 2 ||
       !form.content.trim()
     )
       return;
     const timer = setTimeout(async () => {
       if (savingRef.current) return;
+      const editVersion = editVersionRef.current;
+      const contentVersion = contentVersionRef.current;
+      let request;
+      let succeeded = false;
       try {
         savingRef.current = true;
         setSaveState("saving");
-        if (recordId) await autosaveNewsArticle(recordId, autosavePayload);
+        if (recordIdRef.current) {
+          request = autosaveNewsArticle(recordIdRef.current, autosavePayload);
+          autosavePromiseRef.current = request;
+          await request;
+        }
         else {
-          const created = await createNewsArticle({
+          request = createNewsArticle({
             ...autosavePayload,
             status: "draft",
             publishedAt: null,
           });
+          autosavePromiseRef.current = request;
+          const created = await request;
           const newId = created?.data?._id;
           if (newId) {
+            recordIdRef.current = newId;
             setRecordId(newId);
-            navigate(`${listPath}/edit/${newId}`, { replace: true });
+            window.history.replaceState(window.history.state, "", `${listPath}/edit/${newId}`);
           }
         }
-        setDirty(publicationDirty);
-        setLastSavedAt(new Date());
-        setSaveState("saved_at");
+        savedContentVersionRef.current = Math.max(savedContentVersionRef.current, contentVersion);
+        succeeded = true;
+        if (editVersionRef.current === editVersion) {
+          setDirty(publicationDirty);
+          setLastSavedAt(new Date());
+          setSaveState("saved_at");
+        }
       } catch {
         setSaveState("failed");
       } finally {
+        if (autosavePromiseRef.current === request) autosavePromiseRef.current = null;
         savingRef.current = false;
+        if (succeeded && contentVersionRef.current > contentVersion) setAutosaveTick((current) => current + 1);
       }
     }, 1400);
     return () => clearTimeout(timer);
   }, [
     autosavePayload,
+    autosaveTick,
     dirty,
     form.content,
     form.title,
     loading,
-    navigate,
     publicationDirty,
     recordId,
+    saving,
     listPath,
   ]);
 
   function setField(name, value) {
+    editVersionRef.current += 1;
+    if (!["status", "publishedAt"].includes(name)) contentVersionRef.current += 1;
     setForm((current) => ({ ...current, [name]: value }));
     setDirty(true);
     setSaveState("unsaved");
@@ -247,26 +271,37 @@ export default function CreateEditNewsPage() {
         new Date(algiersDateTimeToIso(form.publishedAt)) <= new Date())
     )
       return toast.error(t("admin.news.choose_a_future_date_and_time"));
+    const editVersion = editVersionRef.current;
+    const contentVersion = contentVersionRef.current;
     try {
       setSaving(true);
-      const result = recordId
-        ? await updateNewsArticle(recordId, payload())
+      const pendingAutosave = await autosavePromiseRef.current?.catch(() => null);
+      if (!recordIdRef.current && pendingAutosave?.data?._id) recordIdRef.current = pendingAutosave.data._id;
+      savingRef.current = true;
+      const wasNew = !recordIdRef.current;
+      const result = recordIdRef.current
+        ? await updateNewsArticle(recordIdRef.current, payload())
         : await createNewsArticle(payload());
       const article = result?.data;
+      savedContentVersionRef.current = Math.max(savedContentVersionRef.current, contentVersion);
       if (article?._id) {
+        recordIdRef.current = article._id;
         setRecordId(article._id);
-        navigate(`${listPath}/edit/${article._id}`, { replace: true });
+        if (wasNew) window.history.replaceState(window.history.state, "", `${listPath}/edit/${article._id}`);
       }
-      setDirty(false);
-      setPublicationDirty(false);
-      setLastSavedAt(new Date());
-      setSaveState("saved_at");
+      if (editVersionRef.current === editVersion) {
+        setDirty(false);
+        setPublicationDirty(false);
+        setLastSavedAt(new Date());
+        setSaveState("saved_at");
+      }
       toast.success(
         form.status === "published" ? t("admin.news.article_published") : t("admin.news.article_saved"),
       );
     } catch (error) {
       toast.error(error?.response?.data?.message || t("admin.news.save_failed"));
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
@@ -309,8 +344,13 @@ export default function CreateEditNewsPage() {
   async function restore(item) {
     try {
       setSaving(true);
+      await autosavePromiseRef.current?.catch(() => {});
+      savingRef.current = true;
       await restoreNewsRevision(recordId, item._id);
       const refreshed = (await getAdminNewsArticleById(recordId))?.data;
+      editVersionRef.current += 1;
+      contentVersionRef.current += 1;
+      savedContentVersionRef.current = contentVersionRef.current;
       setForm({
         ...EMPTY,
         ...refreshed,
@@ -319,11 +359,17 @@ export default function CreateEditNewsPage() {
           (p) => p._id || p,
         ),
       });
+      setInlineProducts(refreshed.inlineProducts || []);
+      setDirty(false);
+      setPublicationDirty(false);
+      setSaveState("saved_at");
+      setLastSavedAt(new Date());
       setRevision(null);
       toast.success(t("admin.news.version_restored", { version: item.version }));
     } catch {
       toast.error(t("admin.news.restore_failed"));
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
@@ -344,6 +390,7 @@ export default function CreateEditNewsPage() {
     slug: form.title.toLowerCase().replace(/\s+/g, "-"),
     author: "San Water Team",
     relatedProducts: selectedProducts,
+    inlineProducts,
   };
   if (loading)
     return (
@@ -421,6 +468,10 @@ export default function CreateEditNewsPage() {
                 <RichTextEditor
                   value={form.content}
                   onChange={(value) => setField("content", value)}
+                  disabled={saving}
+                  saveState={saveState}
+                  inlineProducts={inlineProducts}
+                  onProductSelected={(product) => product && setInlineProducts((current) => [...current.filter((item) => item._id !== product._id), product])}
                 />
               </div>
             </Card>
@@ -725,7 +776,7 @@ export default function CreateEditNewsPage() {
             </button>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <VersionColumn title={t("admin.news.current")} value={form} />
+            <VersionColumn title={t("admin.news.current")} value={{ ...form, inlineProducts }} />
             <VersionColumn
               title={t("admin.news.version_label", { version: revision.version })}
               value={revision.snapshot}
@@ -807,10 +858,7 @@ function VersionColumn({ title, value }) {
       <p className="mt-2 text-sm">
         <strong>{t("admin.news.version_field_excerpt")}</strong> {value?.excerpt}
       </p>
-      <div
-        className="mt-3 max-h-72 overflow-auto border-t pt-3 text-sm"
-        dangerouslySetInnerHTML={{ __html: safeContent }}
-      />
+      <div className="mt-3 max-h-72 overflow-auto border-t pt-3 text-sm"><ArticleBody article={{ content: safeContent, inlineProducts: value?.inlineProducts || [] }} preview /></div>
     </div>
   );
 }

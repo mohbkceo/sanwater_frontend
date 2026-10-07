@@ -1,5 +1,5 @@
 import { useTranslation } from "@/lib/i18n";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Archive,
@@ -76,13 +76,7 @@ export default function NewsManagementPage() {
   useEffect(() => {
     setPage(1);
   }, [search, filters]);
-  // load is intentionally keyed to the server-side query state below.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    load();
-  }, [page, search, filters, view]);
-
-  async function load() {
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       const result = await getAdminNewsArticles({
@@ -105,7 +99,10 @@ export default function NewsManagementPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, search, filters, view, t]);
+  useEffect(() => {
+    load();
+  }, [load]);
   async function statusChange(article, status) {
     try {
       await updateNewsArticle(article._id, {

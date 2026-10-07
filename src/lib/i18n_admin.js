@@ -1,4 +1,5 @@
 import { adminUiTranslations } from "./i18n_admin_ui.js";
+import { newsEditorTranslations } from "./i18n_news_editor.js";
 
 const en = {
   shell: {
@@ -268,9 +269,13 @@ const mergeAdminCopy = (base, additional) =>
       { ...(additional[namespace] || {}), ...(base[namespace] || {}) },
     ]),
   );
+const mergeNewsEditorCopy = (base, additional, editor) => {
+  const merged = mergeAdminCopy(base, additional);
+  return { ...merged, news: { ...merged.news, ...editor } };
+};
 
 export const adminTranslations = {
-  en: mergeAdminCopy(en, adminUiTranslations.en),
-  fr: mergeAdminCopy(fr, adminUiTranslations.fr),
-  ar: mergeAdminCopy(ar, adminUiTranslations.ar),
+  en: mergeNewsEditorCopy(en, adminUiTranslations.en, newsEditorTranslations.en),
+  fr: mergeNewsEditorCopy(fr, adminUiTranslations.fr, newsEditorTranslations.fr),
+  ar: mergeNewsEditorCopy(ar, adminUiTranslations.ar, newsEditorTranslations.ar),
 };

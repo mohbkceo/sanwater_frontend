@@ -23,7 +23,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { useTranslation } from "@/lib/i18n";
 import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
 import { SAN_WATER_GROUP_NAME } from "@/configs/brand";
-import { orderSections } from '@/components/dashboard/intelligence/routing';
+import { orderSections } from "@/components/dashboard/intelligence/routing";
 
 const navSections = [
   {
@@ -35,25 +35,71 @@ const navSections = [
         path: SANWATERGROUPROUTES.home.fullPath,
         permission: null,
       },
-      { name: 'Attention Center', icon: Lightbulb, path: SANWATERGROUPROUTES.attention.fullPath, permission: [PERMISSIONS.ANALYTICS.PRODUCTS, PERMISSIONS.ANALYTICS.SALES, PERMISSIONS.ANALYTICS.MARKETING, PERMISSIONS.ANALYTICS.HIRING, PERMISSIONS.ANALYTICS.CONTENT] },
+      {
+        name: "Attention Center",
+        icon: Lightbulb,
+        path: SANWATERGROUPROUTES.attention.fullPath,
+        permission: [
+          PERMISSIONS.ANALYTICS.PRODUCTS,
+          PERMISSIONS.ANALYTICS.SALES,
+          PERMISSIONS.ANALYTICS.MARKETING,
+          PERMISSIONS.ANALYTICS.HIRING,
+          PERMISSIONS.ANALYTICS.CONTENT,
+        ],
+      },
     ],
   },
 
   {
-    label: 'Marketing',
+    label: "Marketing",
     items: [
-      { name: 'Acquisition', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/marketing`, permission: PERMISSIONS.ANALYTICS.MARKETING },
+      {
+        name: "Acquisition",
+        icon: ChartColumnBig,
+        path: `${SANWATERGROUPROUTES.analytics.fullPath}/marketing`,
+        permission: PERMISSIONS.ANALYTICS.MARKETING,
+      },
     ],
   },
   {
-    label: 'Intelligence',
+    label: "Intelligence",
     items: [
-      { name: 'Sales Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/sales`, permission: PERMISSIONS.ANALYTICS.SALES },
-      { name: 'Product Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/products`, permission: PERMISSIONS.ANALYTICS.PRODUCTS },
-      { name: 'Hiring Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/hiring`, permission: PERMISSIONS.ANALYTICS.HIRING },
-      { name: 'Content Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/content`, permission: PERMISSIONS.ANALYTICS.CONTENT },
-      { name: 'Operations Analytics', icon: ChartColumnBig, path: `${SANWATERGROUPROUTES.analytics.fullPath}/operations`, permission: PERMISSIONS.ANALYTICS.SALES },
-      { name: 'Explorer', icon: Compass, path: SANWATERGROUPROUTES.explore.fullPath, permission: PERMISSIONS.ANALYTICS.EXPLORE },
+      {
+        name: "Sales Analytics",
+        icon: ChartColumnBig,
+        path: `${SANWATERGROUPROUTES.analytics.fullPath}/sales`,
+        permission: PERMISSIONS.ANALYTICS.SALES,
+      },
+      {
+        name: "Product Analytics",
+        icon: ChartColumnBig,
+        path: `${SANWATERGROUPROUTES.analytics.fullPath}/products`,
+        permission: PERMISSIONS.ANALYTICS.PRODUCTS,
+      },
+      {
+        name: "Hiring Analytics",
+        icon: ChartColumnBig,
+        path: `${SANWATERGROUPROUTES.analytics.fullPath}/hiring`,
+        permission: PERMISSIONS.ANALYTICS.HIRING,
+      },
+      {
+        name: "Content Analytics",
+        icon: ChartColumnBig,
+        path: `${SANWATERGROUPROUTES.analytics.fullPath}/content`,
+        permission: PERMISSIONS.ANALYTICS.CONTENT,
+      },
+      {
+        name: "Operations Analytics",
+        icon: ChartColumnBig,
+        path: `${SANWATERGROUPROUTES.analytics.fullPath}/operations`,
+        permission: PERMISSIONS.ANALYTICS.SALES,
+      },
+      {
+        name: "Explorer",
+        icon: Compass,
+        path: SANWATERGROUPROUTES.explore.fullPath,
+        permission: PERMISSIONS.ANALYTICS.EXPLORE,
+      },
     ],
   },
   {
@@ -95,7 +141,12 @@ const navSections = [
         path: SANWATERGROUPROUTES.hiring.list.fullPath,
         permission: PERMISSIONS.HIRING.VIEW,
       },
-      { name: 'Applications', icon: Briefcase, path: SANWATERGROUPROUTES.applications.fullPath, permission: PERMISSIONS.HIRING.VIEW },
+      {
+        name: "Applications",
+        icon: Briefcase,
+        path: SANWATERGROUPROUTES.applications.fullPath,
+        permission: PERMISSIONS.HIRING.VIEW,
+      },
       {
         name: "admin.nav.submissions",
         icon: MessageSquare,
@@ -141,10 +192,16 @@ export default function Sidebar({ mobile = false, onNavigate }) {
   const { t } = useTranslation();
   const tx = useIntelligenceCopy();
   const orderedSections = orderSections(navSections, persona);
-  const label = key => key.startsWith('admin.') ? t(key) : tx(key);
+  const label = (key) => (key.startsWith("admin.") ? t(key) : tx(key));
 
   return (
-    <aside className={mobile ? "block w-full" : "hidden w-64 shrink-0 lg:block"}>
+    <aside
+      className={
+        mobile
+          ? "block w-full"
+          : "hidden w-64 shrink-0 overflow-y-scroll lg:block"
+      }
+    >
       <div className={mobile ? "px-2 pb-4" : "sticky top-20 px-4 pb-4"}>
         <div
           className="
@@ -185,7 +242,9 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                 {SAN_WATER_GROUP_NAME}
               </p>
 
-              <p className="text-[11px] text-slate-400">{t("admin.shell.administration")}</p>
+              <p className="text-[11px] text-slate-400">
+                {t("admin.shell.administration")}
+              </p>
             </div>
 
             <ChevronRight className="h-4 w-4 text-slate-300 rtl:rotate-180" />
@@ -292,7 +351,9 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                                 <Icon className="h-4 w-4" />
                               </span>
 
-                              <span className="truncate">{label(item.name)}</span>
+                              <span className="truncate">
+                                {label(item.name)}
+                              </span>
 
                               {isActive && (
                                 <ChevronRight
