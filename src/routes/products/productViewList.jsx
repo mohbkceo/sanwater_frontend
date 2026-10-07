@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, FolderOpen, LayoutGrid, Search, SlidersHorizontal, X } from "lucide-react";
 
 import { useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion as Motion, useReducedMotion } from "framer-motion";
@@ -350,6 +350,9 @@ export default function ProductViewList() {
   const [showDesktopFilters, setShowDesktopFilters] = useState(false);
 
   const [families, setFamilies] = useState([]);
+  const [showProducts, setShowProducts] = useState(
+    () => Boolean(searchParams.get("subFamily") || searchParams.get("search")),
+  );
 
   useEffect(() => {
     getFamilies()
@@ -359,10 +362,14 @@ export default function ProductViewList() {
       .catch(() => {});
   }, []);
 
-  const subFamilies = useMemo(
-    () =>
-      families.find((family) => family.slug === filters.family)?.subFamilies || [],
+  const selectedFamily = useMemo(
+    () => families.find((family) => family.slug === filters.family) || null,
     [families, filters.family],
+  );
+
+  const subFamilies = useMemo(
+    () => selectedFamily?.subFamilies || [],
+    [selectedFamily],
   );
 
   const searchDebounce = useRef(null);
@@ -454,6 +461,51 @@ export default function ProductViewList() {
     setSearchInput("");
   };
 
+  const openFamily = (familySlug) => {
+    setFilters((previous) => ({
+      ...previous,
+      family: familySlug,
+      subFamily: "",
+      search: "",
+    }));
+    setSearchInput("");
+    setShowProducts(false);
+  };
+
+  const openSubFamily = (subFamilySlug) => {
+    setFilters((previous) => ({
+      ...previous,
+      subFamily: subFamilySlug,
+      search: "",
+    }));
+    setSearchInput("");
+    setShowProducts(true);
+  };
+
+  const showAllProducts = () => {
+    setFilters({ ...DEFAULT_FILTERS });
+    setSearchInput("");
+    setShowProducts(true);
+  };
+
+  const showAllFamilyProducts = () => {
+    setFilters((previous) => ({
+      ...previous,
+      subFamily: "",
+      search: "",
+      minPrice: "",
+      maxPrice: "",
+    }));
+    setSearchInput("");
+    setShowProducts(true);
+  };
+
+  const backToFamilies = () => {
+    setFilters({ ...DEFAULT_FILTERS });
+    setSearchInput("");
+    setShowProducts(false);
+  };
+
   const handleLoadMore = async () => {
     if (!nextLastId || loading) return;
 
@@ -500,10 +552,158 @@ export default function ProductViewList() {
             />
           </div>
 
+          {!showProducts && (
+            <section className="mx-auto mt-8 max-w-7xl">
+              <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  {selectedFamily ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={backToFamilies}
+                        className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                      >
+                        <ArrowLeft size={16} />
+                        Toutes les familles
+                      </button>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-500">
+                        Famille
+                      </p>
+                      <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+                        {selectedFamily.name}
+                      </h2>
+                      {selectedFamily.description && (
+                        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                          {selectedFamily.description}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-500">
+                        Catalogue
+                      </p>
+                      <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+                        Choisissez une famille
+                      </h2>
+                      <p className="mt-2 text-sm text-slate-500">
+                        Commencez par une famille, puis choisissez une sous-famille pour afficher les produits.
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={selectedFamily ? showAllFamilyProducts : showAllProducts}
+                  className="h-11 rounded-full border border-blue-200 bg-white px-5 font-semibold text-blue-600 hover:bg-blue-50"
+                >
+                  <LayoutGrid size={17} className="me-2" />
+                  {selectedFamily
+                    ? `Tous les produits de ${selectedFamily.name}`
+                    : "Voir tous les produits"}
+                </Button>
+              </div>
+
+              {!selectedFamily ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {families.map((family) => (
+                    <button
+                      key={family._id}
+                      type="button"
+                      onClick={() => openFamily(family.slug)}
+                      className="group overflow-hidden rounded-[26px] border border-slate-200 bg-white text-start transition-all hover:-translate-y-0.5 hover:border-blue-200"
+                    >
+                      <div className="aspect-[16/10] overflow-hidden bg-slate-100">
+                        {family.image ? (
+                          <img
+                            src={family.image}
+                            alt={family.name}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          />
+                        ) : (
+                          <div className="grid h-full place-items-center text-slate-300">
+                            <FolderOpen size={34} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 p-5">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="truncate text-base font-bold text-slate-900">
+                            {family.name}
+                          </h3>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {family.subFamilyCount || family.subFamilies?.length || 0} sous-familles · {family.productCount || 0} produits
+                          </p>
+                        </div>
+                        <ChevronRight size={18} className="shrink-0 text-slate-300 transition-colors group-hover:text-blue-500" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {subFamilies.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {subFamilies.map((subFamily) => (
+                        <button
+                          key={subFamily._id}
+                          type="button"
+                          onClick={() => openSubFamily(subFamily.slug)}
+                          className="group overflow-hidden rounded-[26px] border border-slate-200 bg-white text-start transition-all hover:-translate-y-0.5 hover:border-blue-200"
+                        >
+                          <div className="aspect-[16/10] overflow-hidden bg-slate-100">
+                            {subFamily.image ? (
+                              <img
+                                src={subFamily.image}
+                                alt={subFamily.name}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                              />
+                            ) : (
+                              <div className="grid h-full place-items-center text-slate-300">
+                                <FolderOpen size={32} />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 p-5">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="truncate text-base font-bold text-slate-900">
+                                {subFamily.name}
+                              </h3>
+                              <p className="mt-1 text-xs text-slate-500">
+                                {subFamily.productCount || 0} produits
+                              </p>
+                            </div>
+                            <ChevronRight size={18} className="shrink-0 text-slate-300 transition-colors group-hover:text-blue-500" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-[26px] border border-dashed border-slate-200 bg-white px-6 py-12 text-center">
+                      <FolderOpen className="mx-auto text-slate-300" size={34} />
+                      <p className="mt-3 text-sm font-semibold text-slate-700">
+                        Aucune sous-famille disponible.
+                      </p>
+                      <Button
+                        type="button"
+                        onClick={showAllFamilyProducts}
+                        className="mt-5 rounded-full bg-blue-600 px-5 text-white hover:bg-blue-700"
+                      >
+                        Voir les produits de cette famille
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+          )}
+
           {/* =====================================================
               Floating catalog toolbar
           ===================================================== */}
-          <div className="sticky top-4 z-50 mx-auto mt-7 max-w-7xl">
+          <div className={`sticky top-4 z-50 mx-auto mt-7 max-w-7xl ${showProducts ? "" : "hidden"}`}>
             <div
               className={[
                 "rounded-[24px]",
@@ -564,6 +764,12 @@ export default function ProductViewList() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
+                  <GlassIconButton
+                    title="Parcourir les familles"
+                    onClick={() => setShowProducts(false)}
+                  >
+                    <FolderOpen size={17} />
+                  </GlassIconButton>
                   <Motion.button
                     type="button"
                     whileTap={{ scale: 0.97 }}
@@ -667,7 +873,7 @@ export default function ProductViewList() {
           {/* =====================================================
               Results toolbar
           ===================================================== */}
-          <div className="mx-auto mt-8 flex max-w-7xl items-center justify-between gap-4">
+          <div className={`mx-auto mt-8 max-w-7xl items-center justify-between gap-4 ${showProducts ? "flex" : "hidden"}`}>
             <div>
               <div className="text-sm font-semibold text-slate-900">
                 {resultText}
@@ -707,6 +913,7 @@ export default function ProductViewList() {
               "lg:grid-cols-3",
               "xl:grid-cols-4",
               loading && products.length === 0 ? "opacity-70" : "",
+              showProducts ? "" : "hidden",
             ].join(" ")}
           >
             {loading && products.length === 0
@@ -739,7 +946,7 @@ export default function ProductViewList() {
           {/* =====================================================
               Empty state
           ===================================================== */}
-          {!loading && products.length === 0 && (
+          {showProducts && !loading && products.length === 0 && (
             <div className="mx-auto mt-10 max-w-7xl rounded-[28px] border border-slate-200 bg-white px-6 py-12">
               <ProductNotFound
                 description={t("products.no_products_found_description")}
@@ -763,7 +970,7 @@ export default function ProductViewList() {
           {/* =====================================================
               Load more
           ===================================================== */}
-          {products.length > 0 && (
+          {showProducts && products.length > 0 && (
             <div className="mx-auto mt-12 max-w-7xl">
               <Motion.div
                 whileTap={{ scale: 0.985 }}

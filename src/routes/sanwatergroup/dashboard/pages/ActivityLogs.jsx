@@ -47,6 +47,45 @@ function formatChange(change, t) {
   return t('admin.activity.value_change', { before: displayValue(change.before, t), after: displayValue(change.after, t) });
 }
 
+function imageContext(log) {
+  const changes = Array.isArray(log.details?.changes) ? log.details.changes : [];
+  const hasImageChange = changes.some((change) => {
+    const field = String(change.field || "").toLowerCase();
+    return field === "image" || field.includes("gallery") || field.endsWith(".image");
+  });
+  if (!hasImageChange) return null;
+
+  const entity = log.details?.entity || {};
+  const explicit = log.details?.imageContext || {};
+  const productName =
+    explicit.productName ||
+    (log.target === "Product"
+      ? entity.name || entity.productId || entity.serialNumber
+      : null);
+  const familyName =
+    explicit.familyName ||
+    (log.target === "Family"
+      ? entity.name
+      : entity.familyName || entity.family?.name);
+  const subFamilyName =
+    explicit.subFamilyName ||
+    (log.target === "SubFamily"
+      ? entity.name
+      : entity.subFamilyName || entity.subFamily?.name);
+
+  return { productName, familyName, subFamilyName };
+}
+
+function imageContextText(log, tx) {
+  const context = imageContext(log);
+  if (!context) return "";
+  return [
+    context.productName ? `${tx("Product")}: ${context.productName}` : "",
+    context.familyName ? `${tx("Family")}: ${context.familyName}` : "",
+    context.subFamilyName ? `${tx("Sub family")}: ${context.subFamilyName}` : "",
+  ].filter(Boolean).join(" · ");
+}
+
 function getChanges(log) {
   if (Array.isArray(log.details?.changes) && log.details.changes.length) return log.details.changes.filter((change) => !/password|token|secret|cookie|authkey|authorization/i.test(change.field || ''));
   const details = log.details || {};
@@ -144,7 +183,7 @@ function ActivityLogs() {
                       <td className="px-4 py-3"><div className="font-medium text-gray-900">{log.userId?.fullName || log.details?.entity?.name || t('admin.activity.admin')}</div><div className="text-xs text-gray-500">{log.userId?.email || ''}</div></td>
                       <td className="whitespace-nowrap px-4 py-3"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${actionTone[normalizeAction(log.action)]}`}>{t(`admin.activity.action_${normalizeAction(log.action).toLowerCase()}`)}</span></td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-700">{log.target || '—'}</td>
-                      <td className="max-w-xs px-4 py-3 text-sm text-gray-700"><div className="truncate font-medium">{entityName(log)}</div><div className="truncate text-xs text-gray-500">{log.details?.summary || `${log.action} ${log.target}`}</div></td>
+                      <td className="max-w-xs px-4 py-3 text-sm text-gray-700"><div className="truncate font-medium">{entityName(log)}</div><div className="truncate text-xs text-gray-500">{log.details?.summary || `${log.action} ${log.target}`}</div>{imageContextText(log, tx) && <div className="mt-1 truncate text-xs font-medium text-blue-700">{imageContextText(log, tx)}</div>}</td>
                       <td className="max-w-xs px-4 py-3 text-sm text-gray-600">{changes.length ? <span className="line-clamp-2">{changes.slice(0, 2).map((change) => `${t("admin.activity.field_value", { field: change.label || change.field, value: formatChange(change, t) })}`).join(' · ')}{changes.length > 2 ? t("admin.activity.more_changes", { count: changes.length - 2 }) : ''}</span> : '—'}</td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">{log.createdAt ? new Date(log.createdAt).toLocaleString(lang) : '—'}</td>
                       <td className="px-4 py-3"><button type="button" onClick={(event) => { event.stopPropagation(); setSelected(log); }} className="text-sm font-semibold text-blue-700 hover:text-blue-900">{t('admin.common.view')}</button></td>
@@ -175,7 +214,7 @@ function ActivityLogs() {
               <div><dt className="text-gray-500">{t('admin.activity.ip_address')}</dt><dd className="mt-1 text-gray-900">{selected.ip || '—'}</dd></div>
               <div><dt className="text-gray-500">{t('admin.activity.device')}</dt><dd className="mt-1 break-words text-gray-900">{selected.userAgent || '—'}</dd></div>
             </dl>
-            <section><h3 className="text-sm font-semibold text-gray-900">{t('admin.activity.activity')}</h3><p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">{selected.details?.summary || `${selected.action} ${selected.target}`}</p></section>
+            <section><h3 className="text-sm font-semibold text-gray-900">{t('admin.activity.activity')}</h3><p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">{selected.details?.summary || `${selected.action} ${selected.target}`}</p>{imageContextText(selected, tx) && <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-blue-500">{tx("Image context")}</p><p className="mt-1 text-sm font-medium text-blue-900">{imageContextText(selected, tx)}</p></div>}</section>
             <section><h3 className="text-sm font-semibold text-gray-900">{t('admin.activity.changes')}</h3>
               {getChanges(selected).length ? <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-100">{getChanges(selected).map((change, index) => <li key={`${change.field}-${index}`} className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-start sm:justify-between"><span className="text-sm font-medium text-gray-800">{change.label || change.field}</span><span className="break-words text-sm text-gray-600 sm:max-w-[65%] sm:text-end">{formatChange(change, t)}</span></li>)}</ul> : <p className="mt-2 text-sm text-gray-500">{t('admin.activity.no_changes')}</p>}
             </section>

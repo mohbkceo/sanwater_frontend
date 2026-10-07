@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
 import { toast } from "sonner";
-import { Plus, Package, RefreshCw, ShoppingBag } from "lucide-react";
+import { Plus, Package, RefreshCw, Search, ShoppingBag } from "lucide-react";
 import useProducts from "@/services/products/useProducts";
 import {
   deleteProduct,
@@ -23,18 +23,28 @@ export default function ProductsPage() {
   const [families, setFamilies] = useState([]);
   const [family, setFamily] = useState("");
   const [subFamily, setSubFamily] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pendingDelete, setPendingDelete] = useState(null);
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canManage = can(PERMISSIONS.PRODUCTS.MANAGE);
   const loadProducts = () => {
-    refetch({ isAdmin: true, isEcommerce, family, subFamily, page, limit: 24 });
+    refetch({ isAdmin: true, isEcommerce, family, subFamily, search, page, limit: 24 });
   };
   useEffect(() => {
     loadProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEcommerce, family, subFamily, page]);
+  }, [isEcommerce, family, subFamily, search, page]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      setSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     getFamilies({ isAdmin: true })
@@ -140,6 +150,17 @@ export default function ProductsPage() {
             {/* Actions */}{" "}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               {" "}
+              <label className="relative min-w-[220px]">
+                <Search className="pointer-events-none absolute start-3 top-3 h-4 w-4 text-slate-400" />
+                <input
+                  type="search"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder={t("admin.common.search")}
+                  aria-label={t("admin.common.search")}
+                  className="h-10 w-full rounded-xl border border-slate-200/70 bg-white/75 ps-9 pe-3 text-sm text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-300"
+                />
+              </label>
               <select
                 value={family}
                 onChange={(event) => handleFamilyChange(event.target.value)}
