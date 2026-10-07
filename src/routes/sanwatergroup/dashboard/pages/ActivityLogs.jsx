@@ -40,6 +40,7 @@ function displayValue(value, t) {
 
 function formatChange(change, t) {
   const field = String(change.field || '').toLowerCase();
+  if (field === 'image' || field === 'coverimage') return t('admin.activity.images_updated', { count: 1 });
   if (field.includes('gallery') && Array.isArray(change.before) && Array.isArray(change.after)) {
     const delta = change.after.length - change.before.length;
     return delta === 0 ? t('admin.activity.images_updated', { count: change.before.length }) : t(Math.abs(delta) === 1 ? 'admin.activity.image_change' : 'admin.activity.images_change', { count: delta > 0 ? `+${delta}` : delta });
@@ -58,7 +59,17 @@ function getChanges(log) {
 
 function entityName(log) {
   const entity = log.details?.entity || {};
-  return entity.name || entity.title || entity.fullName || entity.email || log.details?.name || log.details?.title || log.targetId || '—';
+  const name = entity.name || entity.title || entity.fullName || entity.email || log.details?.name || log.details?.title || log.targetId || '—';
+  return entity.familyName ? `${name} · ${entity.familyName}${entity.subFamilyName ? ` / ${entity.subFamilyName}` : ''}` : name;
+}
+
+function ImageChange({ change, t }) {
+  if (!/^(gallery|image|coverImage)$/.test(change.field || '')) return null;
+  const before = Array.isArray(change.before) ? change.before : [change.before].filter(Boolean);
+  const after = Array.isArray(change.after) ? change.after : [change.after].filter(Boolean);
+  const removed = before.filter((url) => !after.includes(url));
+  const added = after.filter((url) => !before.includes(url));
+  return <div className="mt-2 flex flex-wrap gap-3">{removed.map((url) => <figure key={`old-${url}`}><img src={url} alt={t('admin.activity.previous_image')} className="h-20 w-20 rounded-lg border object-cover" /><figcaption className="text-xs text-red-600">{t('admin.activity.previous_image')}</figcaption></figure>)}{added.map((url) => <figure key={`new-${url}`}><img src={url} alt={t('admin.activity.new_image')} className="h-20 w-20 rounded-lg border object-cover" /><figcaption className="text-xs text-green-700">{t('admin.activity.new_image')}</figcaption></figure>)}</div>;
 }
 
 function ActivityLogs() {
@@ -177,7 +188,7 @@ function ActivityLogs() {
             </dl>
             <section><h3 className="text-sm font-semibold text-gray-900">{t('admin.activity.activity')}</h3><p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">{selected.details?.summary || `${selected.action} ${selected.target}`}</p></section>
             <section><h3 className="text-sm font-semibold text-gray-900">{t('admin.activity.changes')}</h3>
-              {getChanges(selected).length ? <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-100">{getChanges(selected).map((change, index) => <li key={`${change.field}-${index}`} className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-start sm:justify-between"><span className="text-sm font-medium text-gray-800">{change.label || change.field}</span><span className="break-words text-sm text-gray-600 sm:max-w-[65%] sm:text-end">{formatChange(change, t)}</span></li>)}</ul> : <p className="mt-2 text-sm text-gray-500">{t('admin.activity.no_changes')}</p>}
+              {getChanges(selected).length ? <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-100">{getChanges(selected).map((change, index) => <li key={`${change.field}-${index}`} className="px-3 py-3"><div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><span className="text-sm font-medium text-gray-800">{change.label || change.field}</span><span className="break-words text-sm text-gray-600 sm:max-w-[65%] sm:text-end">{formatChange(change, t)}</span></div><ImageChange change={change} t={t} /></li>)}</ul> : <p className="mt-2 text-sm text-gray-500">{t('admin.activity.no_changes')}</p>}
             </section>
           </div>
         </aside>

@@ -3,6 +3,7 @@ import { useTranslation } from './i18n';
 // Copy shared by the new analytics and application screens. English phrases are
 // the stable keys so the API can still return its documented metric identifiers.
 const fr = {
+  'Performance chart': 'Graphique de performance', 'Selected period': 'Période sélectionnée', 'Metric': 'Indicateur',
   'Decision intelligence': 'Aide à la décision', 'My dashboard': 'Mon tableau de bord',
   'Business performance and work needing attention · UTC reporting': 'Performance de l’activité et points à examiner · heures UTC',
   'Needs attention': 'À examiner', 'View all': 'Tout voir', 'Open report': 'Ouvrir le rapport',
@@ -59,6 +60,7 @@ const fr = {
   'Sending…': 'Envoi…', 'Application could not be submitted. Please retry.': 'Impossible d’envoyer la candidature. Réessayez.',
 };
 const ar = {
+  'Performance chart': 'مخطط الأداء', 'Selected period': 'الفترة المحددة', 'Metric': 'المؤشر',
   'Decision intelligence': 'تحليلات القرار', 'My dashboard': 'لوحتي',
   'Business performance and work needing attention · UTC reporting': 'أداء الأعمال والمهام التي تتطلب الانتباه · توقيت UTC',
   'Needs attention': 'يتطلب الانتباه', 'View all': 'عرض الكل', 'Open report': 'فتح التقرير',

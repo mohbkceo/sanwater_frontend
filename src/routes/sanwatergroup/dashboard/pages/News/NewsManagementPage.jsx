@@ -14,6 +14,7 @@ import {
   Plus,
   Search,
   Sparkles,
+  Trash2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -68,6 +69,7 @@ export default function NewsManagementPage() {
   const [selected, setSelected] = useState([]);
   const [view, setView] = useState("list");
   const [pendingArchive, setPendingArchive] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
   const [month, setMonth] = useState(() => new Date());
   useEffect(() => {
     const timer = setTimeout(() => setSearch(searchInput.trim()), 350);
@@ -119,13 +121,23 @@ export default function NewsManagementPage() {
   }
   async function archive() {
     try {
-      await deleteNewsArticle(pendingArchive._id);
+      await updateNewsArticle(pendingArchive._id, { status: "archived" });
       setPendingArchive(null);
       toast.success(t("admin.news.article_archived"));
       load();
     } catch {
       toast.error(t("admin.news.archive_failed"));
     }
+  }
+  async function removeArticle() {
+    if (!pendingDelete) return;
+    try {
+      await deleteNewsArticle(pendingDelete._id);
+      setSelected((current) => current.filter((id) => id !== pendingDelete._id));
+      setPendingDelete(null);
+      toast.success(t("admin.news.article_deleted"));
+      load();
+    } catch (error) { toast.error(error?.response?.data?.message || t("admin.news.delete_failed")); }
   }
   async function bulk(action) {
     if (!selected.length) return;
@@ -418,10 +430,12 @@ export default function NewsManagementPage() {
                               <button
                                 onClick={() => setPendingArchive(article)}
                                 className="rounded-xl border border-rose-200 p-2 text-rose-600"
+                                title={t("admin.news.archive")}
                               >
                                 <Archive className="h-4 w-4" />
                               </button>
                             )}
+                            {canManage && <button type="button" onClick={() => setPendingDelete(article)} title={t("admin.common.delete")} aria-label={t("admin.common.delete")} className="rounded-xl border border-rose-200 p-2 text-rose-700"><Trash2 className="h-4 w-4" /></button>}
                           </div>
                         </td>
                       </tr>
@@ -512,6 +526,7 @@ export default function NewsManagementPage() {
           </div>
         </div>
       )}
+      {pendingDelete && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4" onMouseDown={() => setPendingDelete(null)}><div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6" onMouseDown={(event) => event.stopPropagation()}><h2 className="text-xl font-bold">{t("admin.common.delete")} {pendingDelete.title}?</h2><p className="mt-2 text-sm text-slate-600">{t("admin.news.delete_permanently_notice")}</p><div className="mt-6 flex gap-2"><button type="button" onClick={() => setPendingDelete(null)} className="flex-1 rounded-xl border p-3">{t("admin.news.cancel")}</button><button type="button" onClick={removeArticle} className="flex-1 rounded-xl bg-rose-600 p-3 font-bold text-white">{t("admin.common.delete")}</button></div></div></div>}
     </div>
   );
 }

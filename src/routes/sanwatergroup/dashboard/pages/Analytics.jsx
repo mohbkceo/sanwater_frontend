@@ -5,6 +5,7 @@ import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
 import { useAnalyticsRange, useReport } from '@/components/dashboard/intelligence/useReport';
 import { ActivityTimeline, DateRange, EmptyState, ErrorState, InsightList, KpiGrid, LoadingState, Panel } from '@/components/dashboard/intelligence/ui';
 import { domainNames } from '@/components/dashboard/intelligence/labels';
+import DomainChart from '@/components/dashboard/intelligence/DomainChart';
 import { useIntelligenceCopy } from '@/lib/intelligenceCopy';
 
 export default function Analytics() {
@@ -20,7 +21,7 @@ export default function Analytics() {
     {report.loading && !data ? <LoadingState /> : report.error && !data ? <ErrorState retry={report.retry} /> : data && <>
       <Panel title={tx('Needs attention')} action={<Link className="text-sm font-semibold text-blue-700" to={`${SANWATERGROUPROUTES.attention.fullPath}${filterSearch}`}>{tx('View all')}</Link>}><InsightList insights={data.attention} /></Panel>
       {data.visibleDomains?.length ? data.visibleDomains.map(domain => <Panel key={domain} title={tx(domainNames[domain] || domain)} action={<Link className="text-sm font-semibold text-blue-700" to={`${SANWATERGROUPROUTES.analytics.fullPath}/${domain}${filterSearch}`}>{tx('Open report')}</Link>}>
-        {data.sections[domain]?.available === false ? <EmptyState>{data.sections[domain].reason}</EmptyState> : <KpiGrid data={data.sections[domain]?.kpis} />}
+        {data.sections[domain]?.available === false ? <EmptyState>{data.sections[domain].reason}</EmptyState> : <><KpiGrid data={data.sections[domain]?.kpis} /><DomainChart domain={domain} report={data.sections[domain]} compact /></>}
       </Panel>) : <EmptyState>{tx('No analytics domains are assigned to this account.')}</EmptyState>}
       {data.importantChanges?.length > 0 && <Panel title={tx('Important changes')}><ActivityTimeline rows={data.importantChanges} /></Panel>}
     </>}

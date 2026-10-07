@@ -1,6 +1,6 @@
 import { useTranslation } from "@/lib/i18n";
 import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   createProduct,
@@ -11,6 +11,7 @@ import { Button } from "..";
 import { destroyImage } from "@/services/contents/imageHandler";
 import { toast } from "sonner";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+import { createFamily, createSubFamily, getFamilies } from "@/services/products/familyServices";
 
 /* ---------------------------------------------------------
    Constants
@@ -264,6 +265,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       name: product?.name || "",
       serialNumber: product?.serialNumber || "",
       productId: product?.productId || "",
+      family: product?.family?._id || product?.family || "",
+      subFamily: product?.subFamily?._id || product?.subFamily || "",
       isEcommerce: product?.isEcommerce || false,
       isActive: product?.isActive ?? true,
 
@@ -334,6 +337,35 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
   const [gallery, setGallery] = useState(product?.gallery || []);
 
   const [loading, setLoading] = useState(false);
+  const [families, setFamilies] = useState([]);
+  const [newFamilyName, setNewFamilyName] = useState("");
+  const [newSubFamilyName, setNewSubFamilyName] = useState("");
+
+  useEffect(() => {
+    getFamilies({ isAdmin: true }).then((response) => setFamilies(response?.data?.families || [])).catch(() => toast.error(t("admin.families.could_not_load_products")));
+  }, [t]);
+
+  const selectedFamily = families.find((entry) => entry._id === formData.family);
+  async function addFamily() {
+    if (!newFamilyName.trim()) return;
+    try {
+      const result = await createFamily({ name: newFamilyName.trim() });
+      const response = await getFamilies({ isAdmin: true });
+      setFamilies(response?.data?.families || []);
+      setFormData((current) => ({ ...current, family: result?.data?.family?._id || "", subFamily: "" }));
+      setNewFamilyName("");
+    } catch (error) { toast.error(error?.response?.data?.message || t("admin.products.something_went_wrong_while_saving_the_product")); }
+  }
+  async function addSubFamily() {
+    if (!formData.family || !newSubFamilyName.trim()) return;
+    try {
+      const result = await createSubFamily(formData.family, { name: newSubFamilyName.trim() });
+      const response = await getFamilies({ isAdmin: true });
+      setFamilies(response?.data?.families || []);
+      setFormData((current) => ({ ...current, subFamily: result?.data?.subFamily?._id || "" }));
+      setNewSubFamilyName("");
+    } catch (error) { toast.error(error?.response?.data?.message || t("admin.products.something_went_wrong_while_saving_the_product")); }
+  }
   /* -------------------------------------------------------
      Form handlers
   ------------------------------------------------------- */
@@ -585,12 +617,18 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
     event.preventDefault();
 
     if (loading) return;
+    if (formData.family && !formData.subFamily) {
+      toast.error(t("admin.products.sub_family"));
+      return;
+    }
 
     setLoading(true);
 
     try {
       const payload = {
         ...formData,
+        family: formData.family || null,
+        subFamily: formData.subFamily || null,
 
         tags: formData.tags
           .split(",")
@@ -930,18 +968,24 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             <Section
               eyebrow="03"
               title={t("admin.products.classification")}
-              description={t("admin.products.classification_is_managed_from_families_sub_families_product_id")}
+              description={t("admin.products.manage_assignment")}
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{t("admin.products.current_assignment")}</p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div><p className="text-xs text-slate-400">{t("admin.products.family")}</p><p className="mt-1 font-semibold text-slate-800">{product?.family?.name || t("admin.products.unassigned")}</p></div>
-                    <div><p className="text-xs text-slate-400">{t("admin.products.sub_family")}</p><p className="mt-1 font-semibold text-slate-800">{product?.subFamily?.name || t("admin.products.unassigned")}</p></div>
-                  </div>
-                  <p className="mt-3 text-xs leading-5 text-slate-500">{isEditMode ? t("admin.products.to_assign_or_move_this_product_open_the_destination") : t("admin.products.this_product_will_be_created_unassigned_you_can_classify")}</p>
-                  <Link to={SANWATERGROUPROUTES.products.families.control.fullPath} className="mt-3 inline-flex h-9 items-center rounded-xl border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-700 hover:bg-blue-50">{t("admin.products.manage_assignment")}</Link>
-                </div>
+                <Field label={t("admin.products.family")}>
+                  <Select value={formData.family} onChange={(event) => setFormData((current) => ({ ...current, family: event.target.value, subFamily: "" }))}>
+                    <option value="">{t("admin.products.unassigned")}</option>
+                    {families.map((entry) => <option key={entry._id} value={entry._id}>{entry.name}</option>)}
+                  </Select>
+                  <div className="flex gap-2"><Input value={newFamilyName} onChange={(event) => setNewFamilyName(event.target.value)} placeholder={t("admin.products.family")} /><Button type="button" onClick={addFamily} disabled={!newFamilyName.trim()}>{t("admin.families.create_family")}</Button></div>
+                </Field>
+                <Field label={t("admin.products.sub_family")}>
+                  <Select value={formData.subFamily} disabled={!formData.family} onChange={(event) => setFormData((current) => ({ ...current, subFamily: event.target.value }))}>
+                    <option value="">{t("admin.products.unassigned")}</option>
+                    {(selectedFamily?.subFamilies || []).map((entry) => <option key={entry._id} value={entry._id}>{entry.name}</option>)}
+                  </Select>
+                  <div className="flex gap-2"><Input value={newSubFamilyName} onChange={(event) => setNewSubFamilyName(event.target.value)} placeholder={t("admin.products.sub_family")} disabled={!formData.family} /><Button type="button" onClick={addSubFamily} disabled={!formData.family || !newSubFamilyName.trim()}>{t("admin.families.add_sub_family")}</Button></div>
+                </Field>
+                <Link to={SANWATERGROUPROUTES.products.families.control.fullPath} className="text-sm font-semibold text-blue-700 md:col-span-2">{t("admin.products.manage_assignment")}</Link>
 
                 <Field
                   label={t("admin.products.publication_status")}

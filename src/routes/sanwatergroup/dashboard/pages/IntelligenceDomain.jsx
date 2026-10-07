@@ -5,6 +5,7 @@ import { SANWATERGROUPROUTES } from '@/configs/routes/routesConfig';
 import { useAnalyticsRange, useReport } from '@/components/dashboard/intelligence/useReport';
 import { DataQuality, DateRange, EmptyState, ErrorState, KpiGrid, LoadingState, Panel, SimpleTable } from '@/components/dashboard/intelligence/ui';
 import { domainNames } from '@/components/dashboard/intelligence/labels';
+import DomainChart from '@/components/dashboard/intelligence/DomainChart';
 import { subjectRoute } from '@/components/dashboard/intelligence/routing';
 import { useIntelligenceCopy } from '@/lib/intelligenceCopy';
 
@@ -33,6 +34,7 @@ export default function IntelligenceDomain() {
   return <main className="min-w-0 space-y-5 p-4 sm:p-6"><header><p className="text-xs font-semibold uppercase text-blue-700">{tx('Domain analytics')}</p><h1 className="text-3xl font-semibold text-slate-950">{tx(domainNames[domain] || domain)}</h1><p className="mt-2 text-sm text-slate-500">{tx('UTC reporting · immediately preceding equivalent period for comparisons')}</p></header>
     <DateRange from={from} to={to} setRange={setRange} />
     {report.loading && !data ? <LoadingState /> : report.error && !data ? <ErrorState retry={report.retry} /> : data && <><KpiGrid data={data.kpis} />
+      <Panel title={tx('Performance chart')}><DomainChart domain={domain} report={data} /></Panel>
       {domain === 'marketing' && <Panel title={tx('Commercial funnel')}>{data.funnel?.stages?.length ? <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">{data.funnel.stages.map(stage => <li key={stage.key} className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">{tx(stage.name)}</p><p className="mt-1 text-xl font-semibold">{number(stage.current)}</p><p className="text-xs text-slate-500">{stage.conversionRate == null ? tx('Unavailable') : `${number(stage.conversionRate)}% ${tx('from prior stage')}`}</p></li>)}</ol> : <EmptyState />}{data.funnel?.biggestLeak && <p className="mt-3 text-xs text-amber-800">{tx('Largest observed stage drop:')} {tx(data.funnel.biggestLeak.from)} → {tx(data.funnel.biggestLeak.to)} ({data.funnel.biggestLeak.lostEntities} {tx('entities). This is descriptive, not a causal finding.')}</p>}</Panel>}
       {domain === 'hiring' && <Panel title={tx('Hiring progression')}><KpiGrid data={data.rates} /></Panel>}
       <Panel title={tx(({ products: 'Product performance', marketing: 'Campaigns', hiring: 'Position performance', content: 'Article performance', sales: 'Loss reasons', operations: 'Quotation status' }[domain] || 'Details'))}><SimpleTable columns={columns[domain] || []} rows={rows} onRow={onRow} /></Panel>

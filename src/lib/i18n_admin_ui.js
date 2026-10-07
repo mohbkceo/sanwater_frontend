@@ -332,6 +332,9 @@ const en = {
     "note_by_author": "{{author}}: {{content}}"
   },
   "news": {
+    "article_deleted": "Article deleted.",
+    "delete_failed": "Could not delete the article.",
+    "delete_permanently_notice": "This permanently removes the article and its revision history.",
     "preview": "Preview",
     "articles_updated": "{{count}} articles updated.",
     "version_restored": "Version {{version}} restored as a new revision.",
@@ -929,6 +932,8 @@ const en = {
     "back": "Back"
   },
   "activity": {
+    "previous_image": "Previous image",
+    "new_image": "New image",
     "values_more": "{{values}} and {{count}} more",
     "field_value": "{{field}}: {{value}}",
     "images_updated": "{{count}} images updated",
@@ -1279,6 +1284,9 @@ const fr = {
     "note_by_author": "{{author}} : {{content}}"
   },
   "news": {
+    "article_deleted": "Article supprimé.",
+    "delete_failed": "Impossible de supprimer l’article.",
+    "delete_permanently_notice": "Cette action supprime définitivement l’article et son historique des versions.",
     "preview": "Aperçu",
     "articles_updated": "{{count}} articles mis à jour.",
     "version_restored": "La version {{version}} a été restaurée dans une nouvelle révision.",
@@ -1876,6 +1884,8 @@ const fr = {
     "back": "Retour"
   },
   "activity": {
+    "previous_image": "Ancienne image",
+    "new_image": "Nouvelle image",
     "values_more": "{{values}} et {{count}} autres",
     "field_value": "{{field}} : {{value}}",
     "images_updated": "{{count}} images mises à jour",
@@ -2226,6 +2236,9 @@ const ar = {
     "note_by_author": "{{author}}: {{content}}"
   },
   "news": {
+    "article_deleted": "تم حذف المقال.",
+    "delete_failed": "تعذر حذف المقال.",
+    "delete_permanently_notice": "سيؤدي هذا إلى حذف المقال وسجل نسخه نهائيًا.",
     "preview": "معاينة",
     "articles_updated": "تم تحديث {{count}} مقالاً.",
     "version_restored": "تمت استعادة النسخة {{version}} في مراجعة جديدة.",
@@ -2823,6 +2836,8 @@ const ar = {
     "back": "العودة"
   },
   "activity": {
+    "previous_image": "الصورة السابقة",
+    "new_image": "الصورة الجديدة",
     "values_more": "{{values}} و{{count}} أخرى",
     "field_value": "{{field}}: {{value}}",
     "images_updated": "تم تحديث {{count}} من الصور",

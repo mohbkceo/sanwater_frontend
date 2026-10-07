@@ -348,6 +348,7 @@ export default function ProductViewList() {
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
 
   const [showDesktopFilters, setShowDesktopFilters] = useState(false);
+  const [browseAll, setBrowseAll] = useState(() => searchParams.get("view") === "all");
 
   const [families, setFamilies] = useState([]);
 
@@ -364,6 +365,7 @@ export default function ProductViewList() {
       families.find((family) => family.slug === filters.family)?.subFamilies || [],
     [families, filters.family],
   );
+  const showProducts = browseAll || Boolean(filters.subFamily || filters.search);
 
   const searchDebounce = useRef(null);
 
@@ -412,19 +414,20 @@ export default function ProductViewList() {
         next.set(key, value);
       }
     });
+    if (browseAll) next.set("view", "all");
 
     setSearchParams(next, {
       replace: true,
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, browseAll]);
 
   useEffect(() => {
-    refetch(queryParams, false);
+    if (showProducts) refetch(queryParams, false);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryParams]);
+  }, [queryParams, showProducts]);
 
   const updateFilter = (key, value) => {
     setFilters((previous) => {
@@ -447,6 +450,7 @@ export default function ProductViewList() {
   };
 
   const clearFilters = () => {
+    setBrowseAll(false);
     setFilters({
       ...DEFAULT_FILTERS,
     });
@@ -499,6 +503,23 @@ export default function ProductViewList() {
               discription={t("products.description")}
             />
           </div>
+
+          <nav className="mx-auto mt-6 max-w-7xl" aria-label={t("products.title")}>
+            <div className="mb-5 flex flex-wrap items-center gap-2 text-sm">
+              <button type="button" onClick={() => { setBrowseAll(false); updateFilter("family", ""); }} className="font-semibold text-blue-700">{t("products.all_families")}</button>
+              {filters.family && <><span className="text-slate-400">/</span><button type="button" onClick={() => { setBrowseAll(false); updateFilter("subFamily", ""); }} className="font-semibold text-blue-700">{families.find((entry) => entry.slug === filters.family)?.name || filters.family}</button></>}
+              {filters.subFamily && <><span className="text-slate-400">/</span><span>{subFamilies.find((entry) => entry.slug === filters.subFamily)?.name || filters.subFamily}</span></>}
+              <button type="button" onClick={() => { setBrowseAll(true); setFilters((current) => ({ ...current, family: "", subFamily: "" })); }} className="ms-auto rounded-full border border-blue-200 bg-white px-4 py-2 font-semibold text-blue-700 hover:bg-blue-50">{t("admin.leads.all_products")}</button>
+            </div>
+            {!showProducts && <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(filters.family ? subFamilies : families).map((entry) => <button key={entry._id} type="button" onClick={() => filters.family ? updateFilter("subFamily", entry.slug) : updateFilter("family", entry.slug)} className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-start shadow-sm transition hover:border-blue-300 hover:shadow-md">
+                {entry.image && <img src={entry.image} alt="" className="h-40 w-full object-cover" />}
+                <span className="block p-5"><strong className="block text-lg text-slate-900">{entry.name}</strong><span className="mt-1 block text-sm text-slate-500">{entry.productCount || 0} {t("products.results_label")}</span></span>
+              </button>)}
+            </div>}
+          </nav>
+
+          {showProducts && <>
 
           {/* =====================================================
               Floating catalog toolbar
@@ -797,6 +818,7 @@ export default function ProductViewList() {
               </Motion.div>
             </div>
           )}
+          </>}
         </div>
 
         <FilterSheet
