@@ -1,6 +1,6 @@
 import { useTranslation } from "@/lib/i18n";
 import { useIntelligenceCopy } from "@/lib/intelligenceCopy";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   createProduct,
@@ -11,6 +11,11 @@ import { Button } from "..";
 import { destroyImage } from "@/services/contents/imageHandler";
 import { toast } from "sonner";
 import { SANWATERGROUPROUTES } from "@/configs/routes/routesConfig";
+import {
+  createFamily,
+  createSubFamily,
+  getFamilies,
+} from "@/services/products/familyServices";
 
 /* ---------------------------------------------------------
    Constants
@@ -264,6 +269,8 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
       name: product?.name || "",
       serialNumber: product?.serialNumber || "",
       productId: product?.productId || "",
+      family: product?.family?._id || product?.family || "",
+      subFamily: product?.subFamily?._id || product?.subFamily || "",
       isEcommerce: product?.isEcommerce || false,
       isActive: product?.isActive ?? true,
 
@@ -332,8 +339,84 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
   const [formData, setFormData] = useState(initialFormData);
 
   const [gallery, setGallery] = useState(product?.gallery || []);
+  const [families, setFamilies] = useState([]);
+  const [newFamilyName, setNewFamilyName] = useState("");
+  const [newSubFamilyName, setNewSubFamilyName] = useState("");
+  const [taxonomyLoading, setTaxonomyLoading] = useState(false);
 
   const [loading, setLoading] = useState(false);
+
+  async function loadFamilies() {
+    try {
+      const response = await getFamilies({ isAdmin: true });
+      setFamilies(response?.data?.families || []);
+    } catch (error) {
+      console.error(error);
+      toast.error(tx("Could not load families."));
+    }
+  }
+
+  useEffect(() => {
+    loadFamilies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const selectedFamily = useMemo(
+    () => families.find((family) => String(family._id) === String(formData.family)),
+    [families, formData.family],
+  );
+
+  async function handleCreateFamily() {
+    const name = newFamilyName.trim();
+    if (!name || taxonomyLoading) return;
+
+    setTaxonomyLoading(true);
+    try {
+      const response = await createFamily({ name });
+      const createdFamily = response?.data?.family;
+      await loadFamilies();
+      if (createdFamily?._id) {
+        setFormData((current) => ({
+          ...current,
+          family: createdFamily._id,
+          subFamily: "",
+        }));
+      }
+      setNewFamilyName("");
+      toast.success(tx("Family created."));
+    } catch (error) {
+      console.error(error);
+      toast.error(tx("Could not create family."));
+    } finally {
+      setTaxonomyLoading(false);
+    }
+  }
+
+  async function handleCreateSubFamily() {
+    const name = newSubFamilyName.trim();
+    if (!name || !formData.family || taxonomyLoading) return;
+
+    setTaxonomyLoading(true);
+    try {
+      const response = await createSubFamily(formData.family, { name });
+      const createdSubFamily = response?.data?.subFamily;
+      await loadFamilies();
+      if (createdSubFamily?._id) {
+        setFormData((current) => ({
+          ...current,
+          subFamily: createdSubFamily._id,
+        }));
+      }
+      setNewSubFamilyName("");
+      toast.success(tx("Sub family created."));
+    } catch (error) {
+      console.error(error);
+      toast.error(tx("Could not create sub family."));
+    } finally {
+      setTaxonomyLoading(false);
+    }
+  }
+
   /* -------------------------------------------------------
      Form handlers
   ------------------------------------------------------- */
@@ -934,13 +1017,108 @@ export default function ProductForm({ product = null, currentUserId = "" }) {
             >
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{t("admin.products.current_assignment")}</p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div><p className="text-xs text-slate-400">{t("admin.products.family")}</p><p className="mt-1 font-semibold text-slate-800">{product?.family?.name || t("admin.products.unassigned")}</p></div>
-                    <div><p className="text-xs text-slate-400">{t("admin.products.sub_family")}</p><p className="mt-1 font-semibold text-slate-800">{product?.subFamily?.name || t("admin.products.unassigned")}</p></div>
+                  <div className="flex flex-col gap-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <Field
+                        label={t("admin.products.family")}
+                        description={tx("Select the product family. Changing it clears the current sub family.")}
+                      >
+                        <Select
+                          name="family"
+                          value={formData.family}
+                          onChange={(event) =>
+                            setFormData((current) => ({
+                              ...current,
+                              family: event.target.value,
+                              subFamily: "",
+                            }))
+                          }
+                        >
+                          <option value="">{t("admin.products.unassigned")}</option>
+                          {families.map((family) => (
+                            <option key={family._id} value={family._id}>
+                              {family.name}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+
+                      <Field
+                        label={t("admin.products.sub_family")}
+                        description={tx("The selected sub family must belong to the selected family.")}
+                      >
+                        <Select
+                          name="subFamily"
+                          value={formData.subFamily}
+                          disabled={!formData.family}
+                          onChange={(event) =>
+                            setFormData((current) => ({
+                              ...current,
+                              subFamily: event.target.value,
+                            }))
+                          }
+                        >
+                          <option value="">{t("admin.products.unassigned")}</option>
+                          {(selectedFamily?.subFamilies || []).map((subFamily) => (
+                            <option key={subFamily._id} value={subFamily._id}>
+                              {subFamily.name}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+                    </div>
+
+                    <div className="grid gap-3 border-t border-slate-200 pt-4 md:grid-cols-2">
+                      <div className="flex gap-2">
+                        <Input
+                          value={newFamilyName}
+                          onChange={(event) => setNewFamilyName(event.target.value)}
+                          placeholder={tx("New family name")}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={!newFamilyName.trim() || taxonomyLoading}
+                          onClick={handleCreateFamily}
+                          className="shrink-0 rounded-xl"
+                        >
+                          {tx("Create")}
+                        </Button>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Input
+                          value={newSubFamilyName}
+                          disabled={!formData.family}
+                          onChange={(event) => setNewSubFamilyName(event.target.value)}
+                          placeholder={tx("New sub family name")}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={!formData.family || !newSubFamilyName.trim() || taxonomyLoading}
+                          onClick={handleCreateSubFamily}
+                          className="shrink-0 rounded-xl"
+                        >
+                          {tx("Create")}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                      <span>
+                        {formData.family
+                          ? `${selectedFamily?.name || tx("Selected family")}${formData.subFamily ? ` → ${selectedFamily?.subFamilies?.find((entry) => String(entry._id) === String(formData.subFamily))?.name || tx("Selected sub family")}` : ""}`
+                          : t("admin.products.unassigned")}
+                      </span>
+                      <Link
+                        to={SANWATERGROUPROUTES.products.families.control.fullPath}
+                        className="font-semibold text-blue-700 hover:text-blue-800"
+                      >
+                        {t("admin.products.manage_assignment")}
+                      </Link>
+                    </div>
                   </div>
-                  <p className="mt-3 text-xs leading-5 text-slate-500">{isEditMode ? t("admin.products.to_assign_or_move_this_product_open_the_destination") : t("admin.products.this_product_will_be_created_unassigned_you_can_classify")}</p>
-                  <Link to={SANWATERGROUPROUTES.products.families.control.fullPath} className="mt-3 inline-flex h-9 items-center rounded-xl border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-700 hover:bg-blue-50">{t("admin.products.manage_assignment")}</Link>
                 </div>
 
                 <Field
