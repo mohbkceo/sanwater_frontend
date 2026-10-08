@@ -1,4 +1,6 @@
 import { getProduct } from "@/services/products/productServices";
+import { submitQuotation } from "@/services/quotations/quotationServices";
+import { getWilayas, getCommunes, getOffices, getShippingQuote } from "@/services/shipping/shippingServices";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -15,6 +17,10 @@ const initialFormState = {
   fullName: "",
   phoneNumber: "",
   address: "",
+  wilayaCode: "",
+  communeCode: "",
+  deliveryType: "home",
+  officeCode: "",
   quantity: 1,
 };
 
@@ -30,6 +36,39 @@ export default function ProductPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [wilayas, setWilayas] = useState([]);
+  const [locationsLoading, setLocationsLoading] = useState(true);
+  const [communes, setCommunes] = useState([]);
+  const [offices, setOffices] = useState([]);
+  const [quote, setQuote] = useState(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    getWilayas().then(data => { if (active) setWilayas(data); })
+      .catch(() => { if (active) setShippingError("Impossible de charger les wilayas."); })
+      .finally(() => { if (active) setLocationsLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    setCommunes([]);
+    if (!orderForm.wilayaCode) return undefined;
+    getCommunes(orderForm.wilayaCode).then(data => { if (active) setCommunes(data); })
+      .catch(() => { if (active) setShippingError("Impossible de charger les communes."); });
+    return () => { active = false; };
+  }, [orderForm.wilayaCode]);
+
+  useEffect(() => {
+    let active = true;
+    setOffices([]);
+    if (!orderForm.wilayaCode || !orderForm.communeCode || orderForm.deliveryType !== "stopDesk") return undefined;
+    getOffices(orderForm.wilayaCode, orderForm.communeCode).then(data => { if (active) setOffices(data); })
+      .catch(() => { if (active) setShippingError("Impossible de charger les bureaux."); });
+    return () => { active = false; };
+  }, [orderForm.wilayaCode, orderForm.communeCode, orderForm.deliveryType]);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -61,37 +100,62 @@ export default function ProductPage() {
 
   const productPrice = Number(product?.prices?.productPrice || 0);
 
-  const shippingPrice = Number(product?.prices?.shippingPrice || 0);
-
   const formatPrice = (value) =>
     new Intl.NumberFormat("fr-DZ").format(Number(value || 0));
 
-  const quantity = Math.max(1, Number(orderForm.quantity || 1));
+  const quantity = Math.min(1000, Math.max(1, Math.floor(Number(orderForm.quantity || 1))));
 
-  const orderSubtotal = productPrice * quantity;
+  const selectedCommune = communes.find(item => item.code === orderForm.communeCode);
+  const methodAvailable = orderForm.deliveryType === "home" ? selectedCommune?.homeAvailable : selectedCommune?.stopDeskAvailable;
+  const destinationComplete = Boolean(product?._id && orderForm.wilayaCode && orderForm.communeCode && methodAvailable &&
+    (orderForm.deliveryType === "home" || orderForm.officeCode));
+  const quoteValid = Boolean(quote && quote.wilayaCode === orderForm.wilayaCode &&
+    quote.communeCode === orderForm.communeCode && quote.deliveryType === orderForm.deliveryType &&
+    quote.office?.code === (orderForm.officeCode || undefined) && quote.quantity === quantity &&
+    String(quote.product) === String(product?._id));
+  const orderSubtotal = quoteValid ? quote.subtotal : productPrice * quantity;
+  const orderShipping = quoteValid ? quote.shippingFee : null;
+  const orderTotal = quoteValid ? quote.total : null;
 
-  const orderShipping = shippingPrice;
-
-  const orderTotal = orderSubtotal + orderShipping;
+  useEffect(() => {
+    let active = true;
+    if (!destinationComplete) { setQuote(null); setShippingLoading(false); return undefined; }
+    setQuote(null);
+    setShippingLoading(true);
+    setShippingError("");
+    getShippingQuote({
+      product: product._id, quantity, wilayaCode: orderForm.wilayaCode,
+      communeCode: orderForm.communeCode, deliveryType: orderForm.deliveryType,
+      ...(orderForm.deliveryType === "stopDesk" ? { officeCode: orderForm.officeCode } : {}),
+    }).then(data => { if (active) setQuote(data); })
+      .catch(error => { if (active) setShippingError(error.response?.data?.message || "Livraison indisponible pour cette destination."); })
+      .finally(() => { if (active) setShippingLoading(false); });
+    return () => { active = false; };
+  }, [destinationComplete, product?._id, quantity, orderForm.wilayaCode, orderForm.communeCode, orderForm.deliveryType, orderForm.officeCode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     setOrderForm((prev) => ({
       ...prev,
-      [name]: name === "quantity" ? Math.max(1, Number(value || 1)) : value,
+      [name]: name === "quantity" ? Math.min(1000, Math.max(1, Math.floor(Number(value || 1)))) : value,
+      ...(name === "wilayaCode" ? { communeCode: "", officeCode: "", address: "" } : {}),
+      ...(name === "communeCode" ? { officeCode: "", address: "" } : {}),
+      ...(name === "deliveryType" ? { officeCode: "", address: "" } : {}),
     }));
+    if (["wilayaCode", "communeCode", "deliveryType", "officeCode", "quantity"].includes(name)) { setQuote(null); setShippingError(""); }
   };
 
   const changeQuantity = (amount) => {
     setOrderForm((prev) => ({
       ...prev,
-      quantity: Math.max(1, Number(prev.quantity || 1) + amount),
+      quantity: Math.min(1000, Math.max(1, Number(prev.quantity || 1) + amount)),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!quoteValid || shippingLoading || !destinationComplete || (orderForm.deliveryType === "home" && orderForm.address.trim().length < 5)) return;
 
     setSubmitting(true);
     setSubmitMessage("");
@@ -105,45 +169,41 @@ export default function ProductPage() {
             productName: product?.name || product?.productId || "Produit",
             productSerialNumber: product?.serialNumber,
             quantity,
-            note:
-              `Sous-total: ${orderSubtotal} DA, ` +
-              `Livraison: ${orderShipping} DA, ` +
-              `Total: ${orderTotal} DA`,
           },
         ],
 
         requester: {
           fullName: orderForm.fullName.trim(),
           phone: orderForm.phoneNumber.trim(),
-          address: orderForm.address.trim(),
           customerType: "consumer",
+        },
+
+        delivery: {
+          wilayaCode: orderForm.wilayaCode,
+          communeCode: orderForm.communeCode,
+          deliveryType: orderForm.deliveryType,
+          expectedTariffRevision: quote.tariffRevision,
+          expectedUnitPrice: quote.unitPrice,
+          ...(orderForm.deliveryType === "home" ? { address: orderForm.address.trim() } : { officeCode: orderForm.officeCode }),
         },
 
         source: "landing_product_page",
       };
 
-      const response = await fetch(
-        import.meta.env.VITE_BACK_END_BASE_URL + "/quotations",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify(payload),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Order request failed");
-      }
+      await submitQuotation(payload);
 
       setSubmitMessage("Votre commande a bien été enregistrée.");
 
       setOrderForm(initialFormState);
-    } catch {
-      setSubmitError("Impossible de passer la commande. Veuillez réessayer.");
+      setQuote(null);
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setQuote(null);
+        setSubmitError("Le tarif ou le prix a changé. Vérifiez le nouveau total avant de réessayer.");
+        getShippingQuote({ product: product._id, quantity, wilayaCode: orderForm.wilayaCode, communeCode: orderForm.communeCode,
+          deliveryType: orderForm.deliveryType, ...(orderForm.deliveryType === "stopDesk" ? { officeCode: orderForm.officeCode } : {}) })
+          .then(setQuote).catch(() => setShippingError("Livraison indisponible pour cette destination."));
+      } else setSubmitError("Impossible de passer la commande. Veuillez réessayer.");
     } finally {
       setSubmitting(false);
     }
@@ -620,12 +680,12 @@ export default function ProductPage() {
                       text-zinc-950
                     "
                   >
-                    {productPrice > 0
-                      ? `${formatPrice(productPrice)} DA`
+                    {(quoteValid ? quote.unitPrice : productPrice) > 0
+                      ? `${formatPrice(quoteValid ? quote.unitPrice : productPrice)} DA`
                       : "Sur demande"}
                   </p>
 
-                  {shippingPrice > 0 && (
+                  {quoteValid && (
                     <div
                       className="
                         flex
@@ -636,7 +696,7 @@ export default function ProductPage() {
                       "
                     >
                       <Truck size={13} strokeWidth={1.8} />+
-                      {formatPrice(shippingPrice)} DA
+                      {formatPrice(orderShipping)} DA
                     </div>
                   )}
                 </div>
@@ -714,6 +774,7 @@ export default function ProductPage() {
                   <input
                     type="number"
                     min="1"
+                    max="1000"
                     name="quantity"
                     value={orderForm.quantity}
                     onChange={handleChange}
@@ -733,6 +794,7 @@ export default function ProductPage() {
                   <button
                     type="button"
                     onClick={() => changeQuantity(1)}
+                    disabled={quantity >= 1000}
                     className="
                       flex
                       h-8
@@ -794,7 +856,43 @@ export default function ProductPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-[12px] font-medium text-zinc-600">
+                    Wilaya
+                    <select name="wilayaCode" value={orderForm.wilayaCode} onChange={handleChange} required className="mt-2 h-12 w-full rounded-xl border border-black/[0.09] bg-white/80 px-3 text-[14px] text-zinc-950">
+                      <option value="">Choisir une wilaya</option>
+                      {wilayas.map(item => <option key={item.code} value={item.code}>{item.code} — {item.name}</option>)}
+                    </select>
+                  </label>
+                  <label className="block text-[12px] font-medium text-zinc-600">
+                    Commune
+                    <select name="communeCode" value={orderForm.communeCode} onChange={handleChange} disabled={!orderForm.wilayaCode} required className="mt-2 h-12 w-full rounded-xl border border-black/[0.09] bg-white/80 px-3 text-[14px] text-zinc-950 disabled:opacity-50">
+                      <option value="">Choisir une commune</option>
+                      {communes.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}
+                    </select>
+                  </label>
+                </div>
+                {locationsLoading && <p role="status" className="text-xs text-zinc-500">Chargement des destinations...</p>}
+                {!locationsLoading && !wilayas.length && !shippingError && <p role="alert" className="text-xs text-amber-700">Les tarifs de livraison ne sont pas encore configurés.</p>}
+
+                <fieldset className="space-y-2">
+                  <legend className="text-[12px] font-medium text-zinc-600">Type de livraison</legend>
+                  <div className="flex flex-wrap gap-4 text-[13px] text-zinc-700">
+                    <label className="flex items-center gap-2"><input type="radio" name="deliveryType" value="home" checked={orderForm.deliveryType === "home"} onChange={handleChange} disabled={!selectedCommune?.homeAvailable} /> À domicile</label>
+                    <label className="flex items-center gap-2"><input type="radio" name="deliveryType" value="stopDesk" checked={orderForm.deliveryType === "stopDesk"} onChange={handleChange} disabled={!selectedCommune?.stopDeskAvailable} /> Stop Desk</label>
+                  </div>
+                  {selectedCommune && !methodAvailable && <p className="text-xs text-amber-700">Cette méthode de livraison n&apos;est pas disponible ici. Choisissez une autre méthode.</p>}
+                </fieldset>
+
+                {orderForm.deliveryType === "stopDesk" ? (
+                  <label className="block text-[12px] font-medium text-zinc-600">
+                    Bureau de retrait
+                    <select name="officeCode" value={orderForm.officeCode} onChange={handleChange} disabled={!selectedCommune?.stopDeskAvailable} required className="mt-2 h-12 w-full rounded-xl border border-black/[0.09] bg-white/80 px-3 text-[14px] text-zinc-950 disabled:opacity-50">
+                      <option value="">Choisir un bureau</option>
+                      {offices.map(item => <option key={item.code} value={item.code}>{item.name}{item.address ? ` — ${item.address}` : ""}</option>)}
+                    </select>
+                  </label>
+                ) : <div className="space-y-2">
                   <label
                     htmlFor="order-address"
                     className="
@@ -812,8 +910,9 @@ export default function ProductPage() {
                     name="address"
                     value={orderForm.address}
                     onChange={handleChange}
-                    placeholder="Wilaya, commune, adresse..."
+                    placeholder="Rue, bâtiment et détails de livraison..."
                     rows={3}
+                    minLength={5}
                     autoComplete="street-address"
                     required
                     className="
@@ -841,7 +940,10 @@ export default function ProductPage() {
                       focus:ring-black/[0.035]
                     "
                   />
-                </div>
+                </div>}
+
+                {shippingLoading && <p role="status" className="text-xs text-zinc-500">Calcul de la livraison...</p>}
+                {shippingError && <p role="alert" className="text-xs text-red-700">{shippingError}</p>}
 
                 {/* Final summary */}
                 <div
@@ -865,7 +967,7 @@ export default function ProductPage() {
                   <PriceRow
                     label="Livraison"
                     value={
-                      orderShipping > 0
+                      quoteValid
                         ? `${formatPrice(orderShipping)} DA`
                         : "À confirmer"
                     }
@@ -901,9 +1003,9 @@ export default function ProductPage() {
                         text-zinc-950
                       "
                     >
-                      {orderTotal > 0
+                      {quoteValid
                         ? `${formatPrice(orderTotal)} DA`
-                        : "Sur demande"}
+                        : "À confirmer"}
                     </span>
                   </div>
                 </div>
@@ -953,7 +1055,7 @@ export default function ProductPage() {
 
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || shippingLoading || !quoteValid || !destinationComplete || (orderForm.deliveryType === "home" && orderForm.address.trim().length < 5)}
                   className="
                     flex
                     h-12

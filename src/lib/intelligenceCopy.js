@@ -204,7 +204,54 @@ const arExtra = {
   'These counts are not a verified person-level cohort.': 'هذه الأعداد لا تمثل مجموعة أفراد متحققة.',
 };
 
+const shippingFr = {
+  'Edit Shipping Prices': 'Modifier les frais de livraison',
+  'Configure Noest rates by wilaya, commune, and delivery method. Blank prices are unavailable.': 'Configurez les tarifs Noest par wilaya, commune et mode de livraison. Un tarif vide est indisponible.',
+  'Export CSV for the import template; use one row per commune and pickup office.': 'Exportez le CSV comme modèle d’import ; utilisez une ligne par commune et bureau de retrait.',
+  Reload: 'Actualiser', 'Export CSV': 'Exporter CSV', 'Import CSV': 'Importer CSV', 'Save all': 'Tout enregistrer',
+  'Save wilaya': 'Enregistrer la wilaya', 'Search wilayas': 'Rechercher une wilaya', 'No wilayas configured.': 'Aucune wilaya configurée.',
+  'Add wilaya': 'Ajouter une wilaya', Code: 'Code', Name: 'Nom', 'Add commune': 'Ajouter une commune',
+  'Commune code': 'Code commune', 'Commune name': 'Nom commune', 'Communes and overrides': 'Communes et tarifs particuliers',
+  'Home price (DA)': 'Tarif domicile (DA)', 'Stop Desk price (DA)': 'Tarif Stop Desk (DA)',
+  'Home override (DA)': 'Tarif domicile particulier (DA)', 'Stop Desk override (DA)': 'Tarif Stop Desk particulier (DA)',
+  'Home available': 'Livraison à domicile disponible', 'Stop Desk available': 'Stop Desk disponible',
+  'Pickup offices': 'Bureaux de retrait', Available: 'Disponible', Remove: 'Supprimer',
+  'Office code': 'Code bureau', 'Office name': 'Nom bureau', Address: 'Adresse', 'Add office': 'Ajouter un bureau',
+  'Select a wilaya or import a CSV tariff list.': 'Sélectionnez une wilaya ou importez une liste CSV de tarifs.',
+  'Apply validated import': 'Appliquer l’import validé', Cancel: 'Annuler', 'wilayas ready to import.': 'wilayas prêtes à importer.',
+  'wilayas validated. Review and apply the import.': 'wilayas validées. Vérifiez puis appliquez l’import.',
+  'Shipping tariff saved.': 'Tarif de livraison enregistré.', 'All shipping tariffs saved.': 'Tous les tarifs de livraison sont enregistrés.',
+  'CSV import applied.': 'Import CSV appliqué.', 'Could not load shipping tariffs.': 'Impossible de charger les tarifs de livraison.',
+  'Could not save shipping tariff.': 'Impossible d’enregistrer le tarif.', 'Could not save shipping tariffs.': 'Impossible d’enregistrer les tarifs.',
+  'Could not import CSV.': 'Impossible d’importer le CSV.', 'Enter a unique wilaya code and name.': 'Saisissez un code et un nom de wilaya uniques.',
+  'Enter a unique commune code and name.': 'Saisissez un code et un nom de commune uniques.',
+  'Enter a unique office code and name.': 'Saisissez un code et un nom de bureau uniques.',
+};
+const shippingAr = {
+  'Edit Shipping Prices': 'تعديل أسعار التوصيل',
+  'Configure Noest rates by wilaya, commune, and delivery method. Blank prices are unavailable.': 'اضبط أسعار نوست حسب الولاية والبلدية وطريقة التوصيل. السعر الفارغ غير متاح.',
+  'Export CSV for the import template; use one row per commune and pickup office.': 'صدّر CSV للحصول على نموذج الاستيراد؛ استخدم صفاً لكل بلدية ومكتب استلام.',
+  Reload: 'تحديث', 'Export CSV': 'تصدير CSV', 'Import CSV': 'استيراد CSV', 'Save all': 'حفظ الكل',
+  'Save wilaya': 'حفظ الولاية', 'Search wilayas': 'البحث عن ولاية', 'No wilayas configured.': 'لم تُضبط أي ولاية.',
+  'Add wilaya': 'إضافة ولاية', Code: 'الرمز', Name: 'الاسم', 'Add commune': 'إضافة بلدية',
+  'Commune code': 'رمز البلدية', 'Commune name': 'اسم البلدية', 'Communes and overrides': 'البلديات والأسعار الخاصة',
+  'Home price (DA)': 'سعر التوصيل للمنزل (دج)', 'Stop Desk price (DA)': 'سعر مكتب الاستلام (دج)',
+  'Home override (DA)': 'سعر المنزل الخاص (دج)', 'Stop Desk override (DA)': 'سعر المكتب الخاص (دج)',
+  'Home available': 'التوصيل للمنزل متاح', 'Stop Desk available': 'الاستلام من المكتب متاح',
+  'Pickup offices': 'مكاتب الاستلام', Available: 'متاح', Remove: 'إزالة',
+  'Office code': 'رمز المكتب', 'Office name': 'اسم المكتب', Address: 'العنوان', 'Add office': 'إضافة مكتب',
+  'Select a wilaya or import a CSV tariff list.': 'اختر ولاية أو استورد قائمة أسعار CSV.',
+  'Apply validated import': 'تطبيق الاستيراد المتحقق منه', Cancel: 'إلغاء', 'wilayas ready to import.': 'ولايات جاهزة للاستيراد.',
+  'wilayas validated. Review and apply the import.': 'ولايات تم التحقق منها. راجع الاستيراد ثم طبقه.',
+  'Shipping tariff saved.': 'تم حفظ سعر التوصيل.', 'All shipping tariffs saved.': 'تم حفظ جميع أسعار التوصيل.',
+  'CSV import applied.': 'تم تطبيق استيراد CSV.', 'Could not load shipping tariffs.': 'تعذر تحميل أسعار التوصيل.',
+  'Could not save shipping tariff.': 'تعذر حفظ السعر.', 'Could not save shipping tariffs.': 'تعذر حفظ الأسعار.',
+  'Could not import CSV.': 'تعذر استيراد CSV.', 'Enter a unique wilaya code and name.': 'أدخل رمز ولاية واسماً فريدين.',
+  'Enter a unique commune code and name.': 'أدخل رمز بلدية واسماً فريدين.',
+  'Enter a unique office code and name.': 'أدخل رمز مكتب واسماً فريدين.',
+};
+
 export function useIntelligenceCopy() {
   const lang = useTranslation()?.lang || 'en';
-  return phrase => (lang === 'fr' ? fr[phrase] || frExtra[phrase] : lang === 'ar' ? ar[phrase] || arExtra[phrase] : null) || phrase;
+  return phrase => (lang === 'fr' ? shippingFr[phrase] || fr[phrase] || frExtra[phrase] : lang === 'ar' ? shippingAr[phrase] || ar[phrase] || arExtra[phrase] : null) || phrase;
 }

@@ -31,6 +31,7 @@ import UserProfile from './dashboard/pages/UserProfile'
 import QuotationsManagementPage from './dashboard/pages/QuotationsManagementPage'
 import LeadsManagementPage from './dashboard/pages/LeadsManagementPage'
 import PermissionGuard from '@/components/shared_uis/PermissionGuard'
+import ShippingPricesPage from './products/ShippingPricesPage'
 
 const CreateEditNewsPage = React.lazy(() => import('./dashboard/pages/News/CreateEditNewsPage'))
 const newsEditorFallback = <div className="m-6 h-96 animate-pulse rounded-2xl bg-slate-100" aria-busy="true" />
@@ -41,6 +42,7 @@ function SanWaterGroupMain() {
         <Route path='/*' element={<DashboardLayout />}>
         <Route index element={<Analytics />} />
         <Route path={SANWATERGROUPROUTES.products.list.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.VIEW}><ProductsListPage /></PermissionGuard>} />
+        <Route path={SANWATERGROUPROUTES.products.shipping.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><ShippingPricesPage /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.products.create.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><CreateProductPage /></PermissionGuard>} />
         <Route path={SANWATERGROUPROUTES.products.edit.subPath} element={<PermissionGuard permission={PERMISSIONS.PRODUCTS.MANAGE}><EditProductPage /></PermissionGuard>} />
 

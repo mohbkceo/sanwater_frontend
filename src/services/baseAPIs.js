@@ -36,15 +36,19 @@ const quotationAPI = axios.create({
     baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/quotations`,
     withCredentials: true
 })
+const shippingAPI = axios.create({
+    baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/shipping`,
+    withCredentials: true
+})
 
 const leadAPI = axios.create({
     baseURL: `${import.meta.env.VITE_BACK_END_BASE_URL}/leads`,
     withCredentials: true
 })
 
-export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quotationAPI, leadAPI } ;
+export { productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quotationAPI, shippingAPI, leadAPI } ;
 
-const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quotationAPI, leadAPI];
+const allAPIs = [productAPI, userAPI, contentAPI, analyticsAPI, newsAPI, familyAPI, quotationAPI, shippingAPI, leadAPI];
 
 // In production the frontend and API use different hosts, so the API's
 // host-only CSRF cookie is intentionally invisible to document.cookie on the

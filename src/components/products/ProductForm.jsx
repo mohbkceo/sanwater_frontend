@@ -512,8 +512,6 @@ export default function ProductForm({ product = null }) {
 
       prices: {
         productPrice: product?.prices?.productPrice ?? "",
-
-        shippingPrice: product?.prices?.shippingPrice ?? "",
       },
 
       productVariants:
@@ -1021,8 +1019,6 @@ export default function ProductForm({ product = null }) {
 
         prices: {
           productPrice: Number(formData.prices.productPrice),
-
-          shippingPrice: Number(formData.prices.shippingPrice || 0),
         },
       };
 
@@ -2349,29 +2345,6 @@ export default function ProductForm({ product = null }) {
                     </div>
                   </Field>
 
-                  <Field
-                    label={t("admin.products.shipping_price")}
-                    description={t(
-                      "admin.products.default_delivery_shipping_amount",
-                    )}
-                  >
-                    <div className="relative">
-                      <Input
-                        name="shippingPrice"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="800"
-                        value={formData.prices.shippingPrice}
-                        onChange={handlePriceChange}
-                        className="pe-14"
-                      />
-
-                      <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
-                        DA
-                      </span>
-                    </div>
-                  </Field>
                 </div>
               </Section>
 

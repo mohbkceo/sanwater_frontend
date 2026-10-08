@@ -43,6 +43,10 @@ export const SANWATERGROUPROUTES = {
         }
     },
     products: {
+        shipping: {
+            subPath: `products/shipping`,
+            fullPath: `${mainSanWaterRoute}/products/shipping`,
+        },
         list: {
             subPath: `products`,
             fullPath: `${mainSanWaterRoute}/products`

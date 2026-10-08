@@ -146,6 +146,7 @@ export default function ProductsPage() {
             </div>{" "}
             {/* Actions */}{" "}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              {canManage && <Link to={SANWATERGROUPROUTES.products.shipping.fullPath} className="inline-flex h-10 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-4 text-sm font-medium text-blue-700 hover:bg-blue-100">{tx("Edit Shipping Prices")}</Link>}
               <label className="relative min-w-48 flex-1">
                 <Search className="pointer-events-none absolute start-3 top-3 h-4 w-4 text-slate-400" />
                 <input type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder={t("admin.families.search_by_name_id_or_serial")} aria-label={t("admin.common.search")} className="h-10 w-full rounded-xl border border-slate-200/70 bg-white/75 ps-9 pe-3 text-sm outline-none focus:border-blue-300" />
