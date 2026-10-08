@@ -5,6 +5,7 @@ import { Button } from "..";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Loader } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ProductGalleryUpload({ setGallery }) {
   const { t } = useTranslation();
@@ -12,15 +13,18 @@ export default function ProductGalleryUpload({ setGallery }) {
     const [loading, setLoading] = useState(false);
 
     async function handleUpload(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
         try {
             setLoading(true)
-            const file = e.target.files[0];
             const res = await uploadImage(file);
+            if (!res?.data?.path) throw new Error("Upload did not return an image URL");
             setGallery(prev => [...prev, res.data.path]);
         } catch (error) {
-            console.log(error)
+            toast.error(error?.response?.data?.message || t("admin.products.image_upload_failed"));
         } finally { 
             setLoading(false)
+            e.target.value = "";
         }
     }
 
@@ -34,6 +38,7 @@ export default function ProductGalleryUpload({ setGallery }) {
                 hidden
                 ref={inputRef}
                 type="file"
+                accept="image/*"
                 onChange={handleUpload}
             />
 

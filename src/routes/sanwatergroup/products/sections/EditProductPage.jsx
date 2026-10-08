@@ -70,12 +70,8 @@ function EditProductPage() {
   )
 
   return (
-    <div className='p-6 flex md:w-[60%] gap-2 flex-col mx-auto'>
+    <div className='mx-auto w-full max-w-[1640px] px-3 py-6 sm:px-6'>
     <GoBacKButton text={t("admin.common.back")} />
-    <header className="my-8">
-                    <h2 className="text-2xl font-bold text-slate-800">{t("admin.products.update_product")}</h2>
-                    <p className="text-slate-500 text-sm">{t("admin.products.fill_in_the_details_below_to_add_update_items")}</p>
-    </header>
     <ProductForm product={product} />
     </div>
   )
