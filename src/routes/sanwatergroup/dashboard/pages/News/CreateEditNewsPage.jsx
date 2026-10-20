@@ -39,8 +39,6 @@ const REVISION_REASON_KEYS = {
   substantial_update: "admin.news.revision_substantial_update",
   restore: "admin.news.revision_restore",
 };
-const AUTOSAVE_FIELDS = new Set(["title", "excerpt", "content", "coverImage", "category", "tags", "seoTitle", "seoDescription", "canonicalUrl", "isFeatured", "relatedProducts"]);
-
 const EMPTY = {
   title: "",
   excerpt: "",
