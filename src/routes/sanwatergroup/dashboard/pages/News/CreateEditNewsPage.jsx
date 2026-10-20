@@ -56,6 +56,20 @@ const EMPTY = {
   isFeatured: false,
   relatedProducts: [],
 };
+
+const AUTOSAVE_FIELDS = [
+  "title",
+  "excerpt",
+  "content",
+  "coverImage",
+  "category",
+  "tags",
+  "seoTitle",
+  "seoDescription",
+  "canonicalUrl",
+  "isFeatured",
+  "relatedProducts",
+];
 const localDateTime = (value) => {
   if (!value) return "";
   const parts = Object.fromEntries(
@@ -170,7 +184,10 @@ export default function CreateEditNewsPage() {
   const autosavePayload = useMemo(
     () =>
       Object.fromEntries(
-        Object.entries(form).filter(([key]) => AUTOSAVE_FIELDS.has(key)),
+        AUTOSAVE_FIELDS.filter((key) => form[key] !== undefined).map((key) => [
+          key,
+          form[key],
+        ]),
       ),
     [form],
   );
